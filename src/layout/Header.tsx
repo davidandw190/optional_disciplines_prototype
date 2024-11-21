@@ -7,11 +7,17 @@ import {
 } from '@mui/material';
 
 import { FC } from 'react';
+import { HeaderProps } from '../types/layout/layout.types';
 import { Menu } from '@mui/icons-material';
 
-interface HeaderProps {
-  onMenuClick: () => void;
-}
+const pathTitles: Record<string, string> = {
+  '/dashboard': 'Dashboard',
+  '/optional-disciplines': 'Optional Disciplines',
+  '/complementary-disciplines': 'Complementary Disciplines',
+  '/enrollments': 'My Enrollments',
+  '/thesis': 'Thesis',
+  '/profile': 'Profile',
+};
 
 export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
   return (
