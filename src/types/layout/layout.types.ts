@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 
 export interface HeaderProps {
   onMenuClick: () => void;
@@ -6,7 +6,7 @@ export interface HeaderProps {
 }
 
 export interface MainLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export interface SidebarContainerProps {

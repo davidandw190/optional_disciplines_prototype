@@ -3,6 +3,7 @@ import { FC, useState } from 'react';
 
 import { Header } from './Header';
 import { MainLayoutProps } from '../types/layout/layout.types';
+import { Outlet } from 'react-router-dom';
 import { SidebarContainer } from '../features/sidebar/container/SidebarContainer';
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
@@ -26,7 +27,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   }),
 }));
 
-export const MainLayout: FC<MainLayoutProps> = ({ children }) => {
+export const MainLayout: FC<MainLayoutProps> = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
@@ -35,23 +36,20 @@ export const MainLayout: FC<MainLayoutProps> = ({ children }) => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <Header 
-        onMenuClick={toggleSidebar} 
-        sidebarOpen={sidebarOpen} 
-      />
-      <SidebarContainer 
-        toggleSidebar={toggleSidebar} 
-        sidebarOpen={sidebarOpen} 
+      <Header onMenuClick={toggleSidebar} sidebarOpen={sidebarOpen} />
+      <SidebarContainer
+        toggleSidebar={toggleSidebar}
+        sidebarOpen={sidebarOpen}
       />
       <Main open={sidebarOpen}>
-        <Box 
-          sx={{ 
+        <Box
+          sx={{
             mt: { xs: 7, sm: 8 },
             minHeight: 'calc(100vh - 64px)',
             backgroundColor: 'background.default',
           }}
         >
-          {children}
+          <Outlet />
         </Box>
       </Main>
     </Box>

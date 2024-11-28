@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { StrictMode } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { createRoot } from 'react-dom/client';
-import { store } from './app/store';
+import { store } from './store/store';
 import { theme } from './app/theme';
 
 const root = createRoot(document.getElementById('root')!);

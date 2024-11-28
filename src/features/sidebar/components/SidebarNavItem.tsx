@@ -1,5 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import {
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
 
 import { ReactElement } from 'react';
 
@@ -9,7 +14,11 @@ interface SidebarNavItemProps {
   path: string;
 }
 
-export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ icon, title, path }) => {
+export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
+  icon,
+  title,
+  path,
+}) => {
   const location = useLocation();
   const isActive = location.pathname === path;
 
@@ -44,7 +53,7 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ icon, title, pat
         >
           {icon}
         </ListItemIcon>
-        <ListItemText 
+        <ListItemText
           primary={title}
           primaryTypographyProps={{
             variant: 'body1',

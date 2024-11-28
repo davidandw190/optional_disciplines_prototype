@@ -8,7 +8,7 @@ import {
   Logout,
   MenuBook,
   Person,
-  School
+  School,
 } from '@mui/icons-material';
 import {
   Avatar,
@@ -26,10 +26,11 @@ import {
   Menu,
   MenuItem,
   Stack,
-  Typography
+  Typography,
 } from '@mui/material';
 
 import { Link } from 'react-router-dom';
+import { RootState } from '../../../store/store';
 // import { RootState } from '../../../store/store';
 import { SidebarNavItem } from './SidebarNavItem';
 import { useSelector } from 'react-redux';
@@ -54,33 +55,33 @@ const navigationItems = [
   {
     title: 'Dashboard',
     icon: <School />,
-    path: '/dashboard'
+    path: '/dashboard',
   },
   {
     title: 'Optional Disciplines',
     icon: <Book />,
-    path: '/optional-disciplines'
+    path: '/optional-disciplines',
   },
   {
     title: 'Complementary Disciplines',
     icon: <MenuBook />,
-    path: '/complementary-disciplines'
+    path: '/complementary-disciplines',
   },
   {
     title: 'My Enrollments',
     icon: <Assignment />,
-    path: '/enrollments'
+    path: '/enrollments',
   },
   {
     title: 'Thesis',
     icon: <MenuBook />,
-    path: '/thesis'
+    path: '/thesis',
   },
   {
     title: 'Profile',
     icon: <Person />,
-    path: '/profile'
-  }
+    path: '/profile',
+  },
 ];
 
 export const SidebarView: React.FC<SidebarViewProps> = ({
@@ -94,12 +95,13 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
   handleChooseTheme,
   handleDialogOpen,
   handleDialogClose,
-  dialogOpen
+  dialogOpen,
 }) => {
-  //@ts-ignore
-  const user = useSelector((state: RootState) => state.auth.user);
+  // const user = useSelector((state: RootState) => state.auth.user);
 
-  if (!user) return null;
+  const user = {}
+
+  // if (!user) return null;
 
   return (
     <>
@@ -115,8 +117,8 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
             boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between'
-          }
+            justifyContent: 'space-between',
+          },
         }}
       >
         <Box sx={{ flex: 1, overflowY: 'auto' }}>
@@ -149,12 +151,18 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
           <ListItem disablePadding>
             <ListItemButton onClick={handleMenuOpen}>
               <ListItemIcon>
-                <Avatar>{user.firstName[0]}</Avatar>
+
+              <Avatar>David Nan</Avatar>
+                {/* <Avatar>{user.firstName[0]}</Avatar> */}
               </ListItemIcon>
               <ListItemText
+                primary="David Nan"
+                secondary="andrei.nan03@e-uvt.ro"
+              />
+              {/* <ListItemText
                 primary={`${user.firstName} ${user.lastName}`}
                 secondary={user.email}
-              />
+              /> */}
             </ListItemButton>
           </ListItem>
         </Box>
@@ -165,7 +173,7 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
             position: 'absolute',
             right: 0,
             top: '50%',
-            transform: 'translateY(-50%)'
+            transform: 'translateY(-50%)',
           }}
         >
           <ChevronLeft />
@@ -178,11 +186,11 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
         onClose={handleMenuClose}
         anchorOrigin={{
           vertical: 'top',
-          horizontal: 'right'
+          horizontal: 'right',
         }}
         transformOrigin={{
           vertical: 'top',
-          horizontal: 'right'
+          horizontal: 'right',
         }}
       >
         <MenuItem onClick={handleDialogOpen}>

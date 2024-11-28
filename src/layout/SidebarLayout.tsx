@@ -14,14 +14,17 @@ export const SidebarLayout = () => {
 
   return (
     <>
-      <SidebarContainer toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+      <SidebarContainer
+        toggleSidebar={toggleSidebar}
+        sidebarOpen={sidebarOpen}
+      />
       <Box
         sx={{
           marginLeft: sidebarOpen ? '16.666667%' : '0',
           width: sidebarOpen ? '83.33333%' : '100%',
           transition: 'margin-left 0.225s ease, width 0.225s ease',
           minHeight: '100vh',
-          backgroundColor: theme => theme.palette.background.default
+          backgroundColor: (theme) => theme.palette.background.default,
         }}
       >
         <Container maxWidth="xl">
@@ -39,7 +42,7 @@ export const SidebarLayout = () => {
             top: '50%',
             left: '12px',
             transform: 'translateY(-50%)',
-            zIndex: theme => theme.zIndex.drawer + 1
+            zIndex: (theme) => theme.zIndex.drawer + 1,
           }}
         >
           <ChevronRight />

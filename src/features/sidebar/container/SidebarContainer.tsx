@@ -1,5 +1,7 @@
+import { AppDispatch } from '../../../store/store';
 // import { AppDispatch } from '../../../store/store';
 import { SidebarView } from '../components/SidebarView';
+import { setTheme } from '../slices/theme.slice';
 // import { setTheme } from '../../../store/slices/theme.slice';
 import { useDispatch } from 'react-redux';
 // import { useGetUserEnrollmentsQuery } from '../../enrollments/api/enrollmentsApi';
@@ -15,14 +17,15 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
   toggleSidebar,
   sidebarOpen
 }) => {
-  //@ts-ignore
+  
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
   
-  //@ts-ignore
-  const { data: enrollments } = useGetUserEnrollmentsQuery();
+  // const { data: enrollments } = useGetUserEnrollmentsQuery();
+
+  const enrollments: any[] | undefined = [];
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLDivElement>) => {
     setAnchorElement(event.currentTarget);
@@ -41,7 +44,6 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
   };
 
   const handleChooseTheme = (theme: 'dark' | 'light' | 'system') => {
-    //@ts-ignore
     dispatch(setTheme(theme));
     handleDialogClose();
     handleMenuClose();

@@ -81,7 +81,7 @@ export const OptionalDisciplinesPage: FC = () => {
           discipline={disciplines?.find(d => d.id === selectedDiscipline)!}
           open={!!selectedDiscipline}
           onClose={() => setSelectedDiscipline(null)}
-          onEnroll={() => {/* handle enrollment */}}
+          onEnroll={() => {/* TODO: Handle enrollment */}}
         />
       )}
     </Container>
