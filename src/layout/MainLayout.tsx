@@ -18,13 +18,20 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   marginLeft: 0,
   width: '100%',
   ...(open && {
-    width: `calc(100% - ${240}px)`,
-    marginLeft: 240,
+    width: `calc(100% - 280px)`,
+    marginLeft: 280,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
+  backgroundColor: theme.palette.mode === 'light' 
+    ? '#F5F7FA' 
+    : theme.palette.background.default,
+  backgroundImage: theme.palette.mode === 'light'
+    ? 'linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1px, transparent 1px)'
+    : 'none',
+  backgroundSize: '20px 20px',
 }));
 
 export const MainLayout: FC<MainLayoutProps> = () => {

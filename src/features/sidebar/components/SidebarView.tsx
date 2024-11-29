@@ -4,6 +4,7 @@ import {
   Book,
   ChevronLeft,
   DarkMode,
+  HelpOutline,
   LightMode,
   Logout,
   MenuBook,
@@ -30,11 +31,11 @@ import {
 } from '@mui/material';
 
 import { Link } from 'react-router-dom';
-import { RootState } from '../../../store/store';
-// import { RootState } from '../../../store/store';
 import { SidebarNavItem } from './SidebarNavItem';
-import { useSelector } from 'react-redux';
+import { useMemo } from 'react';
 import uvtLogo from '../../../assets/uvt-logo.png';
+
+const DRAWER_WIDTH = '340px';
 
 interface SidebarViewProps {
   menuOpen: boolean;
@@ -58,9 +59,9 @@ const navigationItems = [
     path: '/dashboard',
   },
   {
-    title: 'Optional Disciplines',
+    title: 'Elective Disciplines',
     icon: <Book />,
-    path: '/optional-disciplines',
+    path: '/elective-disciplines',
   },
   {
     title: 'Complementary Disciplines',
@@ -82,6 +83,11 @@ const navigationItems = [
     icon: <Person />,
     path: '/profile',
   },
+  {
+    title: 'FAQ',
+    icon: <HelpOutline />,
+    path: '/faq',
+  },
 ];
 
 export const SidebarView: React.FC<SidebarViewProps> = ({
@@ -97,11 +103,124 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
   handleDialogClose,
   dialogOpen,
 }) => {
-  // const user = useSelector((state: RootState) => state.auth.user);
+  const user = {
+    firstName: 'Andrei-David',
+    lastName: 'Nan',
+    email: 'andrei.nan03@e-uvt.ro',
+  };
 
-  const user = {}
+  const drawerContent = useMemo(
+    () => (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Logo and title section */}
+        <Box sx={{ p: 2, textAlign: 'center' }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <Box
+              component="img"
+              src={uvtLogo}
+              alt="FMI Logo"
+              sx={{
+                width: '120px',
+                height: 'auto',
+                mb: 2,
+                transition: 'transform 0.2s ease',
+                '&:hover': { transform: 'scale(1.05)' },
+              }}
+            />
+          </Link>
+          <Typography
+            variant="h6"
+            sx={{
+              color: 'primary.main',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              letterSpacing: '0.02em',
+            }}
+          >
+            FMI Enroll
+          </Typography>
+        </Box>
 
-  // if (!user) return null;
+        <Divider sx={{ mx: 2 }} />
+
+        {/* navigation section */}
+        <List
+          sx={{
+            flex: 1,
+            px: 1,
+            py: 1,
+            '& .MuiListItem-root': {
+              width: 'auto',
+              mx: 0.5,
+            },
+          }}
+        >
+          {navigationItems.map((item) => (
+            <SidebarNavItem
+              key={item.path}
+              icon={item.icon}
+              title={item.title}
+              path={item.path}
+            />
+          ))}
+        </List>
+
+        {/* user profile section */}
+        <Box>
+          <Divider />
+          <ListItem
+            sx={{
+              p: 1.5,
+              '&:hover': { backgroundColor: 'action.hover' },
+            }}
+          >
+            <ListItemButton
+              onClick={handleMenuOpen}
+              sx={{
+                px: 1.5,
+                '& .MuiListItemText-root': {
+                  overflow: 'hidden',
+                },
+              }}
+            >
+              <ListItemIcon>
+                <Avatar
+                  sx={{
+                    bgcolor: 'primary.main',
+                    width: 32,
+                    height: 32,
+                  }}
+                >
+                  {user.firstName[0]}
+                </Avatar>
+              </ListItemIcon>
+              <ListItemText
+                primary={`${user.firstName} ${user.lastName}`}
+                secondary={user.email}
+                primaryTypographyProps={{
+                  variant: 'body2',
+                  fontWeight: 600,
+                  color: 'text.primary',
+                }}
+                secondaryTypographyProps={{
+                  variant: 'caption',
+                  color: 'text.secondary',
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </Box>
+      </Box>
+    ),
+    [user, handleMenuOpen]
+  );
 
   return (
     <>
@@ -110,82 +229,52 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
         anchor="left"
         open={sidebarOpen}
         sx={{
-          width: '16.666667%',
+          width: DRAWER_WIDTH,
           flexShrink: 0,
+          position: 'relative',
           '& .MuiDrawer-paper': {
-            width: '16.666667%',
+            width: DRAWER_WIDTH,
+            bgcolor: 'background.paper',
             boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
+            borderRight: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+            overflowX: 'hidden',
           },
         }}
       >
-        <Box sx={{ flex: 1, overflowY: 'auto' }}>
-          <Stack alignItems="center" sx={{ my: 3 }}>
-            <Link to="/">
-              <Box
-                component="img"
-                sx={{ maxWidth: '50%', mb: 1 }}
-                src={uvtLogo}
-                alt="UVT Logo"
-              />
-            </Link>
-            <Typography variant="h6">Student Portal</Typography>
-          </Stack>
-
-          <List>
-            {navigationItems.map((item) => (
-              <SidebarNavItem
-                key={item.path}
-                icon={item.icon}
-                title={item.title}
-                path={item.path}
-              />
-            ))}
-          </List>
-        </Box>
-
-        <Box>
-          <Divider />
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleMenuOpen}>
-              <ListItemIcon>
-
-              <Avatar>David Nan</Avatar>
-                {/* <Avatar>{user.firstName[0]}</Avatar> */}
-              </ListItemIcon>
-              <ListItemText
-                primary="David Nan"
-                secondary="andrei.nan03@e-uvt.ro"
-              />
-              {/* <ListItemText
-                primary={`${user.firstName} ${user.lastName}`}
-                secondary={user.email}
-              /> */}
-            </ListItemButton>
-          </ListItem>
-        </Box>
-
+        {drawerContent}
+        {/* toggle button */}
         <IconButton
           onClick={toggleSidebar}
+          size="small"
           sx={{
             position: 'absolute',
-            right: 0,
+            right: 12,
             top: '50%',
             transform: 'translateY(-50%)',
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+            width: 32,
+            height: 32,
+            boxShadow: 1,
+            '&:hover': {
+              bgcolor: 'action.hover',
+            },
           }}
         >
-          <ChevronLeft />
+          <ChevronLeft fontSize="small" />
         </IconButton>
       </Drawer>
 
+      {/* theme and logout menus */}
       <Menu
         anchorEl={anchorElement}
         open={menuOpen}
         onClose={handleMenuClose}
         anchorOrigin={{
-          vertical: 'top',
+          vertical: 'bottom',
           horizontal: 'right',
         }}
         transformOrigin={{
@@ -195,45 +284,43 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
       >
         <MenuItem onClick={handleDialogOpen}>
           <ListItemIcon>
-            <DarkMode />
+            <DarkMode fontSize="small" />
           </ListItemIcon>
           <ListItemText primary="Theme" />
         </MenuItem>
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>
-            <Logout />
+            <Logout fontSize="small" />
           </ListItemIcon>
           <ListItemText primary="Sign out" />
         </MenuItem>
       </Menu>
 
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        PaperProps={{
+          sx: { minWidth: '300px' },
+        }}
+      >
         <DialogTitle>Select theme</DialogTitle>
         <List>
-          <ListItem disableGutters>
-            <ListItemButton onClick={() => handleChooseTheme('dark')}>
-              <ListItemIcon>
-                <DarkMode />
-              </ListItemIcon>
-              <ListItemText primary="Dark" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disableGutters>
-            <ListItemButton onClick={() => handleChooseTheme('light')}>
-              <ListItemIcon>
-                <LightMode />
-              </ListItemIcon>
-              <ListItemText primary="Light" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disableGutters>
-            <ListItemButton onClick={() => handleChooseTheme('system')}>
-              <ListItemIcon>
-                <AutoMode />
-              </ListItemIcon>
-              <ListItemText primary="System" />
-            </ListItemButton>
-          </ListItem>
+          {[
+            { icon: <DarkMode />, label: 'Dark', value: 'dark' },
+            { icon: <LightMode />, label: 'Light', value: 'light' },
+            { icon: <AutoMode />, label: 'System', value: 'system' },
+          ].map((item) => (
+            <ListItem key={item.value} disableGutters>
+              <ListItemButton
+                onClick={() =>
+                  handleChooseTheme(item.value as 'dark' | 'light' | 'system')
+                }
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            </ListItem>
+          ))}
         </List>
       </Dialog>
     </>

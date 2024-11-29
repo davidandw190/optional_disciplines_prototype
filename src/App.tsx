@@ -9,12 +9,10 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import DashboardPage from './features/dashboard/pages/DashboardPage';
 import { MainLayout } from './layout/MainLayout';
-// import { RootState } from '@reduxjs/toolkit/query';
 import { RootState } from './store/store';
 import { ThemeProvider } from '@mui/material/styles';
 import { getTheme } from './utils/utils';
 import { useSelector } from 'react-redux';
-import { useTheme } from './hooks/useTheme';
 
 // const DashboardPage = lazy(() => import('./features/dashboard/pages/DashboardPage'));
 // const OptionalDisciplinesPage = lazy(() => import('./pages/OptionalDisciplinesPage'));
