@@ -1,17 +1,15 @@
 import {
   AssessmentType,
   DisciplineType,
+  EnrollmentPeriodType,
   EnrollmentStatus,
   LearningOutcomeCategory,
   TeachingActivityType,
   TeachingLanguage,
 } from './disciplines.enums';
 
-export interface BaseEntity {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { BaseEntity } from '../base.types';
+import { ReactNode } from 'react';
 
 export interface AcademicTitle {
   title: string;
@@ -162,6 +160,23 @@ export interface Discipline extends BaseEntity {
   waitlistLimit?: number;
 }
 
+export interface EnrollmentPeriod extends BaseEntity {
+  type: EnrollmentPeriodType;
+  
+  startDate: Date;
+  endDate: Date;
+  semester: 1 | 2;
+  yearOfStudy: number;
+  academicYear: string;
+  
+  isActive: boolean;
+  status: 'upcoming' | 'active' | 'ended';
+  
+  progress?: number;
+  
+  targetSpecializations?: string[];
+}
+
 export interface DisciplinePacket extends BaseEntity {
   name: string;
   description?: string;
@@ -172,17 +187,6 @@ export interface DisciplinePacket extends BaseEntity {
   totalCredits: number;
   category?: string;
   prerequisites?: Prerequisites;
-}
-
-export interface EnrollmentPeriod extends BaseEntity {
-  startDate: Date;
-  endDate: Date;
-  semester: 1 | 2;
-  yearOfStudy: number;
-  academicYear: string;
-  type: 'MAIN' | 'SECONDARY';
-  isActive: boolean;
-  targetSpecializations?: string[];
 }
 
 export interface EnrollmentPreference extends BaseEntity {
@@ -233,4 +237,17 @@ export interface PacketStatistics {
   disciplines: DisciplineStatistics[];
   mostPopularDiscipline: string;
   leastPopularDiscipline: string;
+}
+
+export interface Announcement {
+  title: string;
+  date: string;
+  content: string;
+  important: boolean;
+}
+
+export interface QuickAction {
+  icon: ReactNode;
+  title: string;
+  description: string;
 }

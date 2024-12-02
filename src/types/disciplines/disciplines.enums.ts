@@ -17,6 +17,12 @@ export enum TeachingActivityType {
   PROJECT = 'PROJECT',
 }
 
+export enum EnrollmentPeriodType {
+  ELECTIVE_DISCIPLINES = 'ELECTIVE DISCIPLINES',
+  COMPLEMENTARY_DISCIPLINES = 'COMPLEMENTARY DISCIPLINES',
+  THESIS_REGISTRATION = 'THESIS REGISTRATION'
+}
+
 export enum TeachingLanguage {
   EN = 'EN',
   RO = 'RO',
@@ -34,3 +40,5 @@ export enum EnrollmentStatus {
   REJECTED = 'REJECTED',
   WAITLIST = 'WAITLIST',
 }
+
+
