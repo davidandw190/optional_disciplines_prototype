@@ -1,8 +1,6 @@
 import { AppDispatch } from '../../../store/store';
-// import { AppDispatch } from '../../../store/store';
 import { SidebarView } from '../components/SidebarView';
 import { setTheme } from '../slices/theme.slice';
-// import { setTheme } from '../../../store/slices/theme.slice';
 import { useDispatch } from 'react-redux';
 // import { useGetUserEnrollmentsQuery } from '../../enrollments/api/enrollmentsApi';
 import { useNavigate } from 'react-router-dom';
