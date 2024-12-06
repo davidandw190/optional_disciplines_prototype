@@ -130,6 +130,7 @@ export interface EvaluationSystem {
 }
 
 export interface Discipline extends BaseEntity {
+  description: string;
   code: string;
   name: string;
   type: DisciplineType;

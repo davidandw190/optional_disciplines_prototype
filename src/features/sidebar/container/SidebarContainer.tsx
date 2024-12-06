@@ -49,7 +49,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
 
   const handleLogout = () => {
     // TODO: we should handle logout logic
-    navigate('/login');
+    navigate('/logout');
   };
 
   return (

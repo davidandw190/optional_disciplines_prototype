@@ -1,4 +1,8 @@
-import { Announcement, EnrollmentPeriod, QuickAction } from '../../types/disciplines/disciplines.types';
+import {
+  Announcement,
+  EnrollmentPeriod,
+  QuickAction,
+} from '../../types/disciplines/disciplines.types';
 import { CalendarToday, History, InfoOutlined } from '@mui/icons-material';
 
 import { EnrollmentPeriodType } from '../../types/disciplines/disciplines.enums';
@@ -45,15 +49,17 @@ export const mockQuickActions: QuickAction[] = [
 
 export const mockAnnouncements: Announcement[] = [
   {
-    title: 'Enrollment Period Update',
-    date: 'March 15, 2024',
-    content: 'The enrollment period for the next semester will start on May 1st, 2024.',
+    title: 'Spring Enrollment Period Update',
+    date: 'April 12, 2024',
+    content:
+      'The enrollment period for the next semester will start on May 1st, 2024.',
     important: true,
   },
   {
-    title: 'New Elective Courses Available',
+    title: 'Elective Courses Available',
     date: 'March 10, 2024',
-    content: 'Check out the new elective courses added for the upcoming semester.',
+    content:
+      'You can now check out the new elective courses for the upcoming semester.',
     important: false,
   },
 ];

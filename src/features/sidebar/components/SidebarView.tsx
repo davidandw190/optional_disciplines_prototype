@@ -130,7 +130,7 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
                 width: '120px',
                 height: 'auto',
                 mb: 2,
-                transition: 'transform 0.2s ease',
+                transition: 'transform 0.15s ease',
                 '&:hover': { transform: 'scale(1.05)' },
               }}
             />

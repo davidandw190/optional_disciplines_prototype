@@ -1,7 +1,7 @@
 import '@fontsource/montserrat';
 import '@fontsource/montserrat/700.css';
 
-import { Theme, ThemeOptions, createTheme } from '@mui/material/styles';
+import { ThemeOptions, createTheme } from '@mui/material/styles';
 
 declare module '@mui/material/styles' {
   interface Theme {

@@ -5,7 +5,6 @@ import {
   Stack,
   Toolbar,
   Typography,
-  styled,
 } from '@mui/material';
 
 import { FC } from 'react';
