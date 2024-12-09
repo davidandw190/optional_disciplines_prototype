@@ -1,6 +1,7 @@
 import {
   Alert,
   Box,
+  Button,
   CircularProgress,
   FormControl,
   Grid,
@@ -14,7 +15,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { ArrowDownward, ArrowUpward, Search } from '@mui/icons-material';
+import { ArrowDownward, ArrowUpward, Search, SearchOff } from '@mui/icons-material';
 import {
   AssessmentType,
   DisciplineType,
@@ -38,7 +39,7 @@ interface FilterState {
   sortOrder: 'asc' | 'desc';
 }
 
-// Available sorting options for disciplines
+// available sorting options for disciplines
 interface SortOption {
   value: string;
   label: string;
@@ -97,6 +98,19 @@ export const ElectiveDisciplinesPage: FC = () => {
     } finally {
       setIsEnrollmentInProgress(false);
     }
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      search: '',
+      credits: [],
+      languages: [],
+      types: [],
+      assessmentTypes: [],
+      availabilityStatus: 'all',
+      sortBy: 'name',
+      sortOrder: 'asc',
+    });
   };
 
   const filteredDisciplines = useMemo(() => {
@@ -272,17 +286,37 @@ export const ElectiveDisciplinesPage: FC = () => {
         </Alert>
       )}
 
-      <Grid container spacing={3}>
-        {filteredDisciplines.map((discipline) => (
-          <DisciplineCard
-            key={discipline.id}
-            discipline={discipline}
-            onViewDetails={() => handleViewDetails(discipline)}
-            isEnrollmentPeriodActive={true}
-            alreadyEnrolled={false}
-          />
-        ))}
-      </Grid>
+      {filteredDisciplines.length > 0 ? (
+        <Grid container spacing={3}>
+          {filteredDisciplines.map((discipline) => (
+            <DisciplineCard
+              key={discipline.id}
+              discipline={discipline}
+              onViewDetails={() => handleViewDetails(discipline)}
+              isEnrollmentPeriodActive={true}
+              alreadyEnrolled={false}
+            />
+          ))}
+        </Grid>
+      ) : (
+        <Box
+          sx={{
+            textAlign: 'center',
+            py: 8,
+          }}
+        >
+          <SearchOff sx={{ fontSize: 48, color: 'action.disabled', mb: 2 }} />
+          <Typography variant="h6" gutterBottom>
+            No disciplines found
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 3 }}>
+            Try adjusting your search or filter criteria
+          </Typography>
+          <Button variant="outlined" onClick={handleResetFilters}>
+            Reset Filters
+          </Button>
+        </Box>
+      )}
 
       {/* details drawer */}
       {selectedDiscipline && (
