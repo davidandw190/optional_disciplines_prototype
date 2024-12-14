@@ -9,7 +9,7 @@ interface SearchFiltersProps {
 }
 
 export const SearchFilters: FC<SearchFiltersProps> = ({ value, onChange }) => (
-  <Grid item xs={12} md={6}>
+  <Grid item xs={10} md={5}>
     <TextField
       fullWidth
       placeholder="Search by course name or code..."

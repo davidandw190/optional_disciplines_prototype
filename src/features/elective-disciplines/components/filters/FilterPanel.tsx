@@ -25,7 +25,7 @@ export const FilterPanel: FC<FilterPanelProps> = ({
       borderRadius: 2,
     }}
   >
-    <Grid container spacing={3}>
+    <Grid container spacing={1}>
       <SearchFilters
         value={filters.search}
         onChange={(value) => onFilterChange('search', value)}

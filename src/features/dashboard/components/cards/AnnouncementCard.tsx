@@ -1,4 +1,5 @@
-import { Box, Chip, Stack, Typography } from '@mui/material';
+import { AccessTime, InfoOutlined } from '@mui/icons-material';
+import { Box, Chip, Paper, Stack, Typography, alpha } from '@mui/material';
 
 import { Announcement } from '../../../../types/disciplines/disciplines.types';
 import { FC } from 'react';
@@ -9,51 +10,73 @@ export const AnnouncementCard: FC<Announcement> = ({
   content,
   important,
 }) => (
-  <Box
+  <Paper
+    elevation={0}
     sx={{
-      p: { xs: 2, sm: 2.5, md: 3 },
-      borderBottom: '1px solid',
+      p: 2,
+      border: '1px solid',
       borderColor: 'divider',
-      '&:hover': { bgcolor: 'action.hover' },
-      transition: 'background-color 0.15s ease',
+      borderRadius: 2,
+      transition: 'all 0.2s ease',
+      '&:hover': {
+        borderColor: 'primary.main',
+        transform: 'translateY(-2px)',
+        boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.08)}`,
+      },
     }}
   >
-    <Stack spacing={2}>
+    <Stack spacing={1.5}>
       <Stack
-        direction={{ xs: 'column', sm: 'row' }}
+        direction="row"
         justifyContent="space-between"
-        alignItems={{ xs: 'flex-start', sm: 'center' }}
-        spacing={{ xs: 1, sm: 0 }}
+        alignItems="flex-start"
+        spacing={2}
       >
-        <Typography variant="body2" fontWeight={600}>
-          {title}
-        </Typography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <InfoOutlined 
+            fontSize="small" 
+            color={important ? 'error' : 'action'} 
+          />
+          <Typography variant="subtitle2" fontWeight={600}>
+            {title}
+          </Typography>
+        </Stack>
         {important && (
           <Chip
             label="Important"
             size="small"
-            sx={{
-              bgcolor: '#e60054',
-              color: 'white',
-              fontSize: '0.75rem',
-              height: 20,
-            }}
+            color="error"
+            variant="outlined"
+            sx={{ height: 24 }}
           />
         )}
       </Stack>
-      <Typography variant="caption" color="text.secondary">
-        {date}
+
+      <Typography 
+        variant="body2" 
+        color="text.secondary"
+        sx={{ 
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          lineHeight: 1.5,
+        }}
+      >
+        {content}
       </Typography>
+
+      <Stack 
+        direction="row" 
+        spacing={1} 
+        alignItems="center"
+        sx={{ mt: 'auto' }}
+      >
+        <AccessTime fontSize="small" color="action" />
+        <Typography variant="caption" color="text.secondary">
+          {date}
+        </Typography>
+      </Stack>
     </Stack>
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      sx={{
-        fontSize: '0.8125rem',
-        lineHeight: 1.5,
-      }}
-    >
-      {content}
-    </Typography>
-  </Box>
+  </Paper>
 );

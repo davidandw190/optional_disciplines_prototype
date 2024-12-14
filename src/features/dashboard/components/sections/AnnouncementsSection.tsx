@@ -1,7 +1,7 @@
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { Announcement } from '../../../../types/disciplines/disciplines.types';
-import { AnnouncementCard } from '../cards/AnnouncementCard';
+import { AnnouncementsCarousel } from './AnnouncementsCarousel';
 import { FC } from 'react';
 
 interface AnnouncementsSectionProps {
@@ -12,21 +12,31 @@ export const AnnouncementsSection: FC<AnnouncementsSectionProps> = ({
   announcements,
 }) => (
   <Box sx={{ mt: { xs: 3, md: 4 } }}>
-    <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
-      Announcements
-    </Typography>
-    <Paper
-      elevation={0}
-      sx={{
-        borderRadius: 2,
-        overflow: 'hidden',
-        border: '1px solid',
-        borderColor: 'divider',
+    <Typography 
+      variant="h6" 
+      sx={{ 
+        mb: 3,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        fontWeight: 600,
       }}
     >
-      {announcements.map((announcement, index) => (
-        <AnnouncementCard key={index} {...announcement} />
-      ))}
-    </Paper>
+      Latest Announcements
+      <Typography 
+        component="span" 
+        variant="caption" 
+        sx={{ 
+          color: 'text.secondary',
+          ml: 1,
+        }}
+      >
+        ({announcements.length})
+      </Typography>
+    </Typography>
+    <AnnouncementsCarousel
+      announcements={announcements} 
+      visibleCount={3}
+    />
   </Box>
 );

@@ -8,7 +8,7 @@ interface AvailabilityFilterProps {
 }
 
 export const AvailabilityFilter: FC<AvailabilityFilterProps> = ({ value, onChange }) => (
-  <Grid item xs={12} md={3}>
+  <Grid item xs={10} md={3}>
     <FormControl fullWidth>
       <InputLabel>Availability</InputLabel>
       <Select

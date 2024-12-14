@@ -26,32 +26,11 @@ import { FC, useMemo, useState } from 'react';
 import { Discipline } from '../../../types/disciplines/disciplines.types';
 import { DisciplineCard } from '../components/DisciplineCard';
 import { DisciplineDetailsDrawer } from '../components/DisciplineDetailsDrawer';
+import { DisciplineList } from '../components/DisciplineList';
+import { FilterPanel } from '../components/filters/FilterPanel';
+import { FilterState } from '../../../types/filters/filters.types';
+import { NoResults } from '../components/NoResults';
 import { mockDisciplines } from '../../mocks/elective-disciplines.mock';
-
-interface FilterState {
-  search: string;
-  credits: number[];
-  languages: TeachingLanguage[];
-  types: DisciplineType[];
-  assessmentTypes: AssessmentType[];
-  availabilityStatus: string;
-  sortBy: string;
-  sortOrder: 'asc' | 'desc';
-}
-
-// available sorting options for disciplines
-interface SortOption {
-  value: string;
-  label: string;
-}
-
-const sortOptions: SortOption[] = [
-  { value: 'name', label: 'Course Name' },
-  { value: 'credits', label: 'Credits' },
-  { value: 'spots', label: 'Available Spots' },
-  { value: 'enrollmentCount', label: 'Enrollment Count' },
-  { value: 'language', label: 'Teaching Language' },
-];
 
 export const ElectiveDisciplinesPage: FC = () => {
   const [filters, setFilters] = useState<FilterState>({
@@ -177,7 +156,7 @@ export const ElectiveDisciplinesPage: FC = () => {
   }, [filters, mockDisciplines]);
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ p: { xs: 3, sm: 4, md: 5 }, maxWidth: '1920px', mx: 'auto' }}>
       <Typography
         variant="h4"
         color="primary.main"
@@ -190,85 +169,7 @@ export const ElectiveDisciplinesPage: FC = () => {
         Elective Disciplines
       </Typography>
 
-      <Paper
-        elevation={0}
-        sx={{
-          p: 3,
-          mb: 3,
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 2,
-        }}
-      >
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              placeholder="Search by course name or code..."
-              value={filters.search}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={3}>
-            <FormControl fullWidth>
-              <InputLabel>Availability</InputLabel>
-              <Select
-                value={filters.availabilityStatus}
-                onChange={(e) =>
-                  handleFilterChange('availabilityStatus', e.target.value)
-                }
-                label="Availability"
-              >
-                <MenuItem value="all">All Courses</MenuItem>
-                <MenuItem value="available">Available</MenuItem>
-                <MenuItem value="waitlist">Waitlist Available</MenuItem>
-                <MenuItem value="full">Full</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} md={3}>
-            <Stack direction="row" spacing={1}>
-              <FormControl fullWidth>
-                <InputLabel>Sort By</InputLabel>
-                <Select
-                  value={filters.sortBy}
-                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                  label="Sort By"
-                >
-                  {sortOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <IconButton
-                onClick={() =>
-                  handleFilterChange(
-                    'sortOrder',
-                    filters.sortOrder === 'asc' ? 'desc' : 'asc'
-                  )
-                }
-              >
-                {filters.sortOrder === 'asc' ? (
-                  <ArrowUpward />
-                ) : (
-                  <ArrowDownward />
-                )}
-              </IconButton>
-            </Stack>
-          </Grid>
-        </Grid>
-      </Paper>
+      <FilterPanel filters={filters} onFilterChange={handleFilterChange} />
 
       <Box sx={{ mb: 2 }}>
         <Typography variant="body2" color="text.secondary">
@@ -287,38 +188,15 @@ export const ElectiveDisciplinesPage: FC = () => {
       )}
 
       {filteredDisciplines.length > 0 ? (
-        <Grid container spacing={3}>
-          {filteredDisciplines.map((discipline) => (
-            <DisciplineCard
-              key={discipline.id}
-              discipline={discipline}
-              onViewDetails={() => handleViewDetails(discipline)}
-              isEnrollmentPeriodActive={true}
-              alreadyEnrolled={false}
-            />
-          ))}
-        </Grid>
+        <DisciplineList
+          disciplines={filteredDisciplines}
+          onViewDetails={handleViewDetails}
+          isEnrollmentPeriodActive={true}
+        />
       ) : (
-        <Box
-          sx={{
-            textAlign: 'center',
-            py: 8,
-          }}
-        >
-          <SearchOff sx={{ fontSize: 48, color: 'action.disabled', mb: 2 }} />
-          <Typography variant="h6" gutterBottom>
-            No disciplines found
-          </Typography>
-          <Typography color="text.secondary" sx={{ mb: 3 }}>
-            Try adjusting your search or filter criteria
-          </Typography>
-          <Button variant="outlined" onClick={handleResetFilters}>
-            Reset Filters
-          </Button>
-        </Box>
+        <NoResults onReset={handleResetFilters} />
       )}
 
-      {/* details drawer */}
       {selectedDiscipline && (
         <DisciplineDetailsDrawer
           discipline={selectedDiscipline}
@@ -330,25 +208,7 @@ export const ElectiveDisciplinesPage: FC = () => {
         />
       )}
 
-      {/* temp loading overlay */}
-      {isEnrollmentInProgress && (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            bgcolor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      )}
+      {/* {isEnrollmentInProgress && <LoadingOverlay />} */}
     </Box>
   );
 };

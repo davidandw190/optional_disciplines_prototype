@@ -86,22 +86,25 @@ export const DisciplineCard: FC<DisciplineCardProps> = memo(({
 
   return (
     <Grid item xs={12} sm={6} lg={4}>
-      <Paper
-        elevation={0}
-        sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 2,
-          transition: 'all 0.2s ease-in-out',
-          '&:hover': {
-            borderColor: `${getStatusColor()}.main`,
-            transform: 'translateY(-2px)',
-            boxShadow: (theme) => `0 4px 20px ${alpha(theme.palette.primary.main, 0.15)}`,
-          },
-          overflow: 'hidden',
-        }}
-      >
-        <Box sx={{ p: 2.5 }}>
+     <Paper
+      elevation={0}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 2,
+        transition: 'all 0.2s ease-in-out',
+        minWidth: '400px',              // Enforce minimum width
+        maxWidth: '100%',               // Prevent overflow
+        '&:hover': {
+          borderColor: `${getStatusColor()}.main`,
+          transform: 'translateY(-2px)',
+          boxShadow: (theme) => `0 4px 20px ${alpha(theme.palette.primary.main, 0.15)}`,
+        },
+      }}
+    >
+        <Box sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Stack spacing={2}>
             {/* Header */}
             <Stack spacing={0.5}>

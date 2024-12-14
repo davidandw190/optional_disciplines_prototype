@@ -62,4 +62,18 @@ export const mockAnnouncements: Announcement[] = [
       'You can now check out the new elective courses for the upcoming semester.',
     important: false,
   },
+  {
+    title: 'Elective Courses Available',
+    date: 'March 10, 2024',
+    content:
+      'You can now check out the new elective courses for the upcoming semester.',
+    important: false,
+  },
+  {
+    title: 'Elective Courses Available',
+    date: 'March 10, 2024',
+    content:
+      'You can now check out the new elective courses for the upcoming semester.',
+    important: false,
+  },
 ];

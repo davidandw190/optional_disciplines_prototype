@@ -46,8 +46,8 @@ export const MainLayout: FC<MainLayoutProps> = () => {
       <Main open={sidebarOpen}>
         <Box
           sx={{
-            mt: { xs: 7, sm: 8 },
-            minHeight: 'calc(100vh - 84px)',
+            mt: '40px', // Adjusted to match new header height
+            minHeight: 'calc(100vh - 56px)', // Adjusted calculation
             width: '100%',
             display: 'flex',
             flexDirection: 'column',

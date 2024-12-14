@@ -25,7 +25,7 @@ export const SortFilter: FC<SortFilterProps> = ({
   onSortByChange,
   onSortOrderChange,
 }) => (
-  <Grid item xs={12} md={3}>
+  <Grid item xs={10} md={3}>
     <Stack direction="row" spacing={1}>
       <FormControl fullWidth>
         <InputLabel>Sort By</InputLabel>

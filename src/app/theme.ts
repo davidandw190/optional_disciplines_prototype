@@ -13,7 +13,7 @@ export const theme = createTheme({
       dark: '#7b1fa2',
     },
     background: {
-      default: '#f5f5f5',
+      default: '#f1f1f1',
       paper: '#ffffff',
     },
   },
@@ -37,7 +37,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
         },
       },
     },
