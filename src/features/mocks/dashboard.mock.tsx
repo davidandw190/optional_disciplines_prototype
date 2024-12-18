@@ -12,7 +12,7 @@ export const mockEnrollments: EnrollmentPeriod[] = [
     type: EnrollmentPeriodType.ELECTIVE_DISCIPLINES,
     status: 'upcoming',
     startDate: 'May 1, 2024',
-    endDate: 'May 15, 2024',
+    endDate: 'May 15, 2025',
   },
   {
     type: EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES,

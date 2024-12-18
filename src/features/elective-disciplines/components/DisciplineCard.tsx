@@ -1,18 +1,14 @@
 import {
   AccessTime,
-  AccountTree,
   AssignmentTurnedIn,
-  BookOutlined,
   Grade,
-  Group,
   Language,
-  School,
+  ViewModule
 } from '@mui/icons-material';
 import {
   Box,
   Button,
   Chip,
-  Divider,
   Grid,
   LinearProgress,
   Paper,
@@ -21,40 +17,25 @@ import {
   Typography,
   alpha,
 } from '@mui/material';
-import { Discipline, Teacher } from '../../../types/disciplines/disciplines.types';
+import { Discipline, DisciplinePacket } from '../../../types/disciplines/disciplines.types';
 import { FC, memo } from 'react';
 
-import { TeachingActivityType } from '../../../types/disciplines/disciplines.enums';
-
-// Interface for the component's props
 interface DisciplineCardProps {
   discipline: Discipline;
-  onViewDetails: (discipline: Discipline) => void;
-  isEnrollmentPeriodActive?: boolean;
-  alreadyEnrolled?: boolean;
+  packet: DisciplinePacket;
+  onViewDetails: () => void;
+  isEnrollmentPeriodActive: boolean;
+  isSelected: boolean;
+  selectionCount?: number;
 }
-
-// Helper function to format teacher names with their academic titles
-const formatTeacherName = (teacher: Teacher): string => {
-  return `${teacher.academicTitle.abbreviation}. ${teacher.lastName}`;
-};
-
-// Helper function to get activity icon based on type
-const getActivityIcon = (type: TeachingActivityType) => {
-  const icons = {
-    [TeachingActivityType.COURSE]: <BookOutlined fontSize="small" />,
-    [TeachingActivityType.SEMINAR]: <Group fontSize="small" />,
-    [TeachingActivityType.LABORATORY]: <AccountTree fontSize="small" />,
-    [TeachingActivityType.PROJECT]: <Grade fontSize="small" />,
-  };
-  return icons[type];
-};
 
 export const DisciplineCard: FC<DisciplineCardProps> = memo(({
   discipline,
+  packet,
   onViewDetails,
-  isEnrollmentPeriodActive = false,
-  alreadyEnrolled = false,
+  isEnrollmentPeriodActive,
+  isSelected,
+  selectionCount = 0,
 }) => {
   const {
     name,
@@ -67,26 +48,21 @@ export const DisciplineCard: FC<DisciplineCardProps> = memo(({
     currentEnrollmentCount = 0,
   } = discipline;
 
+  // Calculate enrollment statistics
   const enrollmentPercentage = maxEnrollmentSpots 
     ? (currentEnrollmentCount / maxEnrollmentSpots) * 100 
     : 0;
 
+  // Get appropriate status colors
   const getStatusColor = () => {
-    if (alreadyEnrolled) return 'success';
+    if (isSelected) return 'success';
     if (enrollmentPercentage >= 100) return 'error';
     if (enrollmentPercentage >= 80) return 'warning';
     return 'primary';
   };
 
-  const getEnrollmentColor = () => {
-    if (enrollmentPercentage >= 100) return 'error';
-    if (enrollmentPercentage >= 80) return 'warning';
-    return 'success';
-  };
-
   return (
-    <Grid item xs={12} sm={6} lg={4}>
-     <Paper
+    <Paper
       elevation={0}
       sx={{
         display: 'flex',
@@ -95,8 +71,6 @@ export const DisciplineCard: FC<DisciplineCardProps> = memo(({
         borderColor: 'divider',
         borderRadius: 2,
         transition: 'all 0.2s ease-in-out',
-        minWidth: '400px',              // Enforce minimum width
-        maxWidth: '100%',               // Prevent overflow
         '&:hover': {
           borderColor: `${getStatusColor()}.main`,
           transform: 'translateY(-2px)',
@@ -104,141 +78,122 @@ export const DisciplineCard: FC<DisciplineCardProps> = memo(({
         },
       }}
     >
-        <Box sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <Stack spacing={2}>
-            {/* Header */}
-            <Stack spacing={0.5}>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  fontWeight: 600,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  lineHeight: 1.3,
-                  minHeight: '2.6em',
-                }}
-              >
-                {name}
-              </Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography
-                  variant="caption"
-                  sx={{ 
-                    fontFamily: 'monospace', 
-                    fontWeight: 500,
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
-                    px: 1,
-                    py: 0.5,
-                    borderRadius: 1,
-                  }}
-                >
-                  {code}
-                </Typography>
-                <Chip
-                  size="small"
-                  label={language}
-                  icon={<Language sx={{ fontSize: '0.9rem' }} />}
-                  variant="outlined"
-                  sx={{ height: 24 }}
-                />
-              </Box>
-            </Stack>
+      <Box sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Stack spacing={2}>
+          {/* Packet Information */}
+          <Chip
+            icon={<ViewModule fontSize="small" />}
+            label={packet.name}
+            size="small"
+            color="primary"
+            sx={{ alignSelf: 'flex-start' }}
+          />
 
-            {/* Core Info */}
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              <Tooltip title="Credits">
-                <Chip
-                  size="small"
-                  icon={<Grade sx={{ fontSize: '1rem' }} />}
-                  label={`${credits} credits`}
-                  color={getStatusColor()}
-                  variant={alreadyEnrolled ? "filled" : "outlined"}
-                  sx={{ height: 28 }}
-                />
-              </Tooltip>
-              <Tooltip title="Assessment Type">
-                <Chip
-                  size="small"
-                  icon={<AssignmentTurnedIn sx={{ fontSize: '1rem' }} />}
-                  label={assessmentType.toLowerCase()}
-                  variant="outlined"
-                  sx={{ height: 28 }}
-                />
-              </Tooltip>
-              <Tooltip title="Weekly Hours">
-                <Chip
-                  size="small"
-                  icon={<AccessTime sx={{ fontSize: '1rem' }} />}
-                  label={`${weeklyHours.total}h/week`}
-                  variant="outlined"
-                  sx={{ height: 28 }}
-                />
-              </Tooltip>
-            </Stack>
-
-            {/* Enrollment Progress */}
-            <Box sx={{ pt: 1 }}>
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                mb: 1
-              }}>
-                <Typography
-                  variant="caption"
-                  sx={{ 
-                    color: `${getEnrollmentColor()}.main`,
-                    fontWeight: 500
-                  }}
-                >
-                  {currentEnrollmentCount} / {maxEnrollmentSpots} spots
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ 
-                    color: `${getEnrollmentColor()}.main`,
-                    fontWeight: 500
-                  }}
-                >
-                  {Math.round(enrollmentPercentage)}%
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={enrollmentPercentage}
-                color={getEnrollmentColor()}
-                sx={{
-                  height: 6,
-                  borderRadius: 3,
-                  bgcolor: (theme) => alpha(theme.palette.grey[500], 0.1),
-                }}
-              />
-            </Box>
-
-            {/* Action Button */}
-            <Button
-              fullWidth
-              variant="outlined"
-              color={getStatusColor()}
-              onClick={() => onViewDetails(discipline)}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 500,
-                height: 36,
-                borderRadius: 1.5,
+          {/* Discipline Title and Code */}
+          <Stack spacing={0.5}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              {name}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{ 
+                fontFamily: 'monospace',
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                px: 1,
+                py: 0.5,
+                borderRadius: 1,
+                display: 'inline-block'
               }}
             >
-              {alreadyEnrolled 
-                ? 'View Enrollment' 
-                : isEnrollmentPeriodActive 
-                  ? 'Enroll Now' 
-                  : 'View Details'}
-            </Button>
+              {code}
+            </Typography>
           </Stack>
-        </Box>
-      </Paper>
-    </Grid>
+
+          {/* Information Chips */}
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Tooltip title="Credits">
+              <Chip
+                size="small"
+                icon={<Grade sx={{ fontSize: '1rem' }} />}
+                label={`${credits} credits`}
+                color={getStatusColor()}
+                variant={isSelected ? "filled" : "outlined"}
+              />
+            </Tooltip>
+            <Tooltip title="Teaching Language">
+              <Chip
+                size="small"
+                icon={<Language sx={{ fontSize: '1rem' }} />}
+                label={language}
+                variant="outlined"
+              />
+            </Tooltip>
+            <Tooltip title="Weekly Hours">
+              <Chip
+                size="small"
+                icon={<AccessTime sx={{ fontSize: '1rem' }} />}
+                label={`${weeklyHours.total}h/week`}
+                variant="outlined"
+              />
+            </Tooltip>
+            <Tooltip title="Assessment Type">
+              <Chip
+                size="small"
+                icon={<AssignmentTurnedIn sx={{ fontSize: '1rem' }} />}
+                label={assessmentType.toLowerCase()}
+                variant="outlined"
+              />
+            </Tooltip>
+          </Stack>
+
+          {/* Enrollment Progress */}
+          <Box>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mb: 1 }}
+            >
+              <Typography variant="caption" color={getStatusColor()}>
+                {currentEnrollmentCount} / {maxEnrollmentSpots} spots
+              </Typography>
+              <Typography variant="caption" color={getStatusColor()}>
+                {Math.round(enrollmentPercentage)}%
+              </Typography>
+            </Stack>
+            <LinearProgress
+              variant="determinate"
+              value={enrollmentPercentage}
+              color={getStatusColor()}
+              sx={{
+                height: 6,
+                borderRadius: 3,
+                bgcolor: (theme) => alpha(theme.palette.grey[500], 0.1),
+              }}
+            />
+          </Box>
+
+          {/* Action Button */}
+          <Button
+            fullWidth
+            variant={isSelected ? "contained" : "outlined"}
+            color={getStatusColor()}
+            onClick={onViewDetails}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 500,
+              height: 40,
+              borderRadius: 2,
+            }}
+          >
+            {isSelected 
+              ? `Selected (Priority ${selectionCount})` 
+              : isEnrollmentPeriodActive 
+                ? 'View Details' 
+                : 'View Discipline'}
+          </Button>
+        </Stack>
+      </Box>
+    </Paper>
   );
 });

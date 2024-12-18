@@ -1,214 +1,310 @@
+// src/features/disciplines/pages/ElectiveDisciplinesPage.tsx
+
+import {
+  AccessTime,
+  CalendarToday,
+  Class,
+  School
+} from '@mui/icons-material';
 import {
   Alert,
   Box,
-  Button,
-  CircularProgress,
-  FormControl,
+  Chip,
+  Divider,
+  Drawer,
   Grid,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
   Paper,
-  Select,
   Stack,
-  TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import { ArrowDownward, ArrowUpward, Search, SearchOff } from '@mui/icons-material';
+import { Discipline, DisciplinePacket } from '../../../types/disciplines/disciplines.types';
+import { FC, useEffect, useMemo, useState } from 'react';
 import {
-  AssessmentType,
-  DisciplineType,
-  TeachingLanguage,
-} from '../../../types/disciplines/disciplines.enums';
-import { FC, useMemo, useState } from 'react';
+  getEnrollmentPeriodStatus,
+  getRemainingDays,
+  isEnrollmentAccessible,
+  mockEnrollmentPeriods
+} from '../../mocks/enrollment-periods.mock';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { Discipline } from '../../../types/disciplines/disciplines.types';
-import { DisciplineCard } from '../components/DisciplineCard';
 import { DisciplineDetailsDrawer } from '../components/DisciplineDetailsDrawer';
 import { DisciplineList } from '../components/DisciplineList';
-import { FilterPanel } from '../components/filters/FilterPanel';
-import { FilterState } from '../../../types/filters/filters.types';
+import { EnrollmentModal } from '../../enrollments/EnrollmentModal';
+import { EnrollmentSelectionPanel } from '../../enrollments/components/EnrollmentSelectionPanel';
 import { NoResults } from '../components/NoResults';
 import { mockDisciplines } from '../../mocks/elective-disciplines.mock';
+import { useEnrollmentSelections } from '../../enrollments/hooks/useEnrollmentSelection';
 
 export const ElectiveDisciplinesPage: FC = () => {
-  const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    credits: [],
-    languages: [],
-    types: [],
-    assessmentTypes: [],
-    availabilityStatus: 'all',
-    sortBy: 'name',
-    sortOrder: 'asc',
-  });
+  // Theme and responsive layout handling
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const navigate = useNavigate();
+  const { periodId } = useParams();
 
-  const [selectedDiscipline, setSelectedDiscipline] =
-    useState<Discipline | null>(null);
+  // Find and validate current enrollment period
+  const enrollmentPeriod = mockEnrollmentPeriods.find(p => p.id === periodId);
+  const status = enrollmentPeriod ? getEnrollmentPeriodStatus(enrollmentPeriod) : 'ended';
+  const remainingDays = enrollmentPeriod ? getRemainingDays(enrollmentPeriod) : 0;
+
+  // Core state management
+  const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [isEnrollmentInProgress, setIsEnrollmentInProgress] = useState(false);
-  const [enrollmentError, setEnrollmentError] = useState<string | null>(null);
+  const [isSelectionDrawerOpen, setIsSelectionDrawerOpen] = useState(false);
+  const [isEnrollmentStarted, setIsEnrollmentStarted] = useState(false);
 
-  const handleFilterChange = (field: keyof FilterState, value: any) => {
-    setFilters((prev) => ({ ...prev, [field]: value }));
+  // Validate enrollment period access
+  useEffect(() => {
+    if (!enrollmentPeriod) {
+      console.error('Enrollment period not found');
+      navigate('/dashboard');
+      return;
+    }
+
+    if (status === 'ended') {
+      console.log('Enrollment period has ended');
+      navigate('/dashboard');
+      return;
+    }
+  }, [enrollmentPeriod, status, navigate]);
+
+  // Initialize enrollment selection management
+  const {
+    selections,
+    addSelection,
+    removeSelection,
+    isPacketComplete,
+    canAddToPacket,
+    isDisciplineSelected,
+    getSelectionErrors,
+    currentPacketId
+  } = useEnrollmentSelections(enrollmentPeriod?.packets || []);
+
+  // Create efficient lookup maps for disciplines
+  const disciplinesMap = useMemo(() => {
+    return mockDisciplines.reduce((acc, discipline) => {
+      acc[discipline.id] = discipline;
+      return acc;
+    }, {} as Record<string, Discipline>);
+  }, [mockDisciplines]);
+
+  // Group disciplines by their respective packets
+  const disciplinesByPacket = useMemo(() => {
+    return (enrollmentPeriod?.packets || []).reduce((acc, packet) => {
+      acc[packet.id] = packet.disciplines
+        .map(id => disciplinesMap[id])
+        .filter(Boolean); // Remove any undefined entries
+      return acc;
+    }, {} as Record<string, Discipline[]>);
+  }, [disciplinesMap, enrollmentPeriod]);
+
+  // Helper function to find which packet a discipline belongs to
+  const getPacketForDiscipline = (disciplineId: string): DisciplinePacket | undefined => {
+    return enrollmentPeriod?.packets.find(packet => 
+      packet.disciplines.includes(disciplineId)
+    );
   };
 
+  // Event Handlers
   const handleViewDetails = (discipline: Discipline) => {
     setSelectedDiscipline(discipline);
     setIsDetailsOpen(true);
   };
 
-  const handleCloseDetails = () => {
-    setIsDetailsOpen(false);
-    setTimeout(() => setSelectedDiscipline(null), 300);
-  };
-
-  const handleEnrollment = async (discipline: Discipline) => {
-    try {
-      setIsEnrollmentInProgress(true);
-      setEnrollmentError(null);
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (error) {
-      setEnrollmentError(
-        error instanceof Error ? error.message : 'Enrollment failed'
-      );
-    } finally {
-      setIsEnrollmentInProgress(false);
-    }
-  };
-
-  const handleResetFilters = () => {
-    setFilters({
-      search: '',
-      credits: [],
-      languages: [],
-      types: [],
-      assessmentTypes: [],
-      availabilityStatus: 'all',
-      sortBy: 'name',
-      sortOrder: 'asc',
-    });
-  };
-
-  const filteredDisciplines = useMemo(() => {
-    let results = [...mockDisciplines];
-
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      results = results.filter(
-        (d) =>
-          d.name.toLowerCase().includes(searchLower) ||
-          d.code.toLowerCase().includes(searchLower)
-      );
-    }
-
-    if (filters.languages.length > 0) {
-      results = results.filter((d) => filters.languages.includes(d.language));
-    }
-
-    if (filters.availabilityStatus !== 'all') {
-      results = results.filter((d) => {
-        const availableSpots =
-          (d.maxEnrollmentSpots || 0) - (d.currentEnrollmentCount || 0);
-        switch (filters.availabilityStatus) {
-          case 'available':
-            return availableSpots > 0;
-          case 'waitlist':
-            return (
-              availableSpots <= 0 && d.waitlistLimit && d.waitlistLimit > 0
-            );
-          case 'full':
-            return availableSpots <= 0;
-          default:
-            return true;
-        }
-      });
-    }
-
-    results.sort((a, b) => {
-      switch (filters.sortBy) {
-        case 'spots':
-          return (
-            (a.maxEnrollmentSpots || 0) -
-            (a.currentEnrollmentCount || 0) -
-            ((b.maxEnrollmentSpots || 0) - (b.currentEnrollmentCount || 0))
-          );
-        case 'credits':
-          return a.credits - b.credits;
-        case 'enrollmentCount':
-          return (
-            (a.currentEnrollmentCount || 0) - (b.currentEnrollmentCount || 0)
-          );
-        case 'language':
-          return a.language.localeCompare(b.language);
-        default:
-          return a.name.localeCompare(b.name);
+  const handleAddToSelection = (disciplineId: string, packetId: string) => {
+    if (canAddToPacket(packetId)) {
+      addSelection(disciplineId, packetId);
+      setIsDetailsOpen(false);
+      if (isMobile) {
+        setIsSelectionDrawerOpen(true);
       }
-    });
-
-    if (filters.sortOrder === 'desc') {
-      results.reverse();
     }
+  };
 
-    return results;
-  }, [filters, mockDisciplines]);
+  const handleStartEnrollment = () => {
+    const errors = getSelectionErrors();
+    if (errors.length === 0) {
+      setIsEnrollmentStarted(true);
+      setIsSelectionDrawerOpen(false);
+    }
+  };
+
+  const handleEnrollmentComplete = () => {
+    setIsEnrollmentStarted(false);
+    // Additional cleanup or success notifications could be added here
+  };
+
+  // Guard against missing enrollment period
+  if (!enrollmentPeriod) return null;
 
   return (
-    <Box sx={{ p: { xs: 3, sm: 4, md: 5 }, maxWidth: '1920px', mx: 'auto' }}>
-      <Typography
-        variant="h4"
-        color="primary.main"
-        sx={{
-          mb: 4,
-          fontWeight: 700,
-          fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
-        }}
-      >
-        Elective Disciplines
-      </Typography>
+    <Grid container spacing={3}>
+      {/* Main content area */}
+      <Grid item xs={12} md={8} lg={9}>
+        <Box sx={{ p: { xs: 2, sm: 3 } }}>
+          {/* Enhanced Header with Period Information */}
+          <Paper sx={{ p: 3, mb: 4 }}>
+            <Stack spacing={3}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    Elective Disciplines
+                  </Typography>
+                  <Typography variant="subtitle1" color="text.secondary" sx={{ mt: 1 }}>
+                    {enrollmentPeriod.academicYear} - Semester {enrollmentPeriod.semester}
+                  </Typography>
+                </Box>
+                <Chip
+                  label={`${remainingDays} days remaining`}
+                  color={remainingDays <= 3 ? "warning" : "default"}
+                  icon={<AccessTime />}
+                  sx={{ px: 1 }}
+                />
+              </Stack>
 
-      <FilterPanel filters={filters} onFilterChange={handleFilterChange} />
+              <Stack spacing={1}>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <CalendarToday color="action" fontSize="small" />
+                  <Typography variant="body2" color="text.secondary">
+                    {new Date(enrollmentPeriod.startDate).toLocaleDateString()} - {' '}
+                    {new Date(enrollmentPeriod.endDate).toLocaleDateString()}
+                  </Typography>
+                </Stack>
 
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="body2" color="text.secondary">
-          Showing {filteredDisciplines.length} disciplines
-        </Typography>
-      </Box>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <School color="action" fontSize="small" />
+                  <Typography variant="body2" color="text.secondary">
+                    Year {enrollmentPeriod.yearOfStudy} - {enrollmentPeriod.targetSpecializations?.join(', ')}
+                  </Typography>
+                </Stack>
+              </Stack>
 
-      {enrollmentError && (
-        <Alert
-          severity="error"
-          sx={{ mb: 3 }}
-          onClose={() => setEnrollmentError(null)}
+              <Divider />
+
+              <Box>
+                <Typography variant="h6" gutterBottom color="primary">
+                  Required Selections
+                </Typography>
+                <Box component="ul" sx={{ pl: 3, mb: 2 }}>
+                  {enrollmentPeriod.packets.map(packet => (
+                    <Typography key={packet.id} component="li" variant="body1" paragraph>
+                      <strong>{packet.name}:</strong> Select 1 primary discipline and{' '}
+                      {packet.maxChoices - 1} backup option
+                    </Typography>
+                  ))}
+                </Box>
+
+                <Alert 
+                  severity="info" 
+                  icon={<Class />}
+                  sx={{ mt: 2 }}
+                >
+                  Your selections will be processed in priority order. If you cannot be enrolled 
+                  in your primary choice, we will attempt to enroll you in your backup selection.
+                </Alert>
+              </Box>
+            </Stack>
+          </Paper>
+
+          {/* Packet Sections */}
+          {enrollmentPeriod.packets.map(packet => {
+            const packetDisciplines = disciplinesByPacket[packet.id] || [];
+            if (packetDisciplines.length === 0) return null;
+
+            return (
+              <Box key={packet.id} sx={{ mb: 6 }}>
+                <Typography variant="h5" gutterBottom color="primary">
+                  {packet.name}
+                </Typography>
+                <Typography variant="body1" gutterBottom color="text.secondary">
+                  {packet.description}
+                </Typography>
+                
+                <DisciplineList
+                  disciplines={packetDisciplines}
+                  packet={packet}
+                  onViewDetails={handleViewDetails}
+                  selectedDisciplines={selections}
+                  isEnrollmentPeriodActive={status === 'active'}
+                />
+              </Box>
+            );
+          })}
+        </Box>
+      </Grid>
+
+      {/* Selection Panel - Desktop */}
+      <Grid item md={4} lg={3} sx={{ display: { xs: 'none', md: 'block' } }}>
+        <Box sx={{ position: 'sticky', top: 0, p: 2 }}>
+          <EnrollmentSelectionPanel
+            selections={selections}
+            packets={enrollmentPeriod.packets}
+            disciplines={disciplinesMap}
+            onRemoveSelection={removeSelection}
+            onStartEnrollment={handleStartEnrollment}
+            enrollmentPeriod={enrollmentPeriod}
+          />
+        </Box>
+      </Grid>
+
+      {/* Selection Panel - Mobile */}
+      {isMobile && (
+        <Drawer
+          anchor="bottom"
+          open={isSelectionDrawerOpen}
+          onClose={() => setIsSelectionDrawerOpen(false)}
+          PaperProps={{
+            sx: {
+              maxHeight: '80vh',
+              borderTopLeftRadius: theme.shape.borderRadius,
+              borderTopRightRadius: theme.shape.borderRadius,
+            },
+          }}
         >
-          {enrollmentError}
-        </Alert>
+          <Box sx={{ p: 2 }}>
+            <EnrollmentSelectionPanel
+              selections={selections}
+              packets={enrollmentPeriod.packets}
+              disciplines={disciplinesMap}
+              onRemoveSelection={removeSelection}
+              onStartEnrollment={handleStartEnrollment}
+              enrollmentPeriod={enrollmentPeriod}
+            />
+          </Box>
+        </Drawer>
       )}
 
-      {filteredDisciplines.length > 0 ? (
-        <DisciplineList
-          disciplines={filteredDisciplines}
-          onViewDetails={handleViewDetails}
-          isEnrollmentPeriodActive={true}
-        />
-      ) : (
-        <NoResults onReset={handleResetFilters} />
-      )}
-
+      {/* Discipline Details Drawer */}
       {selectedDiscipline && (
         <DisciplineDetailsDrawer
           discipline={selectedDiscipline}
           open={isDetailsOpen}
-          onClose={handleCloseDetails}
-          onEnroll={() => handleEnrollment(selectedDiscipline)}
-          isEnrollmentPeriodActive={true}
-          alreadyEnrolled={false}
+          onClose={() => {
+            setIsDetailsOpen(false);
+            setSelectedDiscipline(null);
+          }}
+          onAddToSelection={(packetId) => handleAddToSelection(selectedDiscipline.id, packetId)}
+          isEnrollmentPeriodActive={status === 'active'}
+          isSelected={isDisciplineSelected(selectedDiscipline.id)}
+          canBeSelected={true}
+          packet={getPacketForDiscipline(selectedDiscipline.id)}
+          currentSelections={selections}
         />
       )}
 
-      {/* {isEnrollmentInProgress && <LoadingOverlay />} */}
-    </Box>
+      {/* Enrollment Confirmation Modal */}
+      {/* {isEnrollmentStarted && (
+        <EnrollmentModal
+          open={isEnrollmentStarted}
+          onClose={() => setIsEnrollmentStarted(false)}
+          selections={selections}
+          onEnrollmentComplete={handleEnrollmentComplete}
+          studentId="current-student-id"
+          enrollmentPeriod={enrollmentPeriod}
+        />
+      )} */}
+    </Grid>
   );
 };

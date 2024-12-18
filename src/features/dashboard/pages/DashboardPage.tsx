@@ -1,10 +1,11 @@
 import { Box, Grid, Typography } from '@mui/material';
-import { mockAnnouncements, mockEnrollments, mockQuickActions } from '../../mocks/dashboard.mock';
+import { mockAnnouncements, mockQuickActions } from '../../mocks/dashboard.mock';
 
 import { AnnouncementsSection } from '../components/sections/AnnouncementsSection';
 import { EnrollmentsSection } from '../components/sections/EnrollmentsSection';
 import { FC } from 'react';
 import { QuickActionsSection } from '../components/sections/QuickActionsSection';
+import { mockEnrollmentPeriods } from '../../mocks/enrollment-periods.mock';
 
 const DashboardPage: FC = () => {
   return (
@@ -22,7 +23,7 @@ const DashboardPage: FC = () => {
       </Typography>
 
       <Grid container spacing={3}>
-        <EnrollmentsSection enrollments={mockEnrollments} />
+        <EnrollmentsSection enrollments={mockEnrollmentPeriods} />
         <QuickActionsSection actions={mockQuickActions} />
       </Grid>
 

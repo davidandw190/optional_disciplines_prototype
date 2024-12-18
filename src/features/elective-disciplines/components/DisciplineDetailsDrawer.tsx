@@ -1,29 +1,77 @@
-import { Drawer, useMediaQuery, useTheme } from '@mui/material';
+// src/features/disciplines/components/DisciplineDetailsDrawer.tsx
+
+import { Box, Drawer, Theme, useMediaQuery, useTheme } from '@mui/material';
+import { Discipline, DisciplinePacket } from '../../../types/disciplines/disciplines.types';
 import { FC, useState } from 'react';
 
 import { DetailsTabs } from './discipline-details/DetailsTab';
-import { Discipline } from '../../../types/disciplines/disciplines.types';
+import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-selection.types';
 
-interface DisciplineDetailsDrawerProps {
+// We've updated the props to work with packets instead of groups
+export interface DisciplineDetailsDrawerProps {
   discipline: Discipline;
   open: boolean;
   onClose: () => void;
-  onEnroll?: () => void;
-  isEnrollmentPeriodActive?: boolean;
-  alreadyEnrolled?: boolean;
+  onAddToSelection: (packetId: string) => void;
+  isEnrollmentPeriodActive: boolean;
+  isSelected: boolean;
+  canBeSelected: boolean;
+  packet: DisciplinePacket | undefined;
+  currentSelections: EnrollmentSelectionState;
 }
 
 export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
   discipline,
   open,
   onClose,
-  onEnroll,
-  isEnrollmentPeriodActive = false,
-  alreadyEnrolled = false,
+  onAddToSelection,
+  isEnrollmentPeriodActive,
+  isSelected,
+  canBeSelected,
+  packet,
+  currentSelections
 }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeTab, setActiveTab] = useState(0);
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
+
+  // Calculate selection status for the current packet
+  const getSelectionInfo = () => {
+    if (!packet) return null;
+    
+    const packetSelections = currentSelections.packets[packet.id];
+    const currentSelectionCount = packetSelections?.selections.length || 0;
+    const remainingSelections = packet.maxChoices - currentSelectionCount;
+
+    return {
+      packetName: packet.name,
+      remainingSelections,
+      maxSelections: packet.maxChoices
+    };
+  };
+
+  // Get appropriate action button text based on selection state
+  const getActionButtonText = () => {
+    if (!packet) return 'No Packet Available';
+    if (isSelected) return 'Already Selected';
+    
+    const info = getSelectionInfo();
+    if (!info) return 'Selection Unavailable';
+
+    if (info.remainingSelections <= 0) {
+      return `${info.packetName} Full (${info.maxSelections}/${info.maxSelections})`;
+    }
+    
+    return `Add to ${info.packetName} (${info.remainingSelections} remaining)`;
+  };
+
+  // Handle the selection action
+  const handleAddToSelection = () => {
+    if (packet && canBeSelected && !isSelected) {
+      onAddToSelection(packet.id);
+    }
+  };
 
   return (
     <Drawer
@@ -36,18 +84,33 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
           maxHeight: isMobile ? '90vh' : '100vh',
           borderTopLeftRadius: isMobile ? theme.shape.borderRadius : 0,
           borderTopRightRadius: isMobile ? theme.shape.borderRadius : 0,
+          overflow: 'hidden',
         },
       }}
     >
-      <DetailsTabs
-        discipline={discipline}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        onClose={onClose}
-        onEnroll={onEnroll}
-        isEnrollmentPeriodActive={isEnrollmentPeriodActive}
-        alreadyEnrolled={alreadyEnrolled}
-      />
+      <Box
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <DetailsTabs
+          discipline={discipline}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onClose={onClose}
+          isEnrollmentPeriodActive={isEnrollmentPeriodActive}
+          isSelected={isSelected}
+          canBeSelected={canBeSelected}
+          onAddToSelection={handleAddToSelection}
+          actionButtonText={getActionButtonText()}
+          enrollmentInfo={{
+            packet: packet,
+            selections: getSelectionInfo(),
+          }}
+        />
+      </Box>
     </Drawer>
   );
 };

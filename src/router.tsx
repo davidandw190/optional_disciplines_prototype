@@ -31,7 +31,7 @@ const router = createBrowserRouter(
 
           {/* Disciplines Routes */}
           <Route
-            path="elective-disciplines"
+            path="elective-disciplines/:periodId"
             element={<ElectiveDisciplinesPage />}
           />
           <Route

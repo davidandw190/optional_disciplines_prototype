@@ -174,6 +174,8 @@ export interface EnrollmentPeriod extends BaseEntity {
   status: 'upcoming' | 'active' | 'ended';
   
   progress?: number;
+
+  packets: DisciplinePacket[];
   
   targetSpecializations?: string[];
 }

@@ -13,14 +13,13 @@ interface SidebarContainerProps {
 
 export const SidebarContainer: React.FC<SidebarContainerProps> = ({
   toggleSidebar,
-  sidebarOpen
+  sidebarOpen,
 }) => {
-  
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
-  
+
   // const { data: enrollments } = useGetUserEnrollmentsQuery();
 
   const enrollments: any[] | undefined = [];

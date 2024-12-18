@@ -19,10 +19,8 @@ export const MyEnrollmentsPage: FC = () => {
           fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
         }}
       >
-       My Enrollments
+        My Enrollments
       </Typography>
     </Box>
   );
 };
-
-
