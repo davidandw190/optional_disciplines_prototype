@@ -1,13 +1,13 @@
-// src/features/disciplines/components/DisciplineDetailsDrawer.tsx
-
 import { Box, Drawer, Theme, useMediaQuery, useTheme } from '@mui/material';
-import { Discipline, DisciplinePacket } from '../../../types/disciplines/disciplines.types';
+import {
+  Discipline,
+  DisciplinePacket,
+} from '../../../types/disciplines/disciplines.types';
 import { FC, useState } from 'react';
 
 import { DetailsTabs } from './discipline-details/DetailsTab';
 import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-selection.types';
 
-// We've updated the props to work with packets instead of groups
 export interface DisciplineDetailsDrawerProps {
   discipline: Discipline;
   open: boolean;
@@ -29,17 +29,18 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
   isSelected,
   canBeSelected,
   packet,
-  currentSelections
+  currentSelections,
 }) => {
   const [activeTab, setActiveTab] = useState(0);
-  
-  const theme = useTheme();
-  const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
 
-  // Calculate selection status for the current packet
+  const theme = useTheme();
+  const isMobile = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.down('sm')
+  );
+
   const getSelectionInfo = () => {
     if (!packet) return null;
-    
+
     const packetSelections = currentSelections.packets[packet.id];
     const currentSelectionCount = packetSelections?.selections.length || 0;
     const remainingSelections = packet.maxChoices - currentSelectionCount;
@@ -47,26 +48,24 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
     return {
       packetName: packet.name,
       remainingSelections,
-      maxSelections: packet.maxChoices
+      maxSelections: packet.maxChoices,
     };
   };
 
-  // Get appropriate action button text based on selection state
   const getActionButtonText = () => {
     if (!packet) return 'No Packet Available';
     if (isSelected) return 'Already Selected';
-    
+
     const info = getSelectionInfo();
     if (!info) return 'Selection Unavailable';
 
     if (info.remainingSelections <= 0) {
       return `${info.packetName} Full (${info.maxSelections}/${info.maxSelections})`;
     }
-    
+
     return `Add to ${info.packetName} (${info.remainingSelections} remaining)`;
   };
 
-  // Handle the selection action
   const handleAddToSelection = () => {
     if (packet && canBeSelected && !isSelected) {
       onAddToSelection(packet.id);

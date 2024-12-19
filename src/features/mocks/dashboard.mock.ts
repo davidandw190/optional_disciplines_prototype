@@ -7,27 +7,27 @@ import { CalendarToday, History, InfoOutlined } from '@mui/icons-material';
 
 import { EnrollmentPeriodType } from '../../types/disciplines/disciplines.enums';
 
-export const mockEnrollments: EnrollmentPeriod[] = [
-  {
-    type: EnrollmentPeriodType.ELECTIVE_DISCIPLINES,
-    status: 'upcoming',
-    startDate: 'May 1, 2024',
-    endDate: 'May 15, 2025',
-  },
-  {
-    type: EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES,
-    status: 'active',
-    startDate: 'April 15, 2024',
-    endDate: 'April 30, 2024',
-    progress: 65,
-  },
-  {
-    type: EnrollmentPeriodType.THESIS_REGISTRATION,
-    status: 'upcoming',
-    startDate: 'June 1, 2024',
-    endDate: 'June 15, 2024',
-  },
-];
+// export const mockEnrollments: EnrollmentPeriod[] = [
+//   {
+//     type: EnrollmentPeriodType.ELECTIVE_DISCIPLINES,
+//     status: 'upcoming',
+//     startDate: 'May 1, 2024',
+//     endDate: 'May 15, 2025',
+//   },
+//   {
+//     type: EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES,
+//     status: 'active',
+//     startDate: 'April 15, 2024',
+//     endDate: 'April 30, 2024',
+//     progress: 65,
+//   },
+//   {
+//     type: EnrollmentPeriodType.THESIS_REGISTRATION,
+//     status: 'upcoming',
+//     startDate: 'June 1, 2024',
+//     endDate: 'June 15, 2024',
+//   },
+// ];
 
 export const mockQuickActions: QuickAction[] = [
   {

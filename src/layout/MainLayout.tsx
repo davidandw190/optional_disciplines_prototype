@@ -15,18 +15,13 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  marginLeft: 0,
+  padding: theme.spacing(2),
   width: '100%',
-
-  ...(open && {
-    width: `calc(100% - ${DRAWER_WIDTH}px)`,
-    marginLeft: DRAWER_WIDTH,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-  backgroundSize: '20px 20px',
+  [theme.breakpoints.up('md')]: {
+    marginLeft: open ? DRAWER_WIDTH : 0,
+    width: open ? `calc(100% - ${DRAWER_WIDTH}px)` : '100%',
+  },
+  backgroundColor: theme.palette.background.default,
 }));
 
 export const MainLayout: FC<MainLayoutProps> = () => {
@@ -37,7 +32,11 @@ export const MainLayout: FC<MainLayoutProps> = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', minWidth: '1600px' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      minHeight: '100vh',
+      flexDirection: { xs: 'column', md: 'row' }
+    }}>
       <Header onMenuClick={toggleSidebar} sidebarOpen={sidebarOpen} />
       <SidebarContainer
         toggleSidebar={toggleSidebar}
@@ -46,21 +45,15 @@ export const MainLayout: FC<MainLayoutProps> = () => {
       <Main open={sidebarOpen}>
         <Box
           sx={{
-            mt: '40px', // Adjusted to match new header height
-            minHeight: 'calc(100vh - 56px)', // Adjusted calculation
+            mt: { xs: '56px', md: '64px' },
+            minHeight: { xs: 'calc(100vh - 56px)', md: 'calc(100vh - 64px)' },
             width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
+            maxWidth: '1600px',
+            mx: 'auto',
+            p: { xs: 2, sm: 3, md: 4 },
           }}
         >
-          <Box
-            sx={{
-              width: '100%',
-              padding: { xs: 2, sm: 3, md: 4 },
-            }}
-          >
-            <Outlet />
-          </Box>
+          <Outlet />
         </Box>
       </Main>
     </Box>

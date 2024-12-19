@@ -1,9 +1,4 @@
-import {
-  AccessTime,
-  Email,
-  LocationOn,
-  Person
-} from '@mui/icons-material';
+import { AccessTime, Email, LocationOn, Person } from '@mui/icons-material';
 import { Box, Chip, Grid, Paper, Stack, Typography } from '@mui/material';
 
 import { Discipline } from '../../../../types/disciplines/disciplines.types';
@@ -24,17 +19,27 @@ export const ScheduleTab: FC<ScheduleTabProps> = ({ discipline }) => {
             p: 2.5,
             border: '1px solid',
             borderColor: 'divider',
-            borderRadius: 2
+            borderRadius: 2,
           }}
         >
           <Stack spacing={3}>
             <Box>
-              <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+              <Typography
+                variant="subtitle1"
+                gutterBottom
+                sx={{ fontWeight: 600 }}
+              >
                 {activity.type}
               </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                flexWrap="wrap"
+                useFlexGap
+                sx={{ mt: 1 }}
+              >
                 {activity.teachingMethods.map((method, idx) => (
-                  <Chip 
+                  <Chip
                     key={idx}
                     label={method}
                     size="small"
@@ -54,7 +59,7 @@ export const ScheduleTab: FC<ScheduleTabProps> = ({ discipline }) => {
                       {activity.teacher.firstName} {activity.teacher.lastName}
                     </Typography>
                   </Stack>
-                  
+
                   {activity.teacher.email && (
                     <Stack direction="row" spacing={1} alignItems="center">
                       <Email fontSize="small" color="primary" />
@@ -71,7 +76,8 @@ export const ScheduleTab: FC<ScheduleTabProps> = ({ discipline }) => {
                   <Stack direction="row" spacing={1} alignItems="center">
                     <AccessTime fontSize="small" color="primary" />
                     <Typography variant="body2">
-                      {activity.hoursPerWeek} hours/week ({activity.totalHours} total hours)
+                      {activity.hoursPerWeek} hours/week ({activity.totalHours}{' '}
+                      total hours)
                     </Typography>
                   </Stack>
 
@@ -92,7 +98,7 @@ export const ScheduleTab: FC<ScheduleTabProps> = ({ discipline }) => {
                 </Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                   {activity.conditions.requirements.map((req, idx) => (
-                    <Chip 
+                    <Chip
                       key={idx}
                       label={req}
                       size="small"

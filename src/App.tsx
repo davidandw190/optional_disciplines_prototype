@@ -14,11 +14,18 @@ const App: FC = () => {
   return (
     <ThemeProvider theme={getTheme(theme, prefersDarkMode)}>
       <CssBaseline />
-      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          minHeight: '100vh',
+          flexDirection: { xs: 'column', md: 'row' } // Stack vertically on mobile
+        }}
+      >
         <Outlet />
       </Box>
     </ThemeProvider>
   );
 };
+
 
 export default App;
