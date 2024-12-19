@@ -1,7 +1,7 @@
-// DisciplineCard.tsx
 import {
   AccessTime,
   AssignmentTurnedIn,
+  CalendarToday,
   Grade,
   Language,
 } from '@mui/icons-material';
@@ -52,6 +52,8 @@ export const DisciplineCard: FC<DisciplineCardProps> = memo(
       weeklyHours,
       maxEnrollmentSpots,
       currentEnrollmentCount = 0,
+      semester,
+      yearOfStudy,
     } = discipline;
 
     const enrollmentPercentage = maxEnrollmentSpots
@@ -73,102 +75,121 @@ export const DisciplineCard: FC<DisciplineCardProps> = memo(
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
-          overflow: 'visible', // this allows for hover effects to extend beyond card
+          overflow: 'visible',
         }}
       >
         <CardContent
-          sx={{ p: 3, flex: 1, display: 'flex', flexDirection: 'column' }}
+          sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column' }}
         >
-          <Stack spacing={2.5}>
-            {/* packet badge */}
-            <Chip
-              size="small"
-              label={packet.name}
-              color="primary"
-              sx={{
-                alignSelf: 'flex-start',
-                fontWeight: 500,
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                color: theme.palette.primary.main,
-                border: 'none',
-              }}
-            />
-
-            {/* title section */}
-            <Stack spacing={1}>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 600, lineHeight: 1.3 }}
-              >
-                {name}
-              </Typography>
+          <Stack spacing={2}>
+            {/* Header with Code and Semester */}
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
               <Typography
                 variant="caption"
                 sx={{
                   fontFamily: 'monospace',
                   bgcolor: alpha(theme.palette.text.primary, 0.05),
-                  px: 1,
+                  px: 1.5,
                   py: 0.5,
                   borderRadius: 1,
-                  display: 'inline-block',
-                  width: 'fit-content',
+                  fontWeight: 500,
                 }}
               >
                 {code}
               </Typography>
+              <Tooltip title="Semester & Year">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <CalendarToday
+                    sx={{ fontSize: '0.875rem', color: 'text.secondary' }}
+                  />
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    S{semester}/Y{yearOfStudy}
+                  </Typography>
+                </Box>
+              </Tooltip>
             </Stack>
 
-            {/* info chips */}
-            <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ gap: 1 }}>
+            {/* Title */}
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 600,
+                lineHeight: 1.3,
+                minHeight: 42, // Ensures consistent card height
+              }}
+            >
+              {name}
+            </Typography>
+
+            {/* Core Info Chips */}
+            <Stack
+              direction="row"
+              spacing={0.5}
+              flexWrap="wrap"
+              useFlexGap
+              sx={{ gap: 0.5 }}
+            >
               <Tooltip title="Credits">
                 <Chip
                   size="small"
-                  icon={<Grade sx={{ fontSize: '1rem' }} />}
+                  icon={<Grade sx={{ fontSize: '0.875rem' }} />}
                   label={`${credits} credits`}
                   color={getStatusColor()}
                   variant={isSelected ? 'filled' : 'outlined'}
+                  sx={{ height: 24 }}
                 />
               </Tooltip>
               <Tooltip title="Teaching Language">
                 <Chip
                   size="small"
-                  icon={<Language sx={{ fontSize: '1rem' }} />}
+                  icon={<Language sx={{ fontSize: '0.875rem' }} />}
                   label={language}
                   variant="outlined"
+                  sx={{ height: 24 }}
                 />
               </Tooltip>
               <Tooltip title="Weekly Hours">
                 <Chip
                   size="small"
-                  icon={<AccessTime sx={{ fontSize: '1rem' }} />}
-                  label={`${weeklyHours.total}h/week`}
+                  icon={<AccessTime sx={{ fontSize: '0.875rem' }} />}
+                  label={`${weeklyHours.total}h`}
                   variant="outlined"
+                  sx={{ height: 24 }}
                 />
               </Tooltip>
               <Tooltip title="Assessment Type">
                 <Chip
                   size="small"
-                  icon={<AssignmentTurnedIn sx={{ fontSize: '1rem' }} />}
+                  icon={<AssignmentTurnedIn sx={{ fontSize: '0.875rem' }} />}
                   label={assessmentType.toLowerCase()}
                   variant="outlined"
+                  sx={{ height: 24 }}
                 />
               </Tooltip>
             </Stack>
 
-            {/* enrollment progress */}
-            <Box sx={{ mt: 'auto', pt: 2 }}>
+            {/* Enrollment Progress */}
+            <Box sx={{ mt: 'auto', pt: 1 }}>
               <Stack
                 direction="row"
                 justifyContent="space-between"
                 alignItems="center"
-                sx={{ mb: 1 }}
+                sx={{ mb: 0.5 }}
               >
                 <Typography
                   variant="caption"
                   color={getStatusColor()}
                   fontWeight={500}
                 >
-                  {currentEnrollmentCount} / {maxEnrollmentSpots} spots
+                  {currentEnrollmentCount}/{maxEnrollmentSpots} enrolled
                 </Typography>
                 <Typography
                   variant="caption"
@@ -183,28 +204,28 @@ export const DisciplineCard: FC<DisciplineCardProps> = memo(
                 value={enrollmentPercentage}
                 color={getStatusColor()}
                 sx={{
-                  height: 6,
-                  borderRadius: 3,
+                  height: 4,
+                  borderRadius: 2,
                   bgcolor: alpha(theme.palette.grey[500], 0.1),
                   '.MuiLinearProgress-bar': {
-                    borderRadius: 3,
+                    borderRadius: 2,
                   },
                 }}
               />
             </Box>
 
-            {/* action button */}
+            {/* Action Button */}
             <Button
               fullWidth
               variant={isSelected ? 'contained' : 'outlined'}
               color={getStatusColor()}
               onClick={onViewDetails}
               sx={{
-                mt: 2,
                 textTransform: 'none',
                 fontWeight: 500,
-                height: 40,
+                height: 36,
                 borderRadius: theme.shape.borderRadius,
+                mt: 1,
               }}
             >
               {isSelected

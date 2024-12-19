@@ -50,12 +50,10 @@ export const ElectiveDisciplinesPage: FC = () => {
   const navigate = useNavigate();
   const { periodId } = useParams();
 
-  // Find and validate the current enrollment period
   const enrollmentPeriod = mockEnrollmentPeriods.find(p => p.id === periodId);
   const status = enrollmentPeriod ? getEnrollmentPeriodStatus(enrollmentPeriod) : 'ended';
   const remainingDays = enrollmentPeriod ? getRemainingDays(enrollmentPeriod) : 0;
 
-  // State management
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isSelectionDrawerOpen, setIsSelectionDrawerOpen] = useState(false);
@@ -63,7 +61,6 @@ export const ElectiveDisciplinesPage: FC = () => {
   const [isRequiredSelectionsExpanded, setIsRequiredSelectionsExpanded] = 
     useState(false);
 
-  // Initialize enrollment selection management
   const {
     selections,
     addSelection,
@@ -73,7 +70,6 @@ export const ElectiveDisciplinesPage: FC = () => {
     getSelectionErrors,
   } = useEnrollmentSelections(enrollmentPeriod?.packets || []);
 
-  // Create an efficient lookup map for disciplines
   const disciplinesMap = useMemo(() => {
     return mockDisciplines.reduce((acc, discipline) => {
       acc[discipline.id] = discipline;
@@ -81,7 +77,6 @@ export const ElectiveDisciplinesPage: FC = () => {
     }, {} as Record<string, Discipline>);
   }, [mockDisciplines]);
 
-  // Group disciplines by their respective packets
   const disciplinesByPacket = useMemo(() => {
     return (enrollmentPeriod?.packets || []).reduce((acc, packet) => {
       acc[packet.id] = packet.disciplines
@@ -91,7 +86,6 @@ export const ElectiveDisciplinesPage: FC = () => {
     }, {} as Record<string, Discipline[]>);
   }, [disciplinesMap, enrollmentPeriod]);
 
-  // Helper function to get the total number of selections
   const getTotalSelections = () => {
     return Object.values(selections.packets).reduce(
       (total, packet) => total + packet.selections.length,
@@ -99,14 +93,12 @@ export const ElectiveDisciplinesPage: FC = () => {
     );
   };
 
-  // Helper function to find which packet a discipline belongs to
   const getPacketForDiscipline = (disciplineId: string): DisciplinePacket | undefined => {
     return enrollmentPeriod?.packets.find(packet => 
       packet.disciplines.includes(disciplineId)
     );
   };
 
-  // Event Handlers
   const handleViewDetails = (discipline: Discipline) => {
     setSelectedDiscipline(discipline);
     setIsDetailsOpen(true);
@@ -134,7 +126,6 @@ export const ElectiveDisciplinesPage: FC = () => {
     setIsEnrollmentStarted(false);
   };
 
-  // Validate enrollment period access
   useEffect(() => {
     if (!enrollmentPeriod || status === 'ended') {
       navigate('/dashboard');
@@ -161,7 +152,7 @@ export const ElectiveDisciplinesPage: FC = () => {
             }}
           >
             <Stack spacing={3}>
-              {/* Title and Days Counter */}
+              {/* title and days counter */}
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
@@ -179,7 +170,7 @@ export const ElectiveDisciplinesPage: FC = () => {
                 />
               </Stack>
 
-              {/* Period Details */}
+              {/* period details */}
               <Stack spacing={1}>
                 <Stack direction="row" spacing={2} alignItems="center">
                   <CalendarToday color="action" fontSize="small" />

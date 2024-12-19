@@ -1,5 +1,3 @@
-// src/features/mocks/enrollment-periods.mock.ts
-
 import {
   DisciplinePacket,
   EnrollmentPeriod,
@@ -7,16 +5,15 @@ import {
 
 import { EnrollmentPeriodType } from '../../types/disciplines/disciplines.enums';
 
-// Mock packets with complete information
 export const mockElectiveDisciplinePackets: DisciplinePacket[] = [
   {
     id: 'packet-1',
-    name: 'Web Technologies',
-    description: 'Modern web development frameworks and practices',
+    name: 'Elective Packet 1',
+    description: 'A small description of this elective packet.',
     semester: 2,
     yearOfStudy: 3,
-    maxChoices: 2, // Primary + backup selection
-    disciplines: ['1', '2', '3','5', '6'],
+    maxChoices: 2,
+    disciplines: ['1', '2', '3', '5', '6'],
     totalCredits: 2,
     category: 'Technical',
     createdAt: new Date(),
@@ -28,8 +25,8 @@ export const mockElectiveDisciplinePackets: DisciplinePacket[] = [
   },
   {
     id: 'packet-2',
-    name: 'Distributed Systems',
-    description: 'Advanced distributed computing concepts',
+    name: 'Elective Packet 2',
+    description: 'A small description of this elective packet.',
     semester: 2,
     yearOfStudy: 3,
     maxChoices: 1,

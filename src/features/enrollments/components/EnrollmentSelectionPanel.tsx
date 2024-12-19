@@ -46,7 +46,6 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
   const theme = useTheme();
   const remainingDays = getRemainingDays(enrollmentPeriod);
 
-  // Check if all packets have their required number of selections
   const isComplete = packets.every(
     (packet) =>
       selections.packets[packet.id]?.selections.length === packet.maxChoices
@@ -66,7 +65,7 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
       }}
     >
       <Stack spacing={3} sx={{ height: '100%' }}>
-        {/* Header Section */}
+        {/* header Section */}
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -84,7 +83,7 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
           /> */}
         </Stack>
 
-        {/* Selections List */}
+        {/* selections list */}
         <Box sx={{ flex: 1, overflow: 'auto' }}>
           {packets.map((packet) => (
             <Box key={packet.id} sx={{ mb: 3 }}>
@@ -156,7 +155,7 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
           ))}
         </Box>
 
-        {/* Action Footer */}
+        {/* action footer */}
         <Box>
           <Button
             variant="contained"
