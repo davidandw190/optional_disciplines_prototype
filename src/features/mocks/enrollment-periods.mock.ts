@@ -100,13 +100,12 @@ const mockThesisPackets: DisciplinePacket[] = [
   },
 ];
 
-// Complete enrollment period information
 export const mockEnrollmentPeriods: EnrollmentPeriod[] = [
   {
     id: 'ep-1',
     type: EnrollmentPeriodType.ELECTIVE_DISCIPLINES,
     startDate: new Date('2024-05-01T00:00:00Z'),
-    endDate: new Date('2024-12-19T23:59:59Z'),
+    endDate: new Date('2024-12-21T23:59:59Z'),
     semester: 1,
     yearOfStudy: 3,
     academicYear: '2024-2025',
@@ -121,8 +120,8 @@ export const mockEnrollmentPeriods: EnrollmentPeriod[] = [
   {
     id: 'ep-2',
     type: EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES,
-    startDate: new Date('2024-06-01T00:00:00Z'),
-    endDate: new Date('2024-06-15T23:59:59Z'),
+    startDate: new Date('2025-01-01T00:00:00Z'),
+    endDate: new Date('2025-02-15T23:59:59Z'),
     semester: 1,
     yearOfStudy: 3,
     academicYear: '2024-2025',
@@ -151,7 +150,6 @@ export const mockEnrollmentPeriods: EnrollmentPeriod[] = [
   },
 ];
 
-// Helper function to check enrollment period status
 export const getEnrollmentPeriodStatus = (period: EnrollmentPeriod): string => {
   const now = new Date();
   const startDate = new Date(period.startDate);
@@ -162,7 +160,6 @@ export const getEnrollmentPeriodStatus = (period: EnrollmentPeriod): string => {
   return 'active';
 };
 
-// Helper to get remaining days
 export const getRemainingDays = (period: EnrollmentPeriod): number => {
   const now = new Date();
   const endDate = new Date(period.endDate);
@@ -170,7 +167,6 @@ export const getRemainingDays = (period: EnrollmentPeriod): number => {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
-// Helper to check if enrollment is accessible
 export const isEnrollmentAccessible = (period: EnrollmentPeriod): boolean => {
   const status = getEnrollmentPeriodStatus(period);
   return status === 'active';
