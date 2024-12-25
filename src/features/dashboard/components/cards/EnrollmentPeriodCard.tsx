@@ -1,25 +1,26 @@
-// src/features/dashboard/components/cards/EnrollmentPeriodCard.tsx
-
 import {
   AccessTime,
   AutoStories,
   BookOutlined,
   CalendarToday,
   MenuBook,
-  MoreVert,
+  School,
 } from '@mui/icons-material';
 import {
   Box,
   Chip,
   IconButton,
-  LinearProgress,
   Paper,
   Stack,
   Tooltip,
   Typography,
   alpha,
 } from '@mui/material';
-import { getEnrollmentPeriodStatus, getRemainingDays, isEnrollmentAccessible } from '../../../mocks/enrollment-periods.mock';
+import {
+  getEnrollmentPeriodStatus,
+  getRemainingDays,
+  isEnrollmentAccessible
+} from '../../../mocks/enrollment-periods.mock';
 
 import { EnrollmentPeriod } from '../../../../types/disciplines/disciplines.types';
 import { EnrollmentPeriodType } from '../../../../types/disciplines/disciplines.enums';
@@ -30,27 +31,51 @@ interface EnrollmentPeriodCardProps {
   period: EnrollmentPeriod;
 }
 
+type StatusConfig = {
+  color: string;
+  text: string;
+  chipColor: 'success' | 'warning' | 'default' | 'primary' | 'secondary' | 'error' | 'info';
+};
+
 export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({ period }) => {
   const navigate = useNavigate();
   const status = getEnrollmentPeriodStatus(period);
   const remainingDays = getRemainingDays(period);
   const isAccessible = isEnrollmentAccessible(period);
 
-  // Determine the appropriate status color and text
-  const getStatusConfig = () => {
+  // Configure status-specific visual properties
+  const getStatusConfig = (): StatusConfig => {
     switch (status) {
       case 'active':
-        return { color: '#00C853', text: 'ACTIVE' };
+        return { 
+          color: 'success.main', 
+          text: 'ACTIVE',
+          chipColor: 'success'  // This is now properly typed
+        };
       case 'upcoming':
-        return { color: '#FF9800', text: 'UPCOMING' };
+        return { 
+          color: 'warning.main', 
+          text: 'UPCOMING',
+          chipColor: 'warning'  // This is now properly typed
+        };
       case 'ended':
-        return { color: '#E0E0E0', text: 'ENDED' };
+        return { 
+          color: 'text.disabled', 
+          text: 'ENDED',
+          chipColor: 'default'  // This is now properly typed
+        };
       default:
-        return { color: '#E0E0E0', text: 'UNKNOWN' };
+        return { 
+          color: 'text.disabled', 
+          text: 'UNKNOWN',
+          chipColor: 'default'  // This is now properly typed
+        };
     }
   };
 
-  // Get the appropriate icon for the enrollment type
+  const statusConfig = getStatusConfig();
+
+  // Get appropriate icon for enrollment type
   const getEnrollmentIcon = () => {
     switch (period.type) {
       case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
@@ -60,28 +85,26 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({ period }) 
       case EnrollmentPeriodType.THESIS_REGISTRATION:
         return <AutoStories fontSize="small" />;
       default:
-        return <CalendarToday fontSize="small" />;
+        return <School fontSize="small" />;
     }
   };
 
-  // Handle navigation to the enrollment page
+  // Handle navigation based on enrollment type
   const handleClick = () => {
-    if (isAccessible) {
-      switch (period.type) {
-        case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
-          navigate(`/elective-disciplines/${period.id}`);
-          break;
-        case EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES:
-          navigate(`/complementary-disciplines/${period.id}`);
-          break;
-        case EnrollmentPeriodType.THESIS_REGISTRATION:
-          navigate(`/thesis-registration/${period.id}`);
-          break;
-      }
+    if (!isAccessible) return;
+    
+    switch (period.type) {
+      case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
+        navigate(`/elective-disciplines/${period.id}`);
+        break;
+      case EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES:
+        navigate(`/complementary-disciplines/${period.id}`);
+        break;
+      case EnrollmentPeriodType.THESIS_REGISTRATION:
+        navigate(`/thesis-registration/${period.id}`);
+        break;
     }
   };
-
-  const statusConfig = getStatusConfig();
 
   return (
     <Paper
@@ -91,115 +114,127 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({ period }) 
         p: { xs: 2, sm: 2.5 },
         borderRadius: 2,
         border: '1px solid',
-        borderColor: 'divider',
+        borderColor: status === 'ended' ? 'grey.200' : 'divider',
         cursor: isAccessible ? 'pointer' : 'default',
+        opacity: status === 'ended' ? 0.7 : 1,
+        background: status === 'ended' ? 'grey.50' : 'background.paper',
+        transition: 'all 0.2s ease-in-out',
         '&:hover': isAccessible
           ? {
               bgcolor: (theme) => alpha(theme.palette.primary.main, 0.04),
               borderColor: 'primary.main',
               transform: 'translateY(-2px)',
-              transition: 'all 0.2s ease-in-out',
             }
           : {},
       }}
     >
-      <Stack spacing={2.5}>
+      <Stack spacing={2}>
         {/* Header Section */}
         <Stack
-          direction={{ xs: 'column', sm: 'row' }}
+          direction="row"
           justifyContent="space-between"
-          alignItems={{ xs: 'flex-start', sm: 'center' }}
+          alignItems="center"
           spacing={2}
         >
-          <Stack direction="row" alignItems="center" spacing={2}>
+          {/* Left Side - Period Info */}
+          <Stack direction="row" spacing={2} alignItems="center">
             <Box
               sx={{
                 p: 1.25,
                 borderRadius: 1.5,
-                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
-                color: 'primary.main',
+                bgcolor: (theme) => status === 'ended' 
+                  ? alpha(theme.palette.grey[500], 0.1)
+                  : alpha(theme.palette.primary.main, 0.1),
+                color: status === 'ended' ? 'text.disabled' : 'primary.main',
               }}
             >
               {getEnrollmentIcon()}
             </Box>
 
-            <Box>
-              <Typography variant="body1" fontWeight={600}>
+            <Stack spacing={0.5}>
+              <Typography 
+                variant="body1" 
+                fontWeight={600}
+                color={status === 'ended' ? 'text.disabled' : 'text.primary'}
+              >
                 {period.type}
               </Typography>
+              
               <Stack direction="row" spacing={1} alignItems="center">
-                <AccessTime sx={{ fontSize: 14, color: 'text.secondary' }} />
-                <Typography variant="caption" color="text.secondary">
+                <AccessTime 
+                  sx={{ 
+                    fontSize: 14, 
+                    color: status === 'ended' ? 'text.disabled' : 'text.secondary' 
+                  }} 
+                />
+                <Typography 
+                  variant="caption" 
+                  color={status === 'ended' ? 'text.disabled' : 'text.secondary'}
+                >
                   {new Date(period.startDate).toLocaleDateString()} -{' '}
                   {new Date(period.endDate).toLocaleDateString()}
                 </Typography>
               </Stack>
-            </Box>
+            </Stack>
           </Stack>
 
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Tooltip title={`Status: ${statusConfig.text}`}>
-              <Chip
-                label={statusConfig.text}
-                size="small"
-                sx={{
-                  bgcolor: statusConfig.color,
-                  color: 'white',
-                  px: 1,
-                  height: 24,
-                  fontSize: '0.75rem',
-                  fontWeight: 500,
-                }}
-              />
-            </Tooltip>
-            <IconButton size="small">
-              <MoreVert fontSize="small" />
-            </IconButton>
+          {/* Right Side - Status */}
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Chip
+              label={statusConfig.text}
+              size="small"
+              color={statusConfig.chipColor}
+              sx={{
+                height: 24,
+                fontSize: '0.75rem',
+                fontWeight: 500,
+              }}
+            />
           </Stack>
         </Stack>
 
-        {/* Progress Section */}
+        {/* Active Period Info */}
         {status === 'active' && (
-          <Box>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ mb: 1 }}
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Typography 
+              variant="caption" 
+              color="text.secondary" 
+              fontWeight={500}
             >
-              <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                Time Remaining
-              </Typography>
-              <Typography
-                variant="caption"
-                color={remainingDays <= 3 ? 'warning.main' : 'text.secondary'}
-                fontWeight={600}
-              >
-                {remainingDays} days left
-              </Typography>
-            </Stack>
-            <LinearProgress
-              variant="determinate"
-              value={((period.endDate.getTime() - Date.now()) / 
-                     (period.endDate.getTime() - period.startDate.getTime())) * 100}
-              sx={{
-                height: 6,
-                borderRadius: 3,
-                bgcolor: (theme) => alpha(theme.palette.grey[500], 0.1),
-                '& .MuiLinearProgress-bar': {
-                  borderRadius: 3,
-                },
-              }}
+              Time Remaining
+            </Typography>
+            <Chip
+              label={`${remainingDays} days left`}
+              size="small"
+              color={remainingDays <= 3 ? 'warning' : 'default'}
+              sx={{ height: 24 }}
             />
-          </Box>
+          </Stack>
         )}
 
-        {/* Additional Information */}
-        {period.packets && (
-          <Typography variant="caption" color="text.secondary">
+        {/* Footer Info */}
+        <Stack 
+          direction="row" 
+          justifyContent="space-between" 
+          alignItems="center"
+        >
+          <Typography
+            variant="caption"
+            color={status === 'ended' ? 'text.disabled' : 'text.secondary'}
+          >
             {period.packets.length} packet{period.packets.length !== 1 ? 's' : ''} available
           </Typography>
-        )}
+          
+          {isAccessible && (
+            <Typography
+              variant="caption"
+              color="primary"
+              fontWeight={500}
+            >
+              Click to view details
+            </Typography>
+          )}
+        </Stack>
       </Stack>
     </Paper>
   );

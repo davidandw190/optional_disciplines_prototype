@@ -64,7 +64,7 @@ export const EnrollmentModal: FC<EnrollmentModalProps> = ({
                   studentId,
                   disciplineId,
                   packetId,
-                  validationId: 'temp-id', // In real app, this would come from validation
+                  validationId: 'temp-id', 
                 });
                 goToNextStep();
               }

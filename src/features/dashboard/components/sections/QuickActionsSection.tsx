@@ -19,6 +19,10 @@ export const QuickActionsSection: FC<QuickActionsSectionProps> = ({ actions }) =
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
+        border: '1px solid',
+        borderColor: 'divider',
+        maxWidth: '100%',
+        mx: 'auto'
       }}
     >
       <Stack spacing={2.5} sx={{ flex: 1 }}>

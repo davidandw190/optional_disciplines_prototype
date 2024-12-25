@@ -18,6 +18,8 @@ const App: FC = () => {
         sx={{ 
           display: 'flex', 
           minHeight: '100vh',
+          maxWidth: '100vw',
+          overflow: 'hidden',
           flexDirection: { xs: 'column', md: 'row' } // Stack vertically on mobile
         }}
       >

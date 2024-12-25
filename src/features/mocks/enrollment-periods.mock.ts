@@ -105,7 +105,7 @@ export const mockEnrollmentPeriods: EnrollmentPeriod[] = [
     id: 'ep-1',
     type: EnrollmentPeriodType.ELECTIVE_DISCIPLINES,
     startDate: new Date('2024-05-01T00:00:00Z'),
-    endDate: new Date('2024-12-21T23:59:59Z'),
+    endDate: new Date('2024-12-31T23:59:59Z'),
     semester: 1,
     yearOfStudy: 3,
     academicYear: '2024-2025',

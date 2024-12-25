@@ -4,7 +4,7 @@ import {
   Class,
   ExpandMore,
   PlaylistAdd,
-  School
+  School,
 } from '@mui/icons-material';
 import {
   Accordion,
@@ -24,12 +24,15 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { Discipline, DisciplinePacket } from '../../../types/disciplines/disciplines.types';
+import {
+  Discipline,
+  DisciplinePacket,
+} from '../../../types/disciplines/disciplines.types';
 import { FC, useEffect, useMemo, useState } from 'react';
 import {
   getEnrollmentPeriodStatus,
   getRemainingDays,
-  mockEnrollmentPeriods
+  mockEnrollmentPeriods,
 } from '../../mocks/enrollment-periods.mock';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -50,15 +53,20 @@ export const ElectiveDisciplinesPage: FC = () => {
   const navigate = useNavigate();
   const { periodId } = useParams();
 
-  const enrollmentPeriod = mockEnrollmentPeriods.find(p => p.id === periodId);
-  const status = enrollmentPeriod ? getEnrollmentPeriodStatus(enrollmentPeriod) : 'ended';
-  const remainingDays = enrollmentPeriod ? getRemainingDays(enrollmentPeriod) : 0;
+  const enrollmentPeriod = mockEnrollmentPeriods.find((p) => p.id === periodId);
+  const status = enrollmentPeriod
+    ? getEnrollmentPeriodStatus(enrollmentPeriod)
+    : 'ended';
+  const remainingDays = enrollmentPeriod
+    ? getRemainingDays(enrollmentPeriod)
+    : 0;
 
-  const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | null>(null);
+  const [selectedDiscipline, setSelectedDiscipline] =
+    useState<Discipline | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isSelectionDrawerOpen, setIsSelectionDrawerOpen] = useState(false);
   const [isEnrollmentStarted, setIsEnrollmentStarted] = useState(false);
-  const [isRequiredSelectionsExpanded, setIsRequiredSelectionsExpanded] = 
+  const [isRequiredSelectionsExpanded, setIsRequiredSelectionsExpanded] =
     useState(false);
 
   const {
@@ -80,7 +88,7 @@ export const ElectiveDisciplinesPage: FC = () => {
   const disciplinesByPacket = useMemo(() => {
     return (enrollmentPeriod?.packets || []).reduce((acc, packet) => {
       acc[packet.id] = packet.disciplines
-        .map(id => disciplinesMap[id])
+        .map((id) => disciplinesMap[id])
         .filter(Boolean);
       return acc;
     }, {} as Record<string, Discipline[]>);
@@ -93,8 +101,10 @@ export const ElectiveDisciplinesPage: FC = () => {
     );
   };
 
-  const getPacketForDiscipline = (disciplineId: string): DisciplinePacket | undefined => {
-    return enrollmentPeriod?.packets.find(packet => 
+  const getPacketForDiscipline = (
+    disciplineId: string
+  ): DisciplinePacket | undefined => {
+    return enrollmentPeriod?.packets.find((packet) =>
       packet.disciplines.includes(disciplineId)
     );
   };
@@ -140,10 +150,10 @@ export const ElectiveDisciplinesPage: FC = () => {
       <Grid item xs={12} md={8} lg={8}>
         <Box sx={{ p: { xs: 2, sm: 3 } }}>
           {/* Period Information Header */}
-          <Paper 
+          <Paper
             elevation={0}
-            sx={{ 
-              p: 3, 
+            sx={{
+              p: 3,
               mb: 4,
               borderRadius: 2,
               border: '1px solid',
@@ -153,18 +163,27 @@ export const ElectiveDisciplinesPage: FC = () => {
           >
             <Stack spacing={3}>
               {/* title and days counter */}
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
                     Elective Disciplines
                   </Typography>
-                  <Typography variant="subtitle1" color="text.secondary" sx={{ mt: 1 }}>
-                    {enrollmentPeriod.academicYear} - Semester {enrollmentPeriod.semester}
+                  <Typography
+                    variant="subtitle1"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                  >
+                    {enrollmentPeriod.academicYear} - Semester{' '}
+                    {enrollmentPeriod.semester}
                   </Typography>
                 </Box>
                 <Chip
                   label={`${remainingDays} days remaining`}
-                  color={remainingDays <= 3 ? "warning" : "default"}
+                  color={remainingDays <= 3 ? 'warning' : 'default'}
                   icon={<AccessTime />}
                   sx={{ px: 1 }}
                 />
@@ -175,14 +194,15 @@ export const ElectiveDisciplinesPage: FC = () => {
                 <Stack direction="row" spacing={2} alignItems="center">
                   <CalendarToday color="action" fontSize="small" />
                   <Typography variant="body2" color="text.secondary">
-                    {new Date(enrollmentPeriod.startDate).toLocaleDateString()} - {' '}
-                    {new Date(enrollmentPeriod.endDate).toLocaleDateString()}
+                    {new Date(enrollmentPeriod.startDate).toLocaleDateString()}{' '}
+                    - {new Date(enrollmentPeriod.endDate).toLocaleDateString()}
                   </Typography>
                 </Stack>
                 <Stack direction="row" spacing={2} alignItems="center">
                   <School color="action" fontSize="small" />
                   <Typography variant="body2" color="text.secondary">
-                    Year {enrollmentPeriod.yearOfStudy} - {enrollmentPeriod.targetSpecializations?.join(', ')}
+                    Year {enrollmentPeriod.yearOfStudy} -{' '}
+                    {enrollmentPeriod.targetSpecializations?.join(', ')}
                   </Typography>
                 </Stack>
               </Stack>
@@ -192,7 +212,9 @@ export const ElectiveDisciplinesPage: FC = () => {
               {/* selection requirements */}
               <Accordion
                 expanded={isRequiredSelectionsExpanded}
-                onChange={() => setIsRequiredSelectionsExpanded(!isRequiredSelectionsExpanded)}
+                onChange={() =>
+                  setIsRequiredSelectionsExpanded(!isRequiredSelectionsExpanded)
+                }
                 elevation={0}
                 sx={{
                   '&.MuiAccordion-root': {
@@ -203,7 +225,7 @@ export const ElectiveDisciplinesPage: FC = () => {
                     },
                     '&.Mui-expanded': {
                       margin: 0,
-                    }
+                    },
                   },
                 }}
               >
@@ -216,53 +238,52 @@ export const ElectiveDisciplinesPage: FC = () => {
                     },
                     '&.Mui-expanded': {
                       minHeight: 'unset',
-                    }
+                    },
                   }}
                 >
-                  <Stack 
-                    direction="row" 
-                    alignItems="center" 
+                  <Stack
+                    direction="row"
+                    alignItems="center"
                     spacing={1}
                     sx={{ width: '100%' }}
                   >
                     <Typography variant="h6" color="primary" sx={{ flex: 1 }}>
                       Required Selections
                     </Typography>
-                    <Typography 
-                      variant="caption" 
+                    <Typography
+                      variant="caption"
                       color="text.secondary"
-                      sx={{ 
+                      sx={{
                         display: { xs: 'none', sm: 'block' },
-                        mr: 1 
+                        mr: 1,
                       }}
                     >
-                      {isRequiredSelectionsExpanded ? 'Click to collapse' : 'Click to view requirements'}
+                      {isRequiredSelectionsExpanded
+                        ? 'Click to collapse'
+                        : 'Click to view requirements'}
                     </Typography>
                   </Stack>
                 </AccordionSummary>
                 <AccordionDetails sx={{ padding: 0, pt: 2 }}>
                   <Box>
                     <Box component="ul" sx={{ pl: 3, mb: 2 }}>
-                      {enrollmentPeriod.packets.map(packet => (
-                        <Typography 
-                          key={packet.id} 
-                          component="li" 
-                          variant="body1" 
+                      {enrollmentPeriod.packets.map((packet) => (
+                        <Typography
+                          key={packet.id}
+                          component="li"
+                          variant="body1"
                           paragraph
                         >
-                          <strong>{packet.name}:</strong> Select 1 primary discipline 
-                          and {packet.maxChoices - 1} backup option(s)
+                          <strong>{packet.name}:</strong> Select 1 primary
+                          discipline and {packet.maxChoices - 1} backup
+                          option(s)
                         </Typography>
                       ))}
                     </Box>
-                    <Alert 
-                      severity="info" 
-                      icon={<Class />}
-                      sx={{ mt: 2 }}
-                    >
-                      Your selections will be processed in priority order. If you 
-                      cannot be enrolled in your primary choice, we will attempt to 
-                      enroll you in your backup selection.
+                    <Alert severity="info" icon={<Class />} sx={{ mt: 2 }}>
+                      Your selections will be processed in priority order. If
+                      you cannot be enrolled in your primary choice, we will
+                      attempt to enroll you in your backup selection.
                     </Alert>
                   </Box>
                 </AccordionDetails>
@@ -271,19 +292,32 @@ export const ElectiveDisciplinesPage: FC = () => {
           </Paper>
 
           {/* Discipline Packets */}
-          {enrollmentPeriod.packets.map(packet => {
+          {enrollmentPeriod.packets.map((packet) => {
             const packetDisciplines = disciplinesByPacket[packet.id] || [];
             if (packetDisciplines.length === 0) return null;
 
             return (
-              <Box key={packet.id} sx={{ mb: 6 }}>
-                <Typography variant="h5" gutterBottom color="primary">
+              <Box key={packet.id} sx={{ mb: { xs: 4, md: 6 } }}>
+                <Typography
+                  variant="h5"
+                  gutterBottom
+                  color="primary"
+                  sx={{
+                    fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                    fontWeight: 600,
+                  }}
+                >
                   {packet.name}
                 </Typography>
-                <Typography variant="body1" gutterBottom color="text.secondary">
+                <Typography
+                  variant="body1"
+                  gutterBottom
+                  color="text.secondary"
+                  sx={{ mb: 3 }}
+                >
                   {packet.description}
                 </Typography>
-                
+
                 <DisciplineList
                   disciplines={packetDisciplines}
                   packet={packet}
@@ -298,18 +332,25 @@ export const ElectiveDisciplinesPage: FC = () => {
       </Grid>
 
       {/* Selection Panel - Desktop */}
-      <Grid item md={4} lg={4} sx={{ 
-        display: { xs: 'none', md: 'block' },
-        width: SELECTIONS_PANEL_WIDTH
-      }}>
-        <Box sx={{ 
-          position: 'sticky',
-          top: HEADER_HEIGHT,
-          height: `calc(100vh - ${HEADER_HEIGHT} - 20)`,
-          overflowY: 'auto',
-          p: 2,
-          zIndex: 2
-        }}>
+      <Grid
+        item
+        md={4}
+        lg={4}
+        sx={{
+          display: { xs: 'none', md: 'block' },
+          width: SELECTIONS_PANEL_WIDTH,
+        }}
+      >
+        <Box
+          sx={{
+            position: 'sticky',
+            top: HEADER_HEIGHT,
+            height: `calc(100vh - ${HEADER_HEIGHT} - 20)`,
+            overflowY: 'auto',
+            p: 2,
+            zIndex: 2,
+          }}
+        >
           <EnrollmentSelectionPanel
             selections={selections}
             packets={enrollmentPeriod.packets}
@@ -332,7 +373,7 @@ export const ElectiveDisciplinesPage: FC = () => {
               position: 'fixed',
               bottom: 16,
               right: 16,
-              display: { xs: 'flex', md: 'none' }
+              display: { xs: 'flex', md: 'none' },
             }}
           >
             <Badge
@@ -380,7 +421,9 @@ export const ElectiveDisciplinesPage: FC = () => {
             setIsDetailsOpen(false);
             setSelectedDiscipline(null);
           }}
-          onAddToSelection={(packetId) => handleAddToSelection(selectedDiscipline.id, packetId)}
+          onAddToSelection={(packetId) =>
+            handleAddToSelection(selectedDiscipline.id, packetId)
+          }
           isEnrollmentPeriodActive={status === 'active'}
           isSelected={isDisciplineSelected(selectedDiscipline.id)}
           canBeSelected={true}
