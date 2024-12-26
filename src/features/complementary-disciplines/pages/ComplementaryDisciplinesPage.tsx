@@ -3,6 +3,7 @@ import { FC, useMemo, useState } from 'react';
 
 import { ComplementaryDisciplineList } from '../components/ComplementaryDisciplinesList';
 import { Discipline } from '../../../types/disciplines/disciplines.types';
+import { DisciplineDetailsDrawer } from '../../elective-disciplines/components/DisciplineDetailsDrawer';
 import { FilterPanel } from '../../elective-disciplines/components/filters/FilterPanel';
 import { FilterState } from '../../../types/filters/filters.types';
 import { NoResults } from '../../elective-disciplines/components/NoResults';
@@ -172,15 +173,20 @@ export const ComplementaryDisciplinesPage: FC = () => {
       ) : (
         <NoResults onReset={handleResetFilters} />
       )}
-
-      {/* {selectedDiscipline && (
+      {/* 
+      {selectedDiscipline && (
         <DisciplineDetailsDrawer
           discipline={selectedDiscipline}
           open={isDetailsOpen}
           onClose={handleCloseDetails}
-          onEnroll={() => handleEnrollment(selectedDiscipline)}
           isEnrollmentPeriodActive={true}
-          alreadyEnrolled={false}
+          onAddToSelection={function (packetId: string): void {
+            throw new Error('Function not implemented.');
+          }}
+          isSelected={false}
+          canBeSelected={false}
+          packet={undefined}
+          currentSelections={{}}
         />
       )} */}
 

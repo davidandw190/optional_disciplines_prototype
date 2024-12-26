@@ -26,7 +26,6 @@ import {
   ListItemText,
   Menu,
   MenuItem,
-  Stack,
   Typography,
 } from '@mui/material';
 
@@ -50,6 +49,7 @@ interface SidebarViewProps {
   handleDialogOpen: () => void;
   handleDialogClose: () => void;
   dialogOpen: boolean;
+  variant: 'temporary' | 'persistent';
 }
 
 const navigationItems = [
@@ -97,6 +97,7 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
   handleMenuClose,
   handleLogout,
   toggleSidebar,
+  variant,
   sidebarOpen,
   handleChooseTheme,
   handleDialogOpen,
@@ -119,7 +120,7 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
           overflow: 'hidden',
         }}
       >
-        {/* Logo and title section */}
+        {/* logo and title section */}
         <Box sx={{ p: 2, textAlign: 'center' }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
             <Box
@@ -225,21 +226,23 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
   return (
     <>
       <Drawer
-        variant="persistent"
+        variant={variant}
         anchor="left"
         open={sidebarOpen}
+        onClose={variant === 'temporary' ? toggleSidebar : undefined}
         sx={{
           width: DRAWER_WIDTH,
           flexShrink: 0,
-          position: 'relative',
           '& .MuiDrawer-paper': {
             width: DRAWER_WIDTH,
             bgcolor: 'background.paper',
-            boxSizing: 'border-box',
             borderRight: '1px solid',
             borderColor: 'divider',
-            boxShadow: 'none',
-            overflowX: 'hidden',
+            boxSizing: 'border-box',
+          },
+          // to only show elevation on mobile
+          '& .MuiPaper-root': {
+            boxShadow: variant === 'temporary' ? 24 : 'none',
           },
         }}
       >
