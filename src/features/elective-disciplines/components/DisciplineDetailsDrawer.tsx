@@ -1,3 +1,4 @@
+// DisciplineDetailsDrawer.tsx
 import { Box, Drawer, Theme, useMediaQuery, useTheme } from '@mui/material';
 import {
   Discipline,
@@ -32,11 +33,9 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
   currentSelections,
 }) => {
   const [activeTab, setActiveTab] = useState(0);
-
   const theme = useTheme();
-  const isMobile = useMediaQuery((theme: Theme) =>
-    theme.breakpoints.down('sm')
-  );
+  const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
 
   const getSelectionInfo = () => {
     if (!packet) return null;
@@ -79,11 +78,14 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
       onClose={onClose}
       PaperProps={{
         sx: {
-          width: isMobile ? '100%' : '800px',
+          width: isMobile ? '100%' : isTablet ? '600px' : '800px',
+          height: isMobile ? '90vh' : '100vh',
           maxHeight: isMobile ? '90vh' : '100vh',
-          borderTopLeftRadius: isMobile ? theme.shape.borderRadius : 0,
-          borderTopRightRadius: isMobile ? theme.shape.borderRadius : 0,
+          borderTopLeftRadius: isMobile ? theme.shape.borderRadius * 2 : 0,
+          borderTopRightRadius: isMobile ? theme.shape.borderRadius * 2 : 0,
           overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         },
       }}
     >
@@ -92,6 +94,10 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
+          // Ensure proper spacing for mobile devices
+          ...(isMobile && {
+            pb: `env(safe-area-inset-bottom, ${theme.spacing(2)})`,
+          }),
         }}
       >
         <DetailsTabs
@@ -108,6 +114,7 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
             packet: packet,
             selections: getSelectionInfo(),
           }}
+          isMobile={isMobile}
         />
       </Box>
     </Drawer>

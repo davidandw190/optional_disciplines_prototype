@@ -40,7 +40,23 @@ interface DetailsTabsProps {
       maxSelections: number;
     } | null;
   };
+  isMobile: boolean;
 }
+
+const TabPanel: FC<{
+  children?: React.ReactNode;
+  value: number;
+  index: number;
+}> = ({ children, value, index }) => (
+  <Box
+    role="tabpanel"
+    hidden={value !== index}
+    id={`discipline-tabpanel-${index}`}
+    sx={{ py: 3 }}
+  >
+    {value === index && children}
+  </Box>
+);
 
 export const DetailsTabs: FC<DetailsTabsProps> = ({
   discipline,
@@ -53,13 +69,21 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
   canBeSelected,
   actionButtonText,
   enrollmentInfo,
+  isMobile,
 }) => {
   const handleTabChange = (_: SyntheticEvent, newValue: number) => {
     onTabChange(newValue);
   };
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+      }}
+    >
       {/* Header Section */}
       <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
         <Stack
@@ -104,17 +128,17 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
 
         {isEnrollmentPeriodActive && enrollmentInfo.selections && (
           <Box sx={{ mt: 2 }}>
-            <Alert 
-              severity={isSelected ? "success" : canBeSelected ? "info" : "warning"}
+            <Alert
+              severity={
+                isSelected ? 'success' : canBeSelected ? 'info' : 'warning'
+              }
               sx={{ mb: 2 }}
             >
-              {isSelected ? (
-                `This discipline is in your selection for ${enrollmentInfo.selections.packetName}`
-              ) : canBeSelected ? (
-                `You can add this discipline to ${enrollmentInfo.selections.packetName} (${enrollmentInfo.selections.remainingSelections} selections remaining)`
-              ) : (
-                `You have already selected ${enrollmentInfo.selections.maxSelections} disciplines for ${enrollmentInfo.selections.packetName}`
-              )}
+              {isSelected
+                ? `This discipline is in your selection for ${enrollmentInfo.selections.packetName}`
+                : canBeSelected
+                ? `You can add this discipline to ${enrollmentInfo.selections.packetName} (${enrollmentInfo.selections.remainingSelections} selections remaining)`
+                : `You have already selected ${enrollmentInfo.selections.maxSelections} disciplines for ${enrollmentInfo.selections.packetName}`}
             </Alert>
           </Box>
         )}
@@ -126,7 +150,12 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
         onChange={handleTabChange}
         variant="scrollable"
         scrollButtons="auto"
-        sx={{ px: 3, borderBottom: 1, borderColor: 'divider' }}
+        sx={{
+          px: { xs: 2, sm: 3 },
+          borderBottom: 1,
+          borderColor: 'divider',
+          minHeight: { xs: 48, sm: 56 },
+        }}
       >
         <Tab label="Overview" />
         <Tab label="Schedule & Activities" />
@@ -136,7 +165,16 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
       </Tabs>
 
       {/* Tab Content */}
-      <Box sx={{ overflow: 'auto', flex: 1, px: 3 }}>
+      <Box
+        sx={{
+          overflow: 'auto',
+          flex: 1,
+          px: { xs: 2, sm: 3 },
+          ...(isMobile && {
+            pb: '80px', // Height of the footer + padding
+          }),
+        }}
+      >
         <TabPanel value={activeTab} index={0}>
           <OverviewTab discipline={discipline} />
         </TabPanel>
@@ -156,13 +194,32 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
 
       {/* Action Footer */}
       {isEnrollmentPeriodActive && (
-        <Box sx={{ p: 3, borderTop: 1, borderColor: 'divider' }}>
+        <Box
+          sx={{
+            p: { xs: 2, sm: 3 },
+            borderTop: 1,
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+            // Fix the footer to the bottom on mobile
+            ...(isMobile && {
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 1,
+              boxShadow: 3,
+            }),
+          }}
+        >
           <Button
             fullWidth
             variant="contained"
-            color={isSelected ? "success" : "primary"}
+            color={isSelected ? 'success' : 'primary'}
             onClick={onAddToSelection}
             disabled={!canBeSelected || isSelected}
+            sx={{
+              height: { xs: 44, sm: 52 }, 
+            }}
           >
             {actionButtonText}
           </Button>
@@ -171,18 +228,3 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
     </Box>
   );
 };
-
-const TabPanel: FC<{
-  children?: React.ReactNode;
-  value: number;
-  index: number;
-}> = ({ children, value, index }) => (
-  <Box
-    role="tabpanel"
-    hidden={value !== index}
-    id={`discipline-tabpanel-${index}`}
-    sx={{ py: 3 }}
-  >
-    {value === index && children}
-  </Box>
-);

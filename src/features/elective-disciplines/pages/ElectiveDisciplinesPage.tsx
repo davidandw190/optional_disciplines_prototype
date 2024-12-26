@@ -30,6 +30,10 @@ import {
 } from '../../../types/disciplines/disciplines.types';
 import { FC, useEffect, useMemo, useState } from 'react';
 import {
+  HEADER_HEIGHT,
+  SELECTIONS_PANEL_WIDTH,
+} from '../../../config/layout.config';
+import {
   getEnrollmentPeriodStatus,
   getRemainingDays,
   mockEnrollmentPeriods,
@@ -42,10 +46,6 @@ import { EnrollmentModal } from '../../enrollments/EnrollmentModal';
 import { EnrollmentSelectionPanel } from '../../enrollments/components/EnrollmentSelectionPanel';
 import { mockDisciplines } from '../../mocks/elective-disciplines.mock';
 import { useEnrollmentSelections } from '../../enrollments/hooks/useEnrollmentSelection';
-
-// Constants for layout measurements
-const HEADER_HEIGHT = '64px';
-const SELECTIONS_PANEL_WIDTH = '380px';
 
 export const ElectiveDisciplinesPage: FC = () => {
   const theme = useTheme();
