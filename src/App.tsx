@@ -1,26 +1,20 @@
-import { Box, CssBaseline, useMediaQuery } from '@mui/material';
+import { Box, CssBaseline } from '@mui/material';
 
 import { FC } from 'react';
 import { Outlet } from 'react-router-dom';
-import { RootState } from './store/store';
-import { ThemeProvider } from '@mui/material/styles';
-import { getTheme } from './utils/utils';
-import { useSelector } from 'react-redux';
+import { ThemeProvider } from './contexts/theme.context';
 
 const App: FC = () => {
-  const theme = useSelector((state: RootState) => state.theme);
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-
   return (
-    <ThemeProvider theme={getTheme(theme, prefersDarkMode)}>
+    <ThemeProvider>
       <CssBaseline />
-      <Box 
-        sx={{ 
-          display: 'flex', 
+      <Box
+        sx={{
+          display: 'flex',
           minHeight: '100vh',
           maxWidth: '100vw',
           overflow: 'hidden',
-          flexDirection: { xs: 'column', md: 'row' } // Stack vertically on mobile
+          flexDirection: { xs: 'column', md: 'row' },
         }}
       >
         <Outlet />
@@ -28,6 +22,5 @@ const App: FC = () => {
     </ThemeProvider>
   );
 };
-
 
 export default App;

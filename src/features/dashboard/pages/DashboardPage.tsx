@@ -9,7 +9,7 @@ import { mockEnrollmentPeriods } from '../../mocks/enrollment-periods.mock';
 
 const DashboardPage: FC = () => {
   return (
-    <Box sx={{ p: { xs: 3, sm: 4, md: 5 }, maxWidth: '1600px', mx: 'auto' }}>
+    <Box sx={{ p: { xs: 3, sm: 4, md: 7 }, maxWidth: '1900px', width: '100%',  mx: 'auto' }}>
       <Typography
         variant="h4"
         color="primary.main"
