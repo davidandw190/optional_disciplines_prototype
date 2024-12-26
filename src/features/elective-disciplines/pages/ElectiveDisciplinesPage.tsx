@@ -21,6 +21,7 @@ import {
   Paper,
   Stack,
   Typography,
+  alpha,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
@@ -60,6 +61,9 @@ export const ElectiveDisciplinesPage: FC = () => {
   const remainingDays = enrollmentPeriod
     ? getRemainingDays(enrollmentPeriod)
     : 0;
+
+  const isDesktop = useMediaQuery(theme.breakpoints.up('lg')); // Changed from 'md' to 'lg'
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'lg'));
 
   const [selectedDiscipline, setSelectedDiscipline] =
     useState<Discipline | null>(null);
@@ -145,10 +149,23 @@ export const ElectiveDisciplinesPage: FC = () => {
   if (!enrollmentPeriod) return null;
 
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={3} sx={{ position: 'relative' }}>
       {/* Main Content Area */}
-      <Grid item xs={12} md={8} lg={8}>
-        <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Grid
+        item
+        xs={12}
+        lg={8}
+        sx={{
+          width: '100%',
+          pr: { xs: 0, lg: 2 },
+        }}
+      >
+        <Box
+          sx={{
+            p: { xs: 2, sm: 3 },
+            pb: { xs: 8, lg: 3 },
+          }}
+        >
           {/* Period Information Header */}
           <Paper
             elevation={0}
@@ -164,12 +181,19 @@ export const ElectiveDisciplinesPage: FC = () => {
             <Stack spacing={3}>
               {/* title and days counter */}
               <Stack
-                direction="row"
+                direction={{ xs: 'column', sm: 'row' }}
                 justifyContent="space-between"
-                alignItems="center"
+                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                spacing={{ xs: 2, sm: 0 }}
               >
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: { xs: '1.5rem', sm: '2rem', md: '2.25rem' },
+                    }}
+                  >
                     Elective Disciplines
                   </Typography>
                   <Typography
@@ -185,7 +209,16 @@ export const ElectiveDisciplinesPage: FC = () => {
                   label={`${remainingDays} days remaining`}
                   color={remainingDays <= 3 ? 'warning' : 'default'}
                   icon={<AccessTime />}
-                  sx={{ px: 1 }}
+                  sx={{
+                    px: 1,
+                    height: { xs: 32, sm: 36 },
+                    '& .MuiChip-label': {
+                      px: { xs: 1, sm: 2 },
+                    },
+                    '& .MuiChip-icon': {
+                      fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                    },
+                  }}
                 />
               </Stack>
 
@@ -343,12 +376,27 @@ export const ElectiveDisciplinesPage: FC = () => {
       >
         <Box
           sx={{
-            position: 'sticky',
-            top: HEADER_HEIGHT,
-            height: `calc(100vh - ${HEADER_HEIGHT} - 20)`,
+            position: 'fixed',
+            top: `calc(${HEADER_HEIGHT} + 58px)`, // Adding some spacing from the header
+            width: SELECTIONS_PANEL_WIDTH,
+            maxHeight: `calc(100vh - ${HEADER_HEIGHT} - 32px)`, // Subtracting padding
             overflowY: 'auto',
-            p: 2,
             zIndex: 2,
+            px: 2,
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+              bgcolor: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+              borderRadius: '4px',
+              transition: 'background-color 0.2s ease',
+              '&:hover': {
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.2),
+              },
+            },
           }}
         >
           <EnrollmentSelectionPanel
@@ -363,7 +411,7 @@ export const ElectiveDisciplinesPage: FC = () => {
       </Grid>
 
       {/* Mobile Components */}
-      {isMobile && (
+      {!isDesktop && (
         <>
           {/* Floating Action Button */}
           <Fab
@@ -371,17 +419,24 @@ export const ElectiveDisciplinesPage: FC = () => {
             onClick={() => setIsSelectionDrawerOpen(true)}
             sx={{
               position: 'fixed',
-              bottom: 16,
-              right: 16,
-              display: { xs: 'flex', md: 'none' },
+              bottom: { xs: 16, sm: 24 },
+              right: { xs: 16, sm: 24 },
+              display: { lg: 'none' },
+              width: { xs: 56, sm: 64 },
+              height: { xs: 56, sm: 64 },
             }}
           >
             <Badge
               badgeContent={getTotalSelections()}
               color="error"
-              sx={{ '& .MuiBadge-badge': { right: 4, top: 4 } }}
+              sx={{
+                '& .MuiBadge-badge': {
+                  right: { xs: 4, sm: 6 },
+                  top: { xs: 4, sm: 6 },
+                },
+              }}
             >
-              <PlaylistAdd />
+              <PlaylistAdd sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem' } }} />
             </Badge>
           </Fab>
 
@@ -392,13 +447,19 @@ export const ElectiveDisciplinesPage: FC = () => {
             onClose={() => setIsSelectionDrawerOpen(false)}
             PaperProps={{
               sx: {
-                maxHeight: '80vh',
-                borderTopLeftRadius: theme.shape.borderRadius * 2,
-                borderTopRightRadius: theme.shape.borderRadius * 2,
+                maxHeight: { xs: '85vh', sm: '75vh' },
+                borderTopLeftRadius: { xs: 16, sm: 24 },
+                borderTopRightRadius: { xs: 16, sm: 24 },
+                pb: 'env(safe-area-inset-bottom, 16px)',
               },
             }}
           >
-            <Box sx={{ p: 2 }}>
+            <Box
+              sx={{
+                p: { xs: 2, sm: 3 },
+                height: '100%',
+              }}
+            >
               <EnrollmentSelectionPanel
                 selections={selections}
                 packets={enrollmentPeriod.packets}
