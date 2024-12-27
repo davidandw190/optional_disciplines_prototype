@@ -366,54 +366,53 @@ export const ElectiveDisciplinesPage: FC = () => {
       </Grid>
 
       {/* Selection Panel - Desktop */}
-      <Grid
-        item
-        md={4}
-        lg={4}
-        sx={{
-          display: { xs: 'none', md: 'block' },
-          width: SELECTIONS_PANEL_WIDTH,
-        }}
-      >
-        <Box
+      {isDesktop ? (
+        <Grid
+          item
+          md={4}
+          lg={4}
           sx={{
-            position: 'fixed',
-            top: `calc(${HEADER_HEIGHT} + 58px)`, // Adding some spacing from the header
+            display: { xs: 'none', md: 'block' },
             width: SELECTIONS_PANEL_WIDTH,
-            maxHeight: `calc(100vh - ${HEADER_HEIGHT} - 32px)`, // Subtracting padding
-            overflowY: 'auto',
-            zIndex: 2,
-            px: 2,
-            '&::-webkit-scrollbar': {
-              width: '8px',
-            },
-            '&::-webkit-scrollbar-track': {
-              bgcolor: 'transparent',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
-              borderRadius: '4px',
-              transition: 'background-color 0.2s ease',
-              '&:hover': {
-                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.2),
-              },
-            },
           }}
         >
-          <EnrollmentSelectionPanel
-            selections={selections}
-            packets={enrollmentPeriod.packets}
-            disciplines={disciplinesMap}
-            onRemoveSelection={removeSelection}
-            onReorderSelections={reorderSelections}
-            onStartEnrollment={handleStartEnrollment}
-            enrollmentPeriod={enrollmentPeriod}
-          />
-        </Box>
-      </Grid>
-
-      {/* Mobile Components */}
-      {!isDesktop && (
+          <Box
+            sx={{
+              position: 'fixed',
+              top: `calc(${HEADER_HEIGHT} + 58px)`,
+              width: SELECTIONS_PANEL_WIDTH,
+              maxHeight: `calc(100vh - ${HEADER_HEIGHT} - 32px)`, 
+              overflowY: 'auto',
+              zIndex: 2,
+              px: 2,
+              '&::-webkit-scrollbar': {
+                width: '8px',
+              },
+              '&::-webkit-scrollbar-track': {
+                bgcolor: 'transparent',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                borderRadius: '4px',
+                transition: 'background-color 0.2s ease',
+                '&:hover': {
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, 0.2),
+                },
+              },
+            }}
+          >
+            <EnrollmentSelectionPanel
+              selections={selections}
+              packets={enrollmentPeriod.packets}
+              disciplines={disciplinesMap}
+              onRemoveSelection={removeSelection}
+              onReorderSelections={reorderSelections}
+              onStartEnrollment={handleStartEnrollment}
+              enrollmentPeriod={enrollmentPeriod}
+            />
+          </Box>
+        </Grid>
+      ) : (
         <>
           {/* Floating Action Button */}
           <Fab
