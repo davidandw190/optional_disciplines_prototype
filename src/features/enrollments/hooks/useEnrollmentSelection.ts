@@ -128,6 +128,64 @@ export function useEnrollmentSelections(availablePackets: DisciplinePacket[]) {
     }, [] as string[]);
   }, [selections]);
 
+  const reorderSelections = useCallback(
+    (packetId: string, startIndex: number, endIndex: number) => {
+      console.log('=== Starting reorderSelections ===');
+      console.log('PacketId:', packetId);
+      console.log('StartIndex:', startIndex);
+      console.log('EndIndex:', endIndex);
+
+      setSelections((prevState) => {
+        const currentPacket = prevState.packets[packetId];
+
+        console.log('Current packet selections:', currentPacket?.selections);
+
+        if (!currentPacket) {
+          console.warn('Packet not found:', packetId);
+          return prevState;
+        }
+
+        // Create a new array and remove the moved item
+        const newSelections = [...currentPacket.selections];
+        console.log('Before splice - newSelections:', newSelections);
+
+        const [movedItem] = newSelections.splice(startIndex, 1);
+        console.log('Moved item:', movedItem);
+        console.log('After removing item:', newSelections);
+
+        // Insert the moved item at the new position
+        newSelections.splice(endIndex, 0, movedItem);
+        console.log('After inserting item:', newSelections);
+
+        // Update priorities
+        const reorderedSelections = newSelections.map((selection, index) => {
+          const updatedSelection = {
+            ...selection,
+            priority: index + 1,
+          };
+          console.log(
+            `Updated priority for ${selection.disciplineId}: ${updatedSelection.priority}`
+          );
+          return updatedSelection;
+        });
+
+        console.log('Final reordered selections:', reorderedSelections);
+
+        return {
+          ...prevState,
+          packets: {
+            ...prevState.packets,
+            [packetId]: {
+              ...currentPacket,
+              selections: reorderedSelections,
+            },
+          },
+        };
+      });
+    },
+    []
+  );
+
   return {
     selections,
     addSelection,
@@ -137,6 +195,7 @@ export function useEnrollmentSelections(availablePackets: DisciplinePacket[]) {
     isDisciplineSelected,
     getPacketForDiscipline,
     getSelectionErrors,
+    reorderSelections,
     currentPacketId: selections.currentPacketId,
   };
 }

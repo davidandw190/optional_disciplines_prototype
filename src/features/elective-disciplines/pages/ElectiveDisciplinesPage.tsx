@@ -77,6 +77,7 @@ export const ElectiveDisciplinesPage: FC = () => {
     selections,
     addSelection,
     removeSelection,
+    reorderSelections,
     canAddToPacket,
     isDisciplineSelected,
     getSelectionErrors,
@@ -404,6 +405,7 @@ export const ElectiveDisciplinesPage: FC = () => {
             packets={enrollmentPeriod.packets}
             disciplines={disciplinesMap}
             onRemoveSelection={removeSelection}
+            onReorderSelections={reorderSelections}
             onStartEnrollment={handleStartEnrollment}
             enrollmentPeriod={enrollmentPeriod}
           />
@@ -465,6 +467,7 @@ export const ElectiveDisciplinesPage: FC = () => {
                 packets={enrollmentPeriod.packets}
                 disciplines={disciplinesMap}
                 onRemoveSelection={removeSelection}
+                onReorderSelections={reorderSelections}
                 onStartEnrollment={handleStartEnrollment}
                 enrollmentPeriod={enrollmentPeriod}
               />
