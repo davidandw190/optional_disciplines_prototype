@@ -37,7 +37,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { FC, useMemo } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -73,69 +73,46 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
   const theme = useTheme();
   const remainingDays = getRemainingDays(enrollmentPeriod);
 
-  const isComplete = packets.every(
-    (packet) =>
-      selections.packets[packet.id]?.selections.length === packet.maxChoices
-  );
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 3,
+        pressure: 0,
+        tolerance: 5,
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 100,
-        tolerance: 2,
+        delay: 50,
+        tolerance: 4,
+        pressureThreshold: 0,
       },
     })
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    console.log('=== Starting handleDragEnd ===');
-    console.log('Drag event:', event);
+  const isComplete = useMemo(
+    () =>
+      packets.every(
+        (packet) =>
+          selections.packets[packet.id]?.selections.length === packet.maxChoices
+      ),
+    [packets, selections.packets]
+  );
 
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (!active || !over) {
-      console.warn('Missing active or over:', { active, over });
-      return;
-    }
-
-    if (active.id === over.id) {
-      console.log('Dropped in same position, ignoring');
-      return;
-    }
-
     const activeId = active.id.toString();
-    const overId = over.id.toString();
-
-    console.log('Active ID:', activeId);
-    console.log('Over ID:', overId);
+    const overId = over?.id.toString();
 
     const [packetPart1, packetPart2] = activeId.split('-');
     const packetId = `${packetPart1}-${packetPart2}`;
 
     const startIndex = parseInt(activeId.split('-').pop() || '0');
-    const endIndex = parseInt(overId.split('-').pop() || '0');
-
-    console.log('Parsed values:', {
-      packetId,
-      startIndex,
-      endIndex,
-    });
+    const endIndex = parseInt(overId?.split('-').pop() || '0');
 
     if (startIndex !== endIndex) {
-      console.log('Calling onReorderSelections with:', {
-        packetId,
-        startIndex,
-        endIndex,
-      });
-
       onReorderSelections(packetId, startIndex, endIndex);
-    } else {
-      console.log('Indices are the same, skipping reorder');
     }
   };
 
@@ -151,27 +128,107 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
     }),
     []
   );
+  const paperStyles = useMemo(
+    () => ({
+      p: { xs: 2.5, sm: 3 },
+      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+      background: alpha(theme.palette.background.paper, 0.95),
+      backdropFilter: 'blur(12px)',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      borderRadius: 2,
+    }),
+    [theme]
+  );
+
+  // Render optimization for packet items
+  const renderPacketItem = useCallback(
+    (packet: DisciplinePacket) => {
+      const packetSelections = selections.packets[packet.id]?.selections || [];
+
+      // Memoize sortable items for each packet
+      const sortableItems = useMemo(
+        () =>
+          packetSelections.map((selection, index) => ({
+            id: `${packet.id}-${selection.disciplineId}-${index}`,
+          })),
+        [packetSelections, packet.id]
+      );
+
+      return (
+        <Box key={packet.id} sx={{ mb: 3.5 }}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 600,
+              color: theme.palette.primary.main,
+              mb: 2,
+              fontSize: '1rem',
+            }}
+          >
+            {packet.name}
+          </Typography>
+
+          <SortableContext
+            items={sortableItems}
+            strategy={verticalListSortingStrategy}
+          >
+            <List disablePadding>
+              {packetSelections.map((selection, index) => (
+                <SortableSelectionItem
+                  key={`${packet.id}-${selection.disciplineId}-${index}`}
+                  id={`${packet.id}-${selection.disciplineId}-${index}`}
+                  selection={selection}
+                  discipline={disciplines[selection.disciplineId]}
+                  packetId={packet.id}
+                  onRemove={onRemoveSelection}
+                  theme={theme}
+                />
+              ))}
+            </List>
+          </SortableContext>
+
+          {/* Alert for incomplete selections */}
+          {packetSelections.length < packet.maxChoices && (
+            <Alert
+              severity="info"
+              icon={<Warning fontSize="small" />}
+              sx={{
+                mt: 1.5,
+                bgcolor: alpha(theme.palette.primary.main, 0.08),
+                color: theme.palette.text.primary,
+                '& .MuiAlert-icon': {
+                  color: theme.palette.primary.main,
+                },
+              }}
+            >
+              Select {packet.maxChoices - packetSelections.length} more
+              discipline(s)
+            </Alert>
+          )}
+
+          <Divider
+            sx={{
+              my: 2.5,
+              borderColor: alpha(theme.palette.divider, 0.08),
+            }}
+          />
+        </Box>
+      );
+    },
+    [selections, disciplines, onRemoveSelection, theme]
+  );
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: { xs: 2.5, sm: 3 },
-        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-        background: alpha(theme.palette.background.paper, 0.95),
-        backdropFilter: 'blur(12px)',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        borderRadius: 2,
-      }}
-    >
+    <Paper elevation={0} sx={paperStyles}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
         <Stack spacing={3} sx={{ height: '100%' }}>
+          {/* Header */}
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -190,81 +247,12 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
             </Typography>
           </Stack>
 
+          {/* Scrollable content area */}
           <Box sx={{ flex: 1, overflow: 'auto' }}>
-            {packets.map((packet) => {
-              const packetSelections =
-                selections.packets[packet.id]?.selections || [];
-
-              const sortableItems = useMemo(
-                () =>
-                  packetSelections.map((selection, index) => ({
-                    id: `${packet.id}-${selection.disciplineId}-${index}`,
-                  })),
-                [packetSelections, packet.id]
-              );
-
-              return (
-                <Box key={packet.id} sx={{ mb: 3.5 }}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontWeight: 600,
-                      color: theme.palette.primary.main,
-                      mb: 2,
-                      fontSize: '1rem',
-                    }}
-                  >
-                    {packet.name}
-                  </Typography>
-
-                  <SortableContext
-                    items={sortableItems}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <List disablePadding>
-                      {packetSelections.map((selection, index) => (
-                        <SortableSelectionItem
-                          key={`${packet.id}-${selection.disciplineId}-${index}`}
-                          id={`${packet.id}-${selection.disciplineId}-${index}`}
-                          selection={selection}
-                          discipline={disciplines[selection.disciplineId]}
-                          packetId={packet.id}
-                          onRemove={onRemoveSelection}
-                          theme={theme}
-                        />
-                      ))}
-                    </List>
-                  </SortableContext>
-
-                  {packetSelections.length < packet.maxChoices && (
-                    <Alert
-                      severity="info"
-                      icon={<Warning fontSize="small" />}
-                      sx={{
-                        mt: 1.5,
-                        bgcolor: alpha(theme.palette.primary.main, 0.08),
-                        color: theme.palette.text.primary,
-                        '& .MuiAlert-icon': {
-                          color: theme.palette.primary.main,
-                        },
-                      }}
-                    >
-                      Select {packet.maxChoices - packetSelections.length} more
-                      discipline(s)
-                    </Alert>
-                  )}
-
-                  <Divider
-                    sx={{
-                      my: 2.5,
-                      borderColor: alpha(theme.palette.divider, 0.08),
-                    }}
-                  />
-                </Box>
-              );
-            })}
+            {packets.map(renderPacketItem)}
           </Box>
 
+          {/* Footer actions */}
           <Box>
             <Button
               variant="contained"

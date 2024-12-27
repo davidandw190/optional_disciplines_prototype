@@ -6,28 +6,27 @@ import { useCallback, useState } from 'react';
 
 import { DisciplinePacket } from '../../../types/disciplines/disciplines.types';
 
-const INITIAL_STATE: EnrollmentSelectionState = {
-  packets: {},
-  currentPacketId: null,
-};
+const createInitialState = (
+  availablePackets: DisciplinePacket[]
+): EnrollmentSelectionState => ({
+  packets: availablePackets.reduce(
+    (acc, packet) => ({
+      ...acc,
+      [packet.id]: {
+        packetId: packet.id,
+        name: packet.name,
+        maxSelections: packet.maxChoices,
+        selections: [],
+      },
+    }),
+    {}
+  ),
+  currentPacketId: availablePackets[0]?.id || null,
+});
 
 export function useEnrollmentSelections(availablePackets: DisciplinePacket[]) {
-  const [selections, setSelections] = useState<EnrollmentSelectionState>(
-    () => ({
-      packets: availablePackets.reduce(
-        (acc, packet) => ({
-          ...acc,
-          [packet.id]: {
-            packetId: packet.id,
-            name: packet.name,
-            maxSelections: packet.maxChoices,
-            selections: [],
-          },
-        }),
-        {}
-      ),
-      currentPacketId: availablePackets[0]?.id || null,
-    })
+  const [selections, setSelections] = useState<EnrollmentSelectionState>(() =>
+    createInitialState(availablePackets)
   );
 
   const addSelection = useCallback((disciplineId: string, packetId: string) => {
@@ -64,7 +63,10 @@ export function useEnrollmentSelections(availablePackets: DisciplinePacket[]) {
 
         const updatedSelections = packet.selections
           .filter((s) => s.disciplineId !== disciplineId)
-          .map((s, idx) => ({ ...s, priority: idx + 1 }));
+          .map((s, idx) => ({
+            ...s,
+            priority: idx + 1,
+          }));
 
         return {
           ...prev,
@@ -81,95 +83,20 @@ export function useEnrollmentSelections(availablePackets: DisciplinePacket[]) {
     []
   );
 
-  const isPacketComplete = useCallback(
-    (packetId: string) => {
-      const packet = selections.packets[packetId];
-      return packet && packet.selections.length === packet.maxSelections;
-    },
-    [selections]
-  );
-
-  const canAddToPacket = useCallback(
-    (packetId: string) => {
-      const packet = selections.packets[packetId];
-      return packet && packet.selections.length < packet.maxSelections;
-    },
-    [selections]
-  );
-
-  const isDisciplineSelected = useCallback(
-    (disciplineId: string) => {
-      return Object.values(selections.packets).some((packet) =>
-        packet.selections.some((s) => s.disciplineId === disciplineId)
-      );
-    },
-    [selections]
-  );
-
-  const getPacketForDiscipline = useCallback(
-    (disciplineId: string) => {
-      return availablePackets.find((packet) =>
-        packet.disciplines.includes(disciplineId)
-      );
-    },
-    [availablePackets]
-  );
-
-  const getSelectionErrors = useCallback(() => {
-    return Object.values(selections.packets).reduce((errors, packet) => {
-      if (packet.selections.length < packet.maxSelections) {
-        errors.push(
-          `${packet.name} needs ${
-            packet.maxSelections - packet.selections.length
-          } more selection(s)`
-        );
-      }
-      return errors;
-    }, [] as string[]);
-  }, [selections]);
-
   const reorderSelections = useCallback(
     (packetId: string, startIndex: number, endIndex: number) => {
-      console.log('=== Starting reorderSelections ===');
-      console.log('PacketId:', packetId);
-      console.log('StartIndex:', startIndex);
-      console.log('EndIndex:', endIndex);
-
       setSelections((prevState) => {
         const currentPacket = prevState.packets[packetId];
+        if (!currentPacket) return prevState;
 
-        console.log('Current packet selections:', currentPacket?.selections);
-
-        if (!currentPacket) {
-          console.warn('Packet not found:', packetId);
-          return prevState;
-        }
-
-        // Create a new array and remove the moved item
         const newSelections = [...currentPacket.selections];
-        console.log('Before splice - newSelections:', newSelections);
-
         const [movedItem] = newSelections.splice(startIndex, 1);
-        console.log('Moved item:', movedItem);
-        console.log('After removing item:', newSelections);
-
-        // Insert the moved item at the new position
         newSelections.splice(endIndex, 0, movedItem);
-        console.log('After inserting item:', newSelections);
 
-        // Update priorities
-        const reorderedSelections = newSelections.map((selection, index) => {
-          const updatedSelection = {
-            ...selection,
-            priority: index + 1,
-          };
-          console.log(
-            `Updated priority for ${selection.disciplineId}: ${updatedSelection.priority}`
-          );
-          return updatedSelection;
-        });
-
-        console.log('Final reordered selections:', reorderedSelections);
+        const reorderedSelections = newSelections.map((selection, index) => ({
+          ...selection,
+          priority: index + 1,
+        }));
 
         return {
           ...prevState,
@@ -186,16 +113,63 @@ export function useEnrollmentSelections(availablePackets: DisciplinePacket[]) {
     []
   );
 
+  const isPacketComplete = useCallback(
+    (packetId: string) => {
+      const packet = selections.packets[packetId];
+      return Boolean(
+        packet && packet.selections.length === packet.maxSelections
+      );
+    },
+    [selections]
+  );
+
+  const canAddToPacket = useCallback(
+    (packetId: string) => {
+      const packet = selections.packets[packetId];
+      return Boolean(packet && packet.selections.length < packet.maxSelections);
+    },
+    [selections]
+  );
+
+  const isDisciplineSelected = useCallback(
+    (disciplineId: string) => {
+      return Object.values(selections.packets).some((packet) =>
+        packet.selections.some((s) => s.disciplineId === disciplineId)
+      );
+    },
+    [selections]
+  );
+
+  const getPacketForDiscipline = useCallback(
+    (disciplineId: string) =>
+      availablePackets.find((packet) =>
+        packet.disciplines.includes(disciplineId)
+      ),
+    [availablePackets]
+  );
+
+  const getSelectionErrors = useCallback(
+    () =>
+      Object.values(selections.packets).reduce((errors, packet) => {
+        const remaining = packet.maxSelections - packet.selections.length;
+        if (remaining > 0) {
+          errors.push(`${packet.name} needs ${remaining} more selection(s)`);
+        }
+        return errors;
+      }, [] as string[]),
+    [selections]
+  );
+
   return {
     selections,
     addSelection,
     removeSelection,
+    reorderSelections,
     isPacketComplete,
     canAddToPacket,
     isDisciplineSelected,
     getPacketForDiscipline,
     getSelectionErrors,
-    reorderSelections,
     currentPacketId: selections.currentPacketId,
   };
 }
