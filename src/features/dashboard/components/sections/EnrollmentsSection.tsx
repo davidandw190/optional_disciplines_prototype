@@ -6,7 +6,7 @@ import { FC } from 'react';
 import { getEnrollmentPeriodStatus } from '../../../mocks/enrollment-periods.mock';
 
 interface EnrollmentsSectionProps {
-  enrollments: EnrollmentPeriod[];
+  enrollmentPeriods: EnrollmentPeriod[] | undefined;
 }
 
 type EnrollmentStatus = 'active' | 'upcoming' | 'ended';
@@ -18,9 +18,9 @@ const statusOrder: Record<EnrollmentStatus, number> = {
 };
 
 export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
-  enrollments,
+  enrollmentPeriods,
 }) => {
-  const sortedEnrollments = [...enrollments].sort((a, b) => {
+  const sortedEnrollmentPeriods = [...enrollmentPeriods].sort((a, b) => {
     const statusA = getEnrollmentPeriodStatus(a) as EnrollmentStatus;
     const statusB = getEnrollmentPeriodStatus(b) as EnrollmentStatus;
 
@@ -41,7 +41,7 @@ export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
           border: '1px solid',
           borderColor: 'divider',
           maxWidth: '100%',
-          mx: 'auto'
+          mx: 'auto',
         }}
       >
         <Stack spacing={3}>
@@ -62,7 +62,7 @@ export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
             >
               Enrollment Periods
             </Typography>
-            {sortedEnrollments.some(
+            {sortedEnrollmentPeriods.some(
               (e) => getEnrollmentPeriodStatus(e) === 'active'
             ) && (
               <Typography
@@ -77,12 +77,12 @@ export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
 
           {/* Enrollment Cards List */}
           <Stack spacing={2}>
-            {sortedEnrollments.map((period) => (
+            {sortedEnrollmentPeriods.map((period) => (
               <EnrollmentPeriodCard key={period.id} period={period} />
             ))}
 
             {/* Empty State */}
-            {sortedEnrollments.length === 0 && (
+            {sortedEnrollmentPeriods.length === 0 && (
               <Typography
                 variant="body2"
                 color="text.secondary"

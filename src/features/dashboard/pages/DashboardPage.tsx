@@ -1,15 +1,50 @@
 import { Box, Grid, Typography } from '@mui/material';
-import { mockAnnouncements, mockQuickActions } from '../../mocks/dashboard.mock';
+import {
+  mockAnnouncements,
+  mockQuickActions,
+} from '../../mocks/dashboard.mock';
+import {
+  useGetEligibleEnrollmentPeriodsQuery
+} from '../../../api/enrollmentPeriods/enrollmentPeriodsApi';
 
 import { AnnouncementsSection } from '../components/sections/AnnouncementsSection';
 import { EnrollmentsSection } from '../components/sections/EnrollmentsSection';
 import { FC } from 'react';
 import { QuickActionsSection } from '../components/sections/QuickActionsSection';
-import { mockEnrollmentPeriods } from '../../mocks/enrollment-periods.mock';
+import { useStudent } from '../../../contexts/student.context';
 
 const DashboardPage: FC = () => {
+  const {
+    student,
+    isLoading: isLoadingStudent,
+    error: studentError,
+  } = useStudent();
+
+  const {
+    data: enrollmentPeriods,
+    error: enrollmentError,
+    isLoading: isLoadingEnrollments,
+  } = useGetEligibleEnrollmentPeriodsQuery({
+    yearOfStudy: student?.yearOfStudy ?? 1,
+    semester: student?.semester ?? 1,
+    specialization: student?.specialization ?? '',
+  });
+
+  if (!enrollmentPeriods) {
+    return (
+      
+    )
+  }
+
   return (
-    <Box sx={{ p: { xs: 3, sm: 4, md: 7 }, maxWidth: '1900px', width: '100%',  mx: 'auto' }}>
+    <Box
+      sx={{
+        p: { xs: 3, sm: 4, md: 7 },
+        maxWidth: '1900px',
+        width: '100%',
+        mx: 'auto',
+      }}
+    >
       <Typography
         variant="h4"
         color="primary.main"
@@ -22,12 +57,16 @@ const DashboardPage: FC = () => {
         Dashboard
       </Typography>
 
-      <Grid container spacing={3}>
-        <EnrollmentsSection enrollments={mockEnrollmentPeriods} />
-        <QuickActionsSection actions={mockQuickActions} />
-      </Grid>
+      {enrollmentPeriods ? (
 
-      <AnnouncementsSection announcements={mockAnnouncements} />
+      <Grid container spacing={3}>
+      <EnrollmentsSection enrollmentPeriods={enrollmentPeriods} />
+      <QuickActionsSection actions={mockQuickActions} />
+    </Grid>
+      ) : (<h3> No enrollment periods available</h3>)}
+
+
+      <AnnouncementsSection />
     </Box>
   );
 };
