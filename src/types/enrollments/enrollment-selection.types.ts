@@ -7,7 +7,7 @@ export interface DisciplineSelectionItem {
 export interface PacketSelections {
   packetId: string;
   name: string;
-  maxSelections: number;  // How many backup options a student can select
+  maxSelections: number;
   selections: DisciplineSelectionItem[];
 }
 

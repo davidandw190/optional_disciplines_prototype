@@ -8,28 +8,35 @@ import { AnnouncementCard } from '../cards/AnnouncementCard';
 interface AnnouncementsCarouselProps {
   announcements: Announcement[];
   visibleCount?: number;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 export const AnnouncementsCarousel: FC<AnnouncementsCarouselProps> = ({
   announcements,
   visibleCount = 3,
+  currentPage,
+  totalPages,
+  onPageChange,
 }) => {
-  const [startIndex, setStartIndex] = useState(0);
   const theme = useTheme();
 
   const handlePrevious = () => {
-    setStartIndex((prev) => Math.max(0, prev - 1));
+    if (currentPage > 1) {
+      onPageChange(currentPage - 1);
+    }
   };
 
   const handleNext = () => {
-    setStartIndex((prev) => 
-      Math.min(announcements.length - visibleCount, prev + 1)
-    );
+    if (currentPage < totalPages) {
+      onPageChange(currentPage + 1);
+    }
   };
 
   return (
     <Box sx={{ position: 'relative' }}>
-      {startIndex > 0 && (
+      {currentPage > 1 && (
         <IconButton
           onClick={handlePrevious}
           sx={{
@@ -46,7 +53,7 @@ export const AnnouncementsCarousel: FC<AnnouncementsCarouselProps> = ({
         </IconButton>
       )}
       
-      {startIndex < announcements.length - visibleCount && (
+      {currentPage < totalPages && (
         <IconButton
           onClick={handleNext}
           sx={{
@@ -64,11 +71,9 @@ export const AnnouncementsCarousel: FC<AnnouncementsCarouselProps> = ({
       )}
 
       <Stack spacing={2}>
-        {announcements
-          .slice(startIndex, startIndex + visibleCount)
-          .map((announcement, index) => (
-            <AnnouncementCard key={index} {...announcement} />
-          ))}
+        {announcements.map((announcement, index) => (
+          <AnnouncementCard key={`${announcement.title}-${index}`} {...announcement} />
+        ))}
       </Stack>
     </Box>
   );

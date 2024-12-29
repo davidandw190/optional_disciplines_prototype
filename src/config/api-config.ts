@@ -21,5 +21,7 @@ export const API_URLS = {
   DASHBOARD: '/dashboard',
   AUTH: '/auth_url_uvt',
   ELECTIVE_DISCIPLINES: '/elective-disciplines',
-  
+  ENROLLMENT_PERIODS: '/enrollment-periods',
+  ANNOUNCEMENTS: '/announcements',
+  STUDENT_PROFILE: '/student/profile',
 };

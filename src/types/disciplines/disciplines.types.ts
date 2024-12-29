@@ -169,6 +169,9 @@ export interface EnrollmentPeriod extends BaseEntity {
   semester: 1 | 2;
   yearOfStudy: number;
   academicYear: string;
+
+  targetYearOfStudy: number;
+  targetSemester: 1 | 2;
   
   isActive: boolean;
   status: 'upcoming' | 'active' | 'ended';
@@ -183,8 +186,11 @@ export interface EnrollmentPeriod extends BaseEntity {
 export interface DisciplinePacket extends BaseEntity {
   name: string;
   description?: string;
-  semester: 1 | 2;
   yearOfStudy: number;
+  semester: 1 | 2;
+  targetYearOfStudy: number;
+  targetSemester: 1 | 2;
+  
   maxChoices: number;
   disciplines: string[];
   totalCredits: number;
