@@ -10,12 +10,7 @@ const PAGE_SIZE = 3;
 export const AnnouncementsSection: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const {
-    data,
-    isLoading,
-    error,
-    refetch,
-  } = useGetAnnouncementsQuery({
+  const { data, isLoading, error, refetch } = useGetAnnouncementsQuery({
     page: currentPage,
     pageSize: PAGE_SIZE,
   });
@@ -24,19 +19,14 @@ export const AnnouncementsSection: FC = () => {
     setCurrentPage(newPage);
   };
 
-  const announcements = data?.announcements ?? [];
-  const total = data?.total ?? 0;
+  const announcements = data?.content ?? [];
+  const total = data?.totalElements ?? 0;
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <Box sx={{ mt: { xs: 3, md: 4 } }}>
       {/* Section Header */}
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1}
-        sx={{ mb: 3 }}
-      >
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
         <NotificationsOutlined color="primary" />
         <Typography
           variant="h6"

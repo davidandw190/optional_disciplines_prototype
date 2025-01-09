@@ -2,7 +2,7 @@
 // @ts-ignore: 2339
 const VITE_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 const RUNTIME_BASE_URL = '<!--# echo var="ENV_API_BASE_URL" -->';
-const DEFAULT_BASE_URL = 'http://localhost:3000/api';
+const DEFAULT_BASE_URL = 'http://localhost:8080/api';
 
 
 

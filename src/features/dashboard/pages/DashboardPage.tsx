@@ -1,13 +1,10 @@
 import { Box, Grid, Typography } from '@mui/material';
-import {
-  mockAnnouncements,
-  mockQuickActions,
-} from '../../mocks/dashboard.mock';
 
 import { AnnouncementsSection } from '../components/sections/AnnouncementsSection';
 import { EnrollmentsSection } from '../components/sections/EnrollmentsSection';
 import { FC } from 'react';
 import { QuickActionsSection } from '../components/sections/QuickActionsSection';
+import { mockQuickActions } from '../../mocks/dashboard.mock';
 import { useGetEligibleEnrollmentPeriodsQuery } from '../../../api/enrollmentPeriods/enrollmentPeriodsApi';
 import { useStudent } from '../../../contexts/student.context';
 

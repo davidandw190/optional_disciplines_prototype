@@ -8,6 +8,13 @@ interface GetAnnouncementsParams {
   pageSize: number;
 }
 
+interface PageResponse<T> {
+  content: T[];              
+  totalElements: number;     
+  number: number;            
+  size: number;              
+}
+
 interface AnnouncementsResponse {
   announcements: Announcement[];
   total: number;
@@ -20,13 +27,16 @@ export const announcementsApi = createApi({
   baseQuery: getFetchBaseQuery(),
   tagTypes: ['Announcements'],
   endpoints: (builder) => ({
-    getAnnouncements: builder.query<AnnouncementsResponse, GetAnnouncementsParams>({
-      query: (params) => ({
+    getAnnouncements: builder.query<PageResponse<Announcement>, { page: number, pageSize: number }>({
+      query: ({ page, pageSize }) => ({
         url: API_URLS.ANNOUNCEMENTS,
         method: 'GET',
-        params,
+        params: {
+          page: page - 1, 
+          size: pageSize,
+          sort: 'date,desc'
+        },
       }),
-      providesTags: ['Announcements'],
     }),
   }),
 });
