@@ -60,7 +60,7 @@ export const AnnouncementsCarousel: FC<AnnouncementsCarouselProps> = ({
           <KeyboardArrowLeft />
         </IconButton>
       )}
-      
+
       {currentPage < totalPages && (
         <IconButton
           onClick={handleNext}

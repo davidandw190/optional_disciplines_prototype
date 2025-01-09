@@ -3,23 +3,11 @@ import { Announcement } from '../../types/disciplines/disciplines.types';
 import { createApi } from '@reduxjs/toolkit/query/react';
 import getFetchBaseQuery from '../fetch-base-query';
 
-interface GetAnnouncementsParams {
-  page: number;
-  pageSize: number;
-}
-
 interface PageResponse<T> {
   content: T[];              
   totalElements: number;     
   number: number;            
   size: number;              
-}
-
-interface AnnouncementsResponse {
-  announcements: Announcement[];
-  total: number;
-  page: number;
-  pageSize: number;
 }
 
 export const announcementsApi = createApi({

@@ -5,7 +5,6 @@ const RUNTIME_BASE_URL = '<!--# echo var="ENV_API_BASE_URL" -->';
 const DEFAULT_BASE_URL = 'http://localhost:8080/api';
 
 
-
 const getBaseUrl = () => {
   try {
       return new URL(RUNTIME_BASE_URL).href;
