@@ -3,6 +3,7 @@ import { Box, Chip, Paper, Stack, Typography, alpha } from '@mui/material';
 
 import { Announcement } from '../../../../types/disciplines/disciplines.types';
 import { FC } from 'react';
+import { formatAnnouncementDate } from '../../../../utils/dateUtils';
 
 export const AnnouncementCard: FC<Announcement> = ({
   title,
@@ -68,16 +69,24 @@ export const AnnouncementCard: FC<Announcement> = ({
       </Typography>
 
       <Stack
-        direction="row"
-        spacing={1}
-        alignItems="center"
-        sx={{ mt: 'auto' }}
+      direction="row"
+      spacing={1}
+      alignItems="center"
+      sx={{ mt: 'auto' }}
+    >
+      <AccessTime fontSize="small" color="action" />
+      <Typography 
+        variant="caption" 
+        color="text.secondary"
+        sx={{ 
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5 
+        }}
       >
-        <AccessTime fontSize="small" color="action" />
-        <Typography variant="caption" color="text.secondary">
-          {date}
-        </Typography>
-      </Stack>
+        {formatAnnouncementDate(date)}
+      </Typography>
+    </Stack>
     </Stack>
   </Paper>
 );

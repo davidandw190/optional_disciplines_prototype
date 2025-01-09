@@ -250,7 +250,7 @@ export interface PacketStatistics {
 
 export interface Announcement {
   title: string;
-  date: string;
+  date: string | Date;
   content: string;
   important: boolean;
 }
