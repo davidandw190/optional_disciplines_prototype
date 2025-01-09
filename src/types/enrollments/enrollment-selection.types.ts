@@ -15,3 +15,9 @@ export interface EnrollmentSelectionState {
   packets: Record<string, PacketSelections>;
   currentPacketId: string | null;
 }
+
+export enum EnrollmentPeriodStatus {
+  ACTIVE = 'ACTIVE',
+  UPCOMING = 'UPCOMING',
+  ENDED = 'ENDED',
+}

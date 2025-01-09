@@ -3,7 +3,11 @@ import { Box, Paper, Stack, Typography } from '@mui/material';
 import { FC } from 'react';
 import { QuickAction } from '../../../../types/disciplines/disciplines.types';
 
-export const QuickActionCard: FC<QuickAction> = ({ icon, title, description }) => (
+export const QuickActionCard: FC<QuickAction> = ({
+  icon,
+  title,
+  description,
+}) => (
   <Paper
     elevation={0}
     sx={{

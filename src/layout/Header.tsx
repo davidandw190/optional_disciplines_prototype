@@ -46,16 +46,14 @@ export const Header: FC<HeaderProps> = ({ onMenuClick, sidebarOpen }) => {
           width: '100%',
           mx: 'auto',
           px: { xs: 2, sm: 3, md: 4 },
-          height: '100%', // Ensure the box takes full height
+          height: '100%',
         }}
       >
         <Toolbar
           sx={{
-            // Adjust toolbar height
-            minHeight: '56px !important', // Override Material-UI's default
+            minHeight: '56px !important',
             height: '56px',
             px: 0,
-            // Ensure proper alignment of content
             display: 'flex',
             alignItems: 'center',
           }}
@@ -71,11 +69,10 @@ export const Header: FC<HeaderProps> = ({ onMenuClick, sidebarOpen }) => {
               '&:hover': {
                 bgcolor: 'rgba(255, 255, 255, 0.08)',
               },
-              // Adjust icon button size
               padding: '8px',
             }}
           >
-            <Menu sx={{ fontSize: '1.25rem' }} /> {/* Slightly reduce icon size */}
+            <Menu sx={{ fontSize: '1.25rem' }} /> 
           </IconButton>
 
           <Stack
@@ -91,7 +88,7 @@ export const Header: FC<HeaderProps> = ({ onMenuClick, sidebarOpen }) => {
                 fontWeight: 600,
                 letterSpacing: '0.02em',
                 textTransform: 'uppercase',
-                fontSize: '1rem', // Reduced from 1.125rem
+                fontSize: '1rem',
               }}
             >
               FMI Enroll
@@ -105,7 +102,7 @@ export const Header: FC<HeaderProps> = ({ onMenuClick, sidebarOpen }) => {
                 borderLeft: '2px solid',
                 borderColor: 'rgba(255, 255, 255, 0.12)',
                 fontWeight: 500,
-                fontSize: '0.875rem', // Reduced font size
+                fontSize: '0.875rem',
               }}
             >
               {pathTitles[currentPath] || 'Dashboard'}

@@ -3,14 +3,12 @@ import {
   mockAnnouncements,
   mockQuickActions,
 } from '../../mocks/dashboard.mock';
-import {
-  useGetEligibleEnrollmentPeriodsQuery
-} from '../../../api/enrollmentPeriods/enrollmentPeriodsApi';
 
 import { AnnouncementsSection } from '../components/sections/AnnouncementsSection';
 import { EnrollmentsSection } from '../components/sections/EnrollmentsSection';
 import { FC } from 'react';
 import { QuickActionsSection } from '../components/sections/QuickActionsSection';
+import { useGetEligibleEnrollmentPeriodsQuery } from '../../../api/enrollmentPeriods/enrollmentPeriodsApi';
 import { useStudent } from '../../../contexts/student.context';
 
 const DashboardPage: FC = () => {
@@ -29,12 +27,6 @@ const DashboardPage: FC = () => {
     semester: student?.semester ?? 1,
     specialization: student?.specialization ?? '',
   });
-
-  if (!enrollmentPeriods) {
-    return (
-      
-    )
-  }
 
   return (
     <Box
@@ -57,14 +49,14 @@ const DashboardPage: FC = () => {
         Dashboard
       </Typography>
 
-      {enrollmentPeriods ? (
-
       <Grid container spacing={3}>
-      <EnrollmentsSection enrollmentPeriods={enrollmentPeriods} />
-      <QuickActionsSection actions={mockQuickActions} />
-    </Grid>
-      ) : (<h3> No enrollment periods available</h3>)}
-
+        <EnrollmentsSection
+          enrollmentPeriods={enrollmentPeriods}
+          isLoading={isLoadingStudent || isLoadingEnrollments}
+          error={studentError || enrollmentError}
+        />
+        <QuickActionsSection actions={mockQuickActions} />
+      </Grid>
 
       <AnnouncementsSection />
     </Box>

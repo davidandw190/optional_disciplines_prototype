@@ -21,7 +21,8 @@ export const AnnouncementCard: FC<Announcement> = ({
       '&:hover': {
         borderColor: 'primary.main',
         transform: 'translateY(-2px)',
-        boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.08)}`,
+        boxShadow: (theme) =>
+          `0 4px 12px ${alpha(theme.palette.primary.main, 0.08)}`,
       },
     }}
   >
@@ -33,9 +34,9 @@ export const AnnouncementCard: FC<Announcement> = ({
         spacing={2}
       >
         <Stack direction="row" spacing={1} alignItems="center">
-          <InfoOutlined 
-            fontSize="small" 
-            color={important ? 'error' : 'action'} 
+          <InfoOutlined
+            fontSize="small"
+            color={important ? 'error' : 'action'}
           />
           <Typography variant="subtitle2" fontWeight={600}>
             {title}
@@ -52,10 +53,10 @@ export const AnnouncementCard: FC<Announcement> = ({
         )}
       </Stack>
 
-      <Typography 
-        variant="body2" 
+      <Typography
+        variant="body2"
         color="text.secondary"
-        sx={{ 
+        sx={{
           display: '-webkit-box',
           WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical',
@@ -66,9 +67,9 @@ export const AnnouncementCard: FC<Announcement> = ({
         {content}
       </Typography>
 
-      <Stack 
-        direction="row" 
-        spacing={1} 
+      <Stack
+        direction="row"
+        spacing={1}
         alignItems="center"
         sx={{ mt: 'auto' }}
       >

@@ -1,26 +1,32 @@
-import { Box, IconButton, Paper, Stack, useTheme } from '@mui/material';
-import { FC, useState } from 'react';
+import { Box, IconButton, Stack, useTheme } from '@mui/material';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 
 import { Announcement } from '../../../../types/disciplines/disciplines.types';
 import { AnnouncementCard } from '../cards/AnnouncementCard';
+import { FC } from 'react';
 
 interface AnnouncementsCarouselProps {
   announcements: Announcement[];
-  visibleCount?: number;
+  visibleCount: number;
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  isLoading?: boolean;
 }
 
 export const AnnouncementsCarousel: FC<AnnouncementsCarouselProps> = ({
   announcements,
-  visibleCount = 3,
+  visibleCount,
   currentPage,
   totalPages,
   onPageChange,
+  isLoading,
 }) => {
   const theme = useTheme();
+
+  if (isLoading || announcements.length === 0) {
+    return null;
+  }
 
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -35,18 +41,20 @@ export const AnnouncementsCarousel: FC<AnnouncementsCarouselProps> = ({
   };
 
   return (
-    <Box sx={{ position: 'relative' }}>
+    <Box sx={{ position: 'relative', p: 3 }}>
       {currentPage > 1 && (
         <IconButton
           onClick={handlePrevious}
+          size="small"
           sx={{
             position: 'absolute',
-            left: -50,
+            left: -20,
             top: '50%',
             transform: 'translateY(-50%)',
             bgcolor: 'background.paper',
             boxShadow: theme.shadows[2],
             '&:hover': { bgcolor: 'background.paper' },
+            zIndex: 2,
           }}
         >
           <KeyboardArrowLeft />
@@ -56,14 +64,16 @@ export const AnnouncementsCarousel: FC<AnnouncementsCarouselProps> = ({
       {currentPage < totalPages && (
         <IconButton
           onClick={handleNext}
+          size="small"
           sx={{
             position: 'absolute',
-            right: -50,
+            right: -20,
             top: '50%',
             transform: 'translateY(-50%)',
             bgcolor: 'background.paper',
             boxShadow: theme.shadows[2],
             '&:hover': { bgcolor: 'background.paper' },
+            zIndex: 2,
           }}
         >
           <KeyboardArrowRight />
@@ -72,7 +82,10 @@ export const AnnouncementsCarousel: FC<AnnouncementsCarouselProps> = ({
 
       <Stack spacing={2}>
         {announcements.map((announcement, index) => (
-          <AnnouncementCard key={`${announcement.title}-${index}`} {...announcement} />
+          <AnnouncementCard
+            key={`${announcement.title}-${index}`}
+            {...announcement}
+          />
         ))}
       </Stack>
     </Box>

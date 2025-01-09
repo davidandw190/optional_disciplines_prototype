@@ -2,24 +2,14 @@ import {
   AccessTime,
   AutoStories,
   BookOutlined,
-  CalendarToday,
   MenuBook,
   School,
 } from '@mui/icons-material';
-import {
-  Box,
-  Chip,
-  IconButton,
-  Paper,
-  Stack,
-  Tooltip,
-  Typography,
-  alpha,
-} from '@mui/material';
+import { Box, Chip, Paper, Stack, Typography, alpha } from '@mui/material';
 import {
   getEnrollmentPeriodStatus,
   getRemainingDays,
-  isEnrollmentAccessible
+  isEnrollmentAccessible,
 } from '../../../mocks/enrollment-periods.mock';
 
 import { EnrollmentPeriod } from '../../../../types/disciplines/disciplines.types';
@@ -34,48 +24,55 @@ interface EnrollmentPeriodCardProps {
 type StatusConfig = {
   color: string;
   text: string;
-  chipColor: 'success' | 'warning' | 'default' | 'primary' | 'secondary' | 'error' | 'info';
+  chipColor:
+    | 'success'
+    | 'warning'
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'error'
+    | 'info';
 };
 
-export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({ period }) => {
+export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
+  period,
+}) => {
   const navigate = useNavigate();
   const status = getEnrollmentPeriodStatus(period);
   const remainingDays = getRemainingDays(period);
   const isAccessible = isEnrollmentAccessible(period);
 
-  // Configure status-specific visual properties
   const getStatusConfig = (): StatusConfig => {
     switch (status) {
       case 'active':
-        return { 
-          color: 'success.main', 
+        return {
+          color: 'success.main',
           text: 'ACTIVE',
-          chipColor: 'success'  // This is now properly typed
+          chipColor: 'success',
         };
       case 'upcoming':
-        return { 
-          color: 'warning.main', 
+        return {
+          color: 'warning.main',
           text: 'UPCOMING',
-          chipColor: 'warning'  // This is now properly typed
+          chipColor: 'warning',
         };
       case 'ended':
-        return { 
-          color: 'text.disabled', 
+        return {
+          color: 'text.disabled',
           text: 'ENDED',
-          chipColor: 'default'  // This is now properly typed
+          chipColor: 'default',
         };
       default:
-        return { 
-          color: 'text.disabled', 
+        return {
+          color: 'text.disabled',
           text: 'UNKNOWN',
-          chipColor: 'default'  // This is now properly typed
+          chipColor: 'default',
         };
     }
   };
 
   const statusConfig = getStatusConfig();
 
-  // Get appropriate icon for enrollment type
   const getEnrollmentIcon = () => {
     switch (period.type) {
       case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
@@ -89,10 +86,9 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({ period }) 
     }
   };
 
-  // Handle navigation based on enrollment type
   const handleClick = () => {
     if (!isAccessible) return;
-    
+
     switch (period.type) {
       case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
         navigate(`/elective-disciplines/${period.id}`);
@@ -136,15 +132,16 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({ period }) 
           alignItems="center"
           spacing={2}
         >
-          {/* Left Side - Period Info */}
+          {/* Period Info */}
           <Stack direction="row" spacing={2} alignItems="center">
             <Box
               sx={{
                 p: 1.25,
                 borderRadius: 1.5,
-                bgcolor: (theme) => status === 'ended' 
-                  ? alpha(theme.palette.grey[500], 0.1)
-                  : alpha(theme.palette.primary.main, 0.1),
+                bgcolor: (theme) =>
+                  status === 'ended'
+                    ? alpha(theme.palette.grey[500], 0.1)
+                    : alpha(theme.palette.primary.main, 0.1),
                 color: status === 'ended' ? 'text.disabled' : 'primary.main',
               }}
             >
@@ -152,24 +149,27 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({ period }) 
             </Box>
 
             <Stack spacing={0.5}>
-              <Typography 
-                variant="body1" 
+              <Typography
+                variant="body1"
                 fontWeight={600}
                 color={status === 'ended' ? 'text.disabled' : 'text.primary'}
               >
                 {period.type}
               </Typography>
-              
+
               <Stack direction="row" spacing={1} alignItems="center">
-                <AccessTime 
-                  sx={{ 
-                    fontSize: 14, 
-                    color: status === 'ended' ? 'text.disabled' : 'text.secondary' 
-                  }} 
+                <AccessTime
+                  sx={{
+                    fontSize: 14,
+                    color:
+                      status === 'ended' ? 'text.disabled' : 'text.secondary',
+                  }}
                 />
-                <Typography 
-                  variant="caption" 
-                  color={status === 'ended' ? 'text.disabled' : 'text.secondary'}
+                <Typography
+                  variant="caption"
+                  color={
+                    status === 'ended' ? 'text.disabled' : 'text.secondary'
+                  }
                 >
                   {new Date(period.startDate).toLocaleDateString()} -{' '}
                   {new Date(period.endDate).toLocaleDateString()}
@@ -196,9 +196,9 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({ period }) 
         {/* Active Period Info */}
         {status === 'active' && (
           <Stack direction="row" spacing={2} alignItems="center">
-            <Typography 
-              variant="caption" 
-              color="text.secondary" 
+            <Typography
+              variant="caption"
+              color="text.secondary"
               fontWeight={500}
             >
               Time Remaining
@@ -213,24 +213,21 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({ period }) 
         )}
 
         {/* Footer Info */}
-        <Stack 
-          direction="row" 
-          justifyContent="space-between" 
+        <Stack
+          direction="row"
+          justifyContent="space-between"
           alignItems="center"
         >
           <Typography
             variant="caption"
             color={status === 'ended' ? 'text.disabled' : 'text.secondary'}
           >
-            {period.packets.length} packet{period.packets.length !== 1 ? 's' : ''} available
+            {period.packets.length} packet
+            {period.packets.length !== 1 ? 's' : ''} available
           </Typography>
-          
+
           {isAccessible && (
-            <Typography
-              variant="caption"
-              color="primary"
-              fontWeight={500}
-            >
+            <Typography variant="caption" color="primary" fontWeight={500}>
               Click to view details
             </Typography>
           )}

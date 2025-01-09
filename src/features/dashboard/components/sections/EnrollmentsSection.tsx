@@ -1,31 +1,39 @@
-import { Grid, Paper, Stack, Typography } from '@mui/material';
+import { Grid, Paper, Skeleton, Stack, Typography } from '@mui/material';
 
 import { EnrollmentPeriod } from '../../../../types/disciplines/disciplines.types';
 import { EnrollmentPeriodCard } from '../cards/EnrollmentPeriodCard';
+import { EnrollmentPeriodStatus } from '../../../../types/enrollments/enrollment-selection.types';
 import { FC } from 'react';
 import { getEnrollmentPeriodStatus } from '../../../mocks/enrollment-periods.mock';
 
 interface EnrollmentsSectionProps {
   enrollmentPeriods: EnrollmentPeriod[] | undefined;
+  isLoading?: boolean;
+  error?: any;
 }
 
-type EnrollmentStatus = 'active' | 'upcoming' | 'ended';
-
-const statusOrder: Record<EnrollmentStatus, number> = {
-  active: 0,
-  upcoming: 1,
-  ended: 2,
+const statusOrder: Record<EnrollmentPeriodStatus, number> = {
+  ACTIVE: 0,
+  UPCOMING: 1,
+  ENDED: 2,
 };
 
 export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
   enrollmentPeriods,
+  isLoading,
+  error,
 }) => {
-  const sortedEnrollmentPeriods = [...enrollmentPeriods].sort((a, b) => {
-    const statusA = getEnrollmentPeriodStatus(a) as EnrollmentStatus;
-    const statusB = getEnrollmentPeriodStatus(b) as EnrollmentStatus;
+  const sortedEnrollmentPeriods = enrollmentPeriods
+    ? [...enrollmentPeriods].sort((a, b) => {
+        const statusA = getEnrollmentPeriodStatus(a) as EnrollmentPeriodStatus;
+        const statusB = getEnrollmentPeriodStatus(b) as EnrollmentPeriodStatus;
+        return statusOrder[statusA] - statusOrder[statusB];
+      })
+    : [];
 
-    return statusOrder[statusA] - statusOrder[statusB];
-  });
+  const hasActiveEnrollments = sortedEnrollmentPeriods.some(
+    (e) => getEnrollmentPeriodStatus(e) === 'active'
+  );
 
   return (
     <Grid item xs={12} lg={8}>
@@ -35,7 +43,7 @@ export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
           p: { xs: 2.5, sm: 3 },
           borderRadius: 2,
           bgcolor: 'background.paper',
-          height: '100%',
+          minHeight: 400,
           display: 'flex',
           flexDirection: 'column',
           border: '1px solid',
@@ -44,7 +52,7 @@ export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
           mx: 'auto',
         }}
       >
-        <Stack spacing={3}>
+        <Stack spacing={3} sx={{ height: '100%', width: '100%' }}>
           {/* Section Header */}
           <Stack
             direction="row"
@@ -62,9 +70,7 @@ export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
             >
               Enrollment Periods
             </Typography>
-            {sortedEnrollmentPeriods.some(
-              (e) => getEnrollmentPeriodStatus(e) === 'active'
-            ) && (
+            {hasActiveEnrollments && (
               <Typography
                 variant="caption"
                 color="success.main"
@@ -75,22 +81,52 @@ export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
             )}
           </Stack>
 
-          {/* Enrollment Cards List */}
-          <Stack spacing={2}>
-            {sortedEnrollmentPeriods.map((period) => (
-              <EnrollmentPeriodCard key={period.id} period={period} />
-            ))}
-
-            {/* Empty State */}
-            {sortedEnrollmentPeriods.length === 0 && (
+          {/* Content Area */}
+          <Stack spacing={2} sx={{ flexGrow: 1 }}>
+            {isLoading ? (
+              // temp loading skeletons
+              Array.from(new Array(3)).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  variant="rectangular"
+                  height={120}
+                  sx={{ borderRadius: 2 }}
+                />
+              ))
+            ) : error ? (
+              // error state
               <Typography
                 variant="body2"
-                color="text.secondary"
+                color="error"
                 textAlign="center"
                 sx={{ py: 4 }}
               >
-                No enrollment periods available at this time
+                Unable to load enrollment periods. Please try again later.
               </Typography>
+            ) : sortedEnrollmentPeriods.length > 0 ? (
+              // enrollment cards
+              sortedEnrollmentPeriods.map((period) => (
+                <EnrollmentPeriodCard key={period.id} period={period} />
+              ))
+            ) : (
+              // empty state
+              <Stack
+                spacing={2}
+                alignItems="center"
+                justifyContent="center"
+                sx={{ py: 8, flexGrow: 1 }}
+              >
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  textAlign="center"
+                >
+                  No enrollment periods available at this time
+                </Typography>
+                <Typography variant="caption" color="text.disabled">
+                  Check back later for upcoming enrollment periods
+                </Typography>
+              </Stack>
             )}
           </Stack>
         </Stack>
