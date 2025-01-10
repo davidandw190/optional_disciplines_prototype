@@ -1,4 +1,3 @@
-// DisciplineDetailsDrawer.tsx
 import { Box, Drawer, Theme, useMediaQuery, useTheme } from '@mui/material';
 import {
   Discipline,
@@ -34,8 +33,12 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState(0);
   const theme = useTheme();
-  const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.down('sm')
+  );
+  const isTablet = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.down('md')
+  );
 
   const getSelectionInfo = () => {
     if (!packet) return null;
@@ -94,7 +97,6 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          // Ensure proper spacing for mobile devices
           ...(isMobile && {
             pb: `env(safe-area-inset-bottom, ${theme.spacing(2)})`,
           }),

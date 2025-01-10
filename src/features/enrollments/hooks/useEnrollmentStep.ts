@@ -39,12 +39,10 @@ export function useEnrollmentStep(
     });
   }, []);
 
-  // Reset to initial step
   const resetStep = useCallback(() => {
     setCurrentStep(initialStep);
   }, [initialStep]);
 
-  // Go to a specific step directly
   const goToStep = useCallback((step: EnrollmentStep) => {
     setCurrentStep(step);
   }, []);

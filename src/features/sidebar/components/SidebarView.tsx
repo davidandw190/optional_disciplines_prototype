@@ -240,7 +240,6 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
             borderColor: 'divider',
             boxSizing: 'border-box',
           },
-          // to only show elevation on mobile
           '& .MuiPaper-root': {
             boxShadow: variant === 'temporary' ? 24 : 'none',
           },

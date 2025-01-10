@@ -123,7 +123,7 @@ export const DisciplineCard: FC<DisciplineCardProps> = memo(
               sx={{
                 fontWeight: 600,
                 lineHeight: 1.3,
-                minHeight: 42, // Ensures consistent card height
+                minHeight: 42, 
               }}
             >
               {name}

@@ -1,4 +1,3 @@
-// SidebarLayout.tsx
 import {
   Box,
   Container,

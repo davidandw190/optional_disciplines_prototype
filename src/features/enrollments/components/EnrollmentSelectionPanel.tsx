@@ -142,12 +142,10 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
     [theme]
   );
 
-  // Render optimization for packet items
   const renderPacketItem = useCallback(
     (packet: DisciplinePacket) => {
       const packetSelections = selections.packets[packet.id]?.selections || [];
 
-      // Memoize sortable items for each packet
       const sortableItems = useMemo(
         () =>
           packetSelections.map((selection, index) => ({

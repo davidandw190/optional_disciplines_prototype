@@ -53,12 +53,10 @@ export const ComplementaryDisciplineCard: FC<ComplementaryDisciplineCardProps> =
         yearOfStudy,
       } = discipline;
 
-      // Calculate enrollment percentage for progress indicator
       const enrollmentPercentage = maxEnrollmentSpots
         ? (currentEnrollmentCount / maxEnrollmentSpots) * 100
         : 0;
 
-      // Determine status color based on selection and enrollment state
       const getStatusColor = () => {
         if (isSelected) return 'success';
         if (enrollmentPercentage >= 100) return 'error';

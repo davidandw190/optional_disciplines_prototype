@@ -171,7 +171,7 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
           flex: 1,
           px: { xs: 2, sm: 3 },
           ...(isMobile && {
-            pb: '80px', // Height of the footer + padding
+            pb: '80px',
           }),
         }}
       >
@@ -200,7 +200,6 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
             borderTop: 1,
             borderColor: 'divider',
             bgcolor: 'background.paper',
-            // Fix the footer to the bottom on mobile
             ...(isMobile && {
               position: 'fixed',
               bottom: 0,

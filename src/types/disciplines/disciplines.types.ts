@@ -174,7 +174,6 @@ export interface EnrollmentPeriod extends BaseEntity {
   targetSemester: 1 | 2;
   
   isActive: boolean;
-  status: 'upcoming' | 'active' | 'ended';
   
   progress?: number;
 

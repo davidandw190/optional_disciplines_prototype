@@ -5,7 +5,7 @@ const BRAND_COLORS = {
   uvtGold: '#d99a4f',
   uvtLight: '#fafafa',
 
-  lightModePrimary: '#072665', 
+  lightModePrimary: '#072665',
   darkModePrimary: '#5B9FFF',
 };
 
@@ -38,14 +38,14 @@ const createSemanticColors = (mode: 'light' | 'dark') => {
       contrastText: '#ffffff',
     },
     background: {
-      default: isLight ? '#f8f9fa' : '#121214', 
-      paper: isLight ? '#ffffff' : '#1E1E20', 
+      default: isLight ? '#f8f9fa' : '#121214',
+      paper: isLight ? '#ffffff' : '#1E1E20',
       subtle: isLight ? alpha('#f8f9fa', 0.8) : alpha('#1E1E20', 0.8),
     },
     text: {
-      primary: isLight ? '#1a1a1a' : '#FFFFFF', 
+      primary: isLight ? '#1a1a1a' : '#FFFFFF',
       secondary: isLight ? '#424242' : '#E0E0E0',
-      disabled: isLight ? '#757575' : '#A0A0A0', 
+      disabled: isLight ? '#757575' : '#A0A0A0',
     },
     action: {
       active: alpha(primaryMain, isLight ? 0.7 : 0.9),
