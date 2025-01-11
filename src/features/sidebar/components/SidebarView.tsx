@@ -14,6 +14,7 @@ import {
 import {
   Avatar,
   Box,
+  Chip,
   Dialog,
   DialogTitle,
   Divider,
@@ -27,11 +28,16 @@ import {
   Menu,
   MenuItem,
   Typography,
+  useTheme,
 } from '@mui/material';
+import { FC, useMemo } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-import { Link } from 'react-router-dom';
-import { SidebarNavItem } from './SidebarNavItem';
-import { useMemo } from 'react';
+import { EnrollmentPeriod } from '../../../types/disciplines/disciplines.types';
+import { EnrollmentPeriodType } from '../../../types/disciplines/disciplines.enums';
+import { getEnrollmentPeriodStatus } from '../../mocks/enrollment-periods.mock';
+import { useGetEligibleEnrollmentPeriodsQuery } from '../../../api/enrollmentPeriods/enrollmentPeriodsApi';
+import { useStudent } from '../../../contexts/student.context';
 import uvtLogo from '../../../assets/uvt-logo.png';
 
 const DRAWER_WIDTH = '340px';
@@ -42,7 +48,6 @@ interface SidebarViewProps {
   handleMenuOpen: (event: React.MouseEvent<HTMLDivElement>) => void;
   handleMenuClose: () => void;
   handleLogout: () => void;
-  enrollments?: any[];
   toggleSidebar: () => void;
   sidebarOpen: boolean;
   handleChooseTheme: (theme: 'dark' | 'light' | 'system') => void;
@@ -52,45 +57,45 @@ interface SidebarViewProps {
   variant: 'temporary' | 'persistent';
 }
 
-const navigationItems = [
-  {
-    title: 'Dashboard',
-    icon: <School />,
-    path: '/dashboard',
-  },
-  {
-    title: 'Elective Disciplines',
-    icon: <Book />,
-    path: '/elective-disciplines',
-  },
-  {
-    title: 'Complementary Disciplines',
-    icon: <MenuBook />,
-    path: '/complementary-disciplines',
-  },
-  {
-    title: 'My Enrollments',
-    icon: <Assignment />,
-    path: '/enrollments',
-  },
-  {
-    title: 'Thesis',
-    icon: <MenuBook />,
-    path: '/thesis',
-  },
-  {
-    title: 'Profile',
-    icon: <Person />,
-    path: '/profile',
-  },
-  {
-    title: 'FAQ',
-    icon: <HelpOutline />,
-    path: '/faq',
-  },
-];
+const getEnrollmentPeriodPath = (period: EnrollmentPeriod) => {
+  const periodId = period.id.toString();
+  return `/enrollment-periods/${periodId}/${period.type
+    .toLowerCase()
+    .replace('_', '-')}`;
+};
 
-export const SidebarView: React.FC<SidebarViewProps> = ({
+const getEnrollmentPeriodTitle = (type: EnrollmentPeriodType) => {
+  switch (type) {
+    case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
+      return 'Elective Disciplines';
+    case EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES:
+      return 'Complementary Disciplines';
+    case EnrollmentPeriodType.THESIS_REGISTRATION:
+      return 'Thesis Registration';
+  }
+};
+
+const getEnrollmentPeriodIcon = (type: EnrollmentPeriodType) => {
+  switch (type) {
+    case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
+      return <Book />;
+    case EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES:
+      return <MenuBook />;
+    case EnrollmentPeriodType.THESIS_REGISTRATION:
+      return <Assignment />;
+  }
+};
+
+interface NavigationItem {
+  title: string;
+  icon: JSX.Element;
+  path: string;
+  badge?: string;
+  badgeColor?: 'success' | 'warning' | 'error' | 'info' | 'default';
+  disabled?: boolean;
+}
+
+export const SidebarView: FC<SidebarViewProps> = ({
   menuOpen,
   anchorElement,
   handleMenuOpen,
@@ -104,11 +109,76 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
   handleDialogClose,
   dialogOpen,
 }) => {
-  const user = {
-    firstName: 'Andrei-David',
-    lastName: 'Nan',
-    email: 'andrei.nan03@e-uvt.ro',
-  };
+  const theme = useTheme();
+  const location = useLocation();
+
+  const { student } = useStudent();
+  const { data: enrollmentPeriods } = useGetEligibleEnrollmentPeriodsQuery({
+    yearOfStudy: student?.yearOfStudy ?? 1,
+    semester: student?.semester ?? 1,
+    specialization: student?.specialization ?? '',
+  });
+
+  const navigationItems = useMemo(() => {
+    const baseItems: NavigationItem[] = [
+      {
+        title: 'Dashboard',
+        icon: <School />,
+        path: '/dashboard',
+      },
+    ];
+
+    const periodsByType = new Map<EnrollmentPeriodType, EnrollmentPeriod>();
+
+    enrollmentPeriods?.forEach((period) => {
+      const existingPeriod = periodsByType.get(period.type);
+      const status = getEnrollmentPeriodStatus(period);
+
+      if (!existingPeriod || status === 'active') {
+        periodsByType.set(period.type, period);
+      }
+    });
+
+    const enrollmentItems: NavigationItem[] = [
+      EnrollmentPeriodType.ELECTIVE_DISCIPLINES,
+      EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES,
+      EnrollmentPeriodType.THESIS_REGISTRATION,
+    ].map((type) => {
+      const period = periodsByType.get(type);
+      const status = period ? getEnrollmentPeriodStatus(period) : 'upcoming';
+
+      return {
+        title: getEnrollmentPeriodTitle(type),
+        icon: getEnrollmentPeriodIcon(type),
+        path: period ? getEnrollmentPeriodPath(period) : '#',
+        ...(status === 'active' && {
+          badge: 'Active',
+          badgeColor: 'success',
+        }),
+        disabled: status !== 'active',
+      };
+    });
+
+    const staticItems: NavigationItem[] = [
+      {
+        title: 'My Enrollments',
+        icon: <Assignment />,
+        path: '/enrollments',
+      },
+      {
+        title: 'Profile',
+        icon: <Person />,
+        path: '/profile',
+      },
+      {
+        title: 'FAQ',
+        icon: <HelpOutline />,
+        path: '/faq',
+      },
+    ];
+
+    return [...baseItems, ...enrollmentItems, ...staticItems];
+  }, [enrollmentPeriods]);
 
   const drawerContent = useMemo(
     () => (
@@ -120,7 +190,7 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
           overflow: 'hidden',
         }}
       >
-        {/* logo and title section */}
+        {/* Logo and Title Section */}
         <Box sx={{ p: 2, textAlign: 'center' }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
             <Box
@@ -151,7 +221,7 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
 
         <Divider sx={{ mx: 2 }} />
 
-        {/* navigation section */}
+        {/* Navigation Section */}
         <List
           sx={{
             flex: 1,
@@ -164,16 +234,62 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
           }}
         >
           {navigationItems.map((item) => (
-            <SidebarNavItem
-              key={item.path}
-              icon={item.icon}
-              title={item.title}
-              path={item.path}
-            />
+            <ListItem key={item.path} disablePadding>
+              <ListItemButton
+                component={Link}
+                to={item.path}
+                selected={location.pathname.startsWith(item.path)}
+                disabled={item.disabled}
+                sx={{
+                  borderRadius: 1,
+                  mb: 0.5,
+                  color: item.disabled
+                    ? 'text.disabled'
+                    : location.pathname.startsWith(item.path)
+                    ? 'primary.main'
+                    : 'text.primary',
+                  '&.Mui-disabled': {
+                    opacity: 0.7,
+                    cursor: 'not-allowed',
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    color: 'inherit',
+                    minWidth: 40,
+                    opacity: item.disabled ? 0.5 : 1,
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.title}
+                  primaryTypographyProps={{
+                    fontWeight: location.pathname.startsWith(item.path)
+                      ? 600
+                      : 400,
+                    sx: { opacity: item.disabled ? 0.7 : 1 },
+                  }}
+                />
+                {item.badge && (
+                  <Chip
+                    label={item.badge}
+                    size="small"
+                    color={item.badgeColor}
+                    sx={{
+                      ml: 1,
+                      height: 24,
+                      opacity: item.disabled ? 0.7 : 1,
+                    }}
+                  />
+                )}
+              </ListItemButton>
+            </ListItem>
           ))}
         </List>
 
-        {/* user profile section */}
+        {/* User Profile Section */}
         <Box>
           <Divider />
           <ListItem
@@ -199,12 +315,12 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
                     height: 32,
                   }}
                 >
-                  {user.firstName[0]}
+                  {student?.firstName[0]}
                 </Avatar>
               </ListItemIcon>
               <ListItemText
-                primary={`${user.firstName} ${user.lastName}`}
-                secondary={user.email}
+                primary={`${student?.firstName} ${student?.lastName}`}
+                secondary={student?.email}
                 primaryTypographyProps={{
                   variant: 'body2',
                   fontWeight: 600,
@@ -220,7 +336,7 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
         </Box>
       </Box>
     ),
-    [user, handleMenuOpen]
+    [navigationItems, student, handleMenuOpen, location.pathname]
   );
 
   return (
@@ -246,7 +362,6 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
         }}
       >
         {drawerContent}
-        {/* toggle button */}
         <IconButton
           onClick={toggleSidebar}
           size="small"
@@ -270,7 +385,7 @@ export const SidebarView: React.FC<SidebarViewProps> = ({
         </IconButton>
       </Drawer>
 
-      {/* theme and logout menus */}
+      {/* Theme and Logout Menus */}
       <Menu
         anchorEl={anchorElement}
         open={menuOpen}
