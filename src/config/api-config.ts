@@ -23,4 +23,5 @@ export const API_URLS = {
   ENROLLMENT_PERIODS: '/enrollment-periods',
   ANNOUNCEMENTS: '/announcements',
   STUDENT_PROFILE: '/student/profile',
+  DISCIPLINE_PACKETS: '/'
 };

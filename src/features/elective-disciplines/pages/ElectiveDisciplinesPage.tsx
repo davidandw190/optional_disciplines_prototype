@@ -41,20 +41,31 @@ import { DisciplineList } from '../components/DisciplineList';
 import { EnrollmentSelectionPanel } from '../../enrollments/components/EnrollmentSelectionPanel';
 import { SelectionRequirementsModal } from '../components/SelectionRequirementsModal';
 import { mockDisciplines } from '../../mocks/elective-disciplines.mock';
-import { mockEnrollmentPeriods } from '../../mocks/enrollment-periods.mock';
 import { useEnrollmentSelections } from '../../enrollments/hooks/useEnrollmentSelection';
+import { useGetElectivePeriodQuery } from '../../../api/elective-disciplines/electiveDisciplinesApi';
 
 export const ElectiveDisciplinesPage: FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { periodId } = useParams();
 
+  if (!periodId) {
+    navigate('/dashboard');
+    return;
+  }
+
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const mockEnrollmentPeriods: EnrollmentPeriod[] = [];
 
-  const enrollmentPeriod = mockEnrollmentPeriods.find((p) => p.id === periodId);
+  const {
+    data: enrollmentPeriod,
+    isLoading,
+    error,
+    refetch
+  } = useGetElectivePeriodQuery(periodId);
+
   const status = enrollmentPeriod
     ? getEnrollmentPeriodStatus(enrollmentPeriod)
     : 'ended';

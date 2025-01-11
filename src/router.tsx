@@ -27,23 +27,34 @@ const router = createBrowserRouter(
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
+          {/* Dashboard */}
           <Route path="dashboard" element={<DashboardPage />} />
 
-          {/* Disciplines Routes */}
-          <Route
-            path="elective-disciplines/:periodId"
-            element={<ElectiveDisciplinesPage />}
-          />
-          <Route
-            path="complementary-disciplines"
-            element={<ComplementaryDisciplinesPage />}
-          />
+          {/* Enrollment Period Routes */}
+          <Route path="enrollment-periods">
+            {/* Elective Disciplines */}
+            <Route 
+              path=":periodId/elective-disciplines" 
+              element={<ElectiveDisciplinesPage />} 
+            />
 
-          {/* Enrollments Routes */}
-          <Route path="enrollments" element={<MyEnrollmentsPage />} />
+            {/* Complementary Disciplines */}
+            <Route 
+              path=":periodId/complementary-disciplines" 
+              element={<ComplementaryDisciplinesPage />} 
+            />
 
-          {/* Thesis Routes */}
-          <Route path="thesis" element={<AvailableThesisPage />} />
+            {/* Thesis Registration */}
+            <Route 
+              path=":periodId/thesis-registration" 
+              element={<AvailableThesisPage />} 
+            />
+          </Route>
+
+          {/* Enrollments Management */}
+          <Route path="enrollments">
+            <Route index element={<MyEnrollmentsPage />} />
+          </Route>
 
           {/* Profile Routes */}
           <Route path="profile">
@@ -51,10 +62,14 @@ const router = createBrowserRouter(
             {/* <Route path="details" element={<ProfilePage />} /> */}
             <Route path="*" element={<Navigate to="details" />} />
           </Route>
+
+          {/* Catch any unmatched routes under protected area */}
+          <Route path="*" element={<Navigate to="/dashboard" />} />
         </Route>
       </Route>
 
-      {/* <Route path="*" element={<NotFoundPage />} /> */}
+      {/* Catch any unmatched routes at root level */}
+      <Route path="*" element={<Navigate to="/dashboard" />} />
     </Route>
   )
 );

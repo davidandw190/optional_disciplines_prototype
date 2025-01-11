@@ -89,15 +89,17 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
   const handleClick = () => {
     if (!isAccessible) return;
 
-    switch (period?.type as EnrollmentPeriodType) {
+    switch (period.type) {
       case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
-        navigate(`/elective-disciplines/${period.id}`);
+        navigate(`/enrollment-periods/${period.id}/elective-disciplines`);
         break;
       case EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES:
-        navigate(`/complementary-disciplines/${period.id}`);
+        navigate(
+          `/enrollment-periods/${period.id}/complementary-disciplines`
+        );
         break;
       case EnrollmentPeriodType.THESIS_REGISTRATION:
-        navigate(`/thesis-registration/${period.id}`);
+        navigate(`/enrollment-periods/${period.id}/thesis-registration`);
         break;
     }
   };
