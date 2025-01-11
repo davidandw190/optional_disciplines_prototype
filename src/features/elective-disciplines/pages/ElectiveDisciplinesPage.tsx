@@ -23,6 +23,7 @@ import {
 import {
   Discipline,
   DisciplinePacket,
+  EnrollmentPeriod,
 } from '../../../types/disciplines/disciplines.types';
 import { FC, useEffect, useMemo, useState } from 'react';
 import {
@@ -32,7 +33,6 @@ import {
 import {
   getEnrollmentPeriodStatus,
   getRemainingDays,
-  mockEnrollmentPeriods,
 } from '../../mocks/enrollment-periods.mock';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -41,6 +41,7 @@ import { DisciplineList } from '../components/DisciplineList';
 import { EnrollmentSelectionPanel } from '../../enrollments/components/EnrollmentSelectionPanel';
 import { SelectionRequirementsModal } from '../components/SelectionRequirementsModal';
 import { mockDisciplines } from '../../mocks/elective-disciplines.mock';
+import { mockEnrollmentPeriods } from '../../mocks/enrollment-periods.mock';
 import { useEnrollmentSelections } from '../../enrollments/hooks/useEnrollmentSelection';
 
 export const ElectiveDisciplinesPage: FC = () => {
@@ -50,6 +51,8 @@ export const ElectiveDisciplinesPage: FC = () => {
 
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const mockEnrollmentPeriods: EnrollmentPeriod[] = [];
 
   const enrollmentPeriod = mockEnrollmentPeriods.find((p) => p.id === periodId);
   const status = enrollmentPeriod
