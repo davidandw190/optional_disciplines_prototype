@@ -63,7 +63,7 @@ export const ElectiveDisciplinesPage: FC = () => {
     data: enrollmentPeriod,
     isLoading,
     error,
-    refetch
+    refetch,
   } = useGetElectivePeriodQuery(periodId);
 
   const status = enrollmentPeriod
