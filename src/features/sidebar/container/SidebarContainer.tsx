@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
 
 import { AppDispatch } from '../../../store/store';
-import { SidebarView } from '../components/SidebarView';
+import { SidebarView } from './SidebarView';
 import { setTheme } from '../slices/theme.slice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -27,8 +27,6 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
 
-  const enrollments: any[] | undefined = [];
-
   const handleMenuOpen = (event: React.MouseEvent<HTMLDivElement>) => {
     setAnchorElement(event.currentTarget);
   };
@@ -47,9 +45,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
 
   const handleChooseTheme = (theme: 'dark' | 'light' | 'system') => {
     dispatch(setTheme(theme));
-
     handleDialogClose();
-
     handleMenuClose();
   };
 
@@ -69,7 +65,6 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
       handleMenuOpen={handleMenuOpen}
       handleMenuClose={handleMenuClose}
       handleLogout={handleLogout}
-      enrollments={enrollments}
       toggleSidebar={toggleSidebar}
       sidebarOpen={sidebarOpen}
       handleChooseTheme={handleChooseTheme}
