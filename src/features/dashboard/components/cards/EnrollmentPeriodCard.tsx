@@ -104,8 +104,6 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
     }
   };
 
-  // console.log(period.type)
-
   return (
     <Paper
       elevation={0}

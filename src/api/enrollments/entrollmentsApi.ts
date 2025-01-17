@@ -1,5 +1,12 @@
-import { EnrollmentRequest, EnrollmentValidationRequest, EnrollmentValidationResponse } from '../../types/enrollments/enrollments.types';
-import { mockEnrollmentConfirmation, mockEnrollmentValidation } from '../../features/mocks/enrollments.mock';
+import {
+  EnrollmentRequest,
+  EnrollmentValidationRequest,
+  EnrollmentValidationResponse,
+} from '../../types/enrollments/enrollments.types';
+import {
+  mockEnrollmentConfirmation,
+  mockEnrollmentValidation,
+} from '../../features/mocks/enrollments.mock';
 
 import { EnrollmentStatus } from '../../types/disciplines/disciplines.enums';
 

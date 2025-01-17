@@ -20,8 +20,6 @@ const router = createBrowserRouter(
     <Route path="/" element={<App />}>
       {/* Public Routes */}
       <Route path="auth" element={<AuthPage />} />
-
-      {/* Redirect root to dashboard */}
       <Route path="/" element={<Navigate to="/dashboard" />} />
 
       {/* Protected Routes */}
@@ -32,19 +30,14 @@ const router = createBrowserRouter(
 
           {/* Enrollment Period Routes */}
           <Route path="enrollment-periods">
-            {/* Elective Disciplines */}
             <Route 
               path=":periodId/elective-disciplines" 
               element={<ElectiveDisciplinesPage />} 
             />
-
-            {/* Complementary Disciplines */}
             <Route 
               path=":periodId/complementary-disciplines" 
               element={<ComplementaryDisciplinesPage />} 
             />
-
-            {/* Thesis Registration */}
             <Route 
               path=":periodId/thesis-registration" 
               element={<AvailableThesisPage />} 
@@ -68,7 +61,6 @@ const router = createBrowserRouter(
         </Route>
       </Route>
 
-      {/* Catch any unmatched routes at root level */}
       <Route path="*" element={<Navigate to="/dashboard" />} />
     </Route>
   )

@@ -27,7 +27,6 @@ export const mockEnrollmentValidation = (
           errors: {
             prerequisites: ['Required prerequisite courses not completed'],
             credits: ['Exceeds maximum allowed credits for this semester'],
-            scheduling: ['Schedule conflict with existing enrollments'],
           },
           estimatedProcessingTime: 1000,
         });

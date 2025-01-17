@@ -12,13 +12,13 @@ interface State {
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
-    hasError: false
+    hasError: false,
   };
 
   public static getDerivedStateFromError(error: Error): State {
     return {
       hasError: true,
-      error
+      error,
     };
   }
 
@@ -38,7 +38,7 @@ export class ErrorBoundary extends Component<Props, State> {
             height: '100vh',
             gap: 2,
             p: 3,
-            textAlign: 'center'
+            textAlign: 'center',
           }}
         >
           <Typography variant="h4" component="h1" gutterBottom>
