@@ -23,9 +23,8 @@ import {
 import {
   Discipline,
   DisciplinePacket,
-  EnrollmentPeriod,
 } from '../../../types/disciplines/disciplines.types';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   HEADER_HEIGHT,
   SELECTIONS_PANEL_WIDTH,
@@ -34,50 +33,54 @@ import {
   getEnrollmentPeriodStatus,
   getRemainingDays,
 } from '../../mocks/enrollment-periods.mock';
+import {
+  useGetElectivePacketsQuery,
+  useGetElectivePeriodQuery,
+} from '../../../api/elective-disciplines/electiveDisciplinesApi';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { ContentSkeleton } from '../components/skeletons/ContentSkeleton';
 import { DisciplineDetailsDrawer } from '../components/DisciplineDetailsDrawer';
 import { DisciplineList } from '../components/DisciplineList';
 import { EnrollmentSelectionPanel } from '../../enrollments/components/EnrollmentSelectionPanel';
 import { SelectionRequirementsModal } from '../components/SelectionRequirementsModal';
-import { mockDisciplines } from '../../mocks/elective-disciplines.mock';
 import { useEnrollmentSelections } from '../../enrollments/hooks/useEnrollmentSelection';
-import { useGetElectivePeriodQuery } from '../../../api/elective-disciplines/electiveDisciplinesApi';
 
 export const ElectiveDisciplinesPage: FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { periodId } = useParams();
-
-  if (!periodId) {
-    navigate('/dashboard');
-    return;
-  }
-
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
-  const mockEnrollmentPeriods: EnrollmentPeriod[] = [];
-
-  const {
-    data: enrollmentPeriod,
-    isLoading,
-    error,
-    refetch,
-  } = useGetElectivePeriodQuery(periodId);
-
-  const status = enrollmentPeriod
-    ? getEnrollmentPeriodStatus(enrollmentPeriod)
-    : 'ended';
-  const remainingDays = enrollmentPeriod
-    ? getRemainingDays(enrollmentPeriod)
-    : 0;
 
   const [selectedDiscipline, setSelectedDiscipline] =
     useState<Discipline | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isSelectionDrawerOpen, setIsSelectionDrawerOpen] = useState(false);
   const [isRequirementsModalOpen, setIsRequirementsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!periodId) {
+      navigate('/dashboard');
+    }
+  }, [periodId, navigate]);
+
+  if (!periodId) {
+    navigate('/dashboard');
+    return null;
+  }
+
+  const {
+    data: enrollmentPeriod,
+    isLoading: isLoadingPeriod,
+    error: periodError,
+  } = useGetElectivePeriodQuery(periodId ?? '');
+
+  const {
+    data: packetsData,
+    isLoading: isLoadingPackets,
+    error: packetsError,
+  } = useGetElectivePacketsQuery(periodId ?? '');
 
   const {
     selections,
@@ -90,20 +93,36 @@ export const ElectiveDisciplinesPage: FC = () => {
   } = useEnrollmentSelections(enrollmentPeriod?.packets || []);
 
   const disciplinesMap = useMemo(() => {
-    return mockDisciplines.reduce((acc, discipline) => {
-      acc[discipline.id] = discipline;
-      return acc;
-    }, {} as Record<string, Discipline>);
-  }, [mockDisciplines]);
+    const map: Record<string, Discipline> = {};
+    packetsData?.packets.forEach(({ disciplines }) => {
+      disciplines.forEach((discipline) => {
+        map[discipline.id] = discipline;
+      });
+    });
+    return map;
+  }, [packetsData]);
 
   const disciplinesByPacket = useMemo(() => {
-    return (enrollmentPeriod?.packets || []).reduce((acc, packet) => {
-      acc[packet.id] = packet.disciplines
-        .map((id) => disciplinesMap[id])
-        .filter(Boolean);
+    if (!packetsData) return {};
+
+    return packetsData.packets.reduce((acc, { packet, disciplines }) => {
+      acc[packet.id] = disciplines;
       return acc;
     }, {} as Record<string, Discipline[]>);
-  }, [disciplinesMap, enrollmentPeriod]);
+  }, [packetsData]);
+
+  const status = enrollmentPeriod
+    ? getEnrollmentPeriodStatus(enrollmentPeriod)
+    : 'ended';
+  const remainingDays = enrollmentPeriod
+    ? getRemainingDays(enrollmentPeriod)
+    : 0;
+
+  useEffect(() => {
+    if ((!isLoadingPeriod && !enrollmentPeriod) || status === 'ended') {
+      navigate('/dashboard');
+    }
+  }, [enrollmentPeriod, status, navigate, isLoadingPeriod]);
 
   const getTotalSelections = () => {
     return Object.values(selections.packets).reduce(
@@ -112,36 +131,59 @@ export const ElectiveDisciplinesPage: FC = () => {
     );
   };
 
-  const getPacketForDiscipline = (
-    disciplineId: string
-  ): DisciplinePacket | undefined => {
-    return enrollmentPeriod?.packets.find((packet) =>
-      packet.disciplines.includes(disciplineId)
-    );
-  };
+  const getPacketForDiscipline = useCallback(
+    (disciplineId: string): DisciplinePacket | undefined => {
+      return enrollmentPeriod?.packets.find((packet) =>
+        packet.disciplines.includes(disciplineId)
+      );
+    },
+    [enrollmentPeriod]
+  );
 
-  const handleViewDetails = (discipline: Discipline) => {
+  const handleViewDetails = useCallback((discipline: Discipline) => {
     setSelectedDiscipline(discipline);
     setIsDetailsOpen(true);
-  };
+  }, []);
 
-  const handleAddToSelection = (disciplineId: string, packetId: string) => {
-    if (canAddToPacket(packetId)) {
-      addSelection(disciplineId, packetId);
-      setIsDetailsOpen(false);
-      if (isMobile) {
-        setIsSelectionDrawerOpen(true);
+  const handleAddToSelection = useCallback(
+    (disciplineId: string, packetId: string) => {
+      if (canAddToPacket(packetId)) {
+        addSelection(disciplineId, packetId);
+        setIsDetailsOpen(false);
+        if (isMobile) {
+          setIsSelectionDrawerOpen(true);
+        }
       }
-    }
-  };
+    },
+    [canAddToPacket, addSelection, isMobile]
+  );
 
-  useEffect(() => {
-    if (!enrollmentPeriod || status === 'ended') {
-      navigate('/dashboard');
-    }
-  }, [enrollmentPeriod, status, navigate]);
+  if (!periodId) return null;
+  if (periodError) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography color="error" align="center">
+          Unable to load enrollment period details. Please try again later.
+        </Typography>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => navigate('/dashboard')}
+          sx={{ mt: 2, display: 'block', mx: 'auto' }}
+        >
+          Return to Dashboard
+        </Button>
+      </Box>
+    );
+  }
 
-  if (!enrollmentPeriod) return null;
+  if (isLoadingPeriod || !enrollmentPeriod) {
+    return (
+      <Box sx={{ p: { xs: 2, sm: 3 } }}>
+        <ContentSkeleton />
+      </Box>
+    );
+  }
 
   return (
     <Grid container spacing={3} sx={{ position: 'relative' }}>

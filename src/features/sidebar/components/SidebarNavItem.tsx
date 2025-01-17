@@ -42,7 +42,6 @@ import uvtLogo from '../../../assets/uvt-logo.png';
 
 const DRAWER_WIDTH = '340px';
 
-// Helper functions for enrollment period handling
 const getEnrollmentPeriodPath = (period: EnrollmentPeriod) => {
   const periodId = period.id.toString();
   return `/enrollment-periods/${periodId}/${period.type.toLowerCase().replace('_', '-')}`;
