@@ -88,9 +88,9 @@ export function useEnrollmentSelections(availablePackets: DisciplinePacket[]) {
       setSelections((prevState) => {
         const currentPacket = prevState.packets[packetId];
         if (!currentPacket) return prevState;
-
         const newSelections = [...currentPacket.selections];
         const [movedItem] = newSelections.splice(startIndex, 1);
+        
         newSelections.splice(endIndex, 0, movedItem);
 
         const reorderedSelections = newSelections.map((selection, index) => ({

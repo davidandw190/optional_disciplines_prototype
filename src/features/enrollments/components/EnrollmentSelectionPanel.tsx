@@ -1,21 +1,9 @@
 import {
-  AccessTime,
-  Delete,
-  DragIndicator,
-  Warning,
-} from '@mui/icons-material';
-import {
   Alert,
   Box,
   Button,
-  Chip,
   Divider,
-  IconButton,
   List,
-  ListItem,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  ListItemText,
   Paper,
   Stack,
   Typography,
@@ -33,7 +21,6 @@ import {
   PointerSensor,
   TouchSensor,
   closestCenter,
-  defaultDropAnimationSideEffects,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -45,7 +32,7 @@ import {
 
 import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-selection.types';
 import { SortableSelectionItem } from './SortableSelectionItem';
-import { getRemainingDays } from '../../mocks/enrollment-periods.mock';
+import { Warning } from '@mui/icons-material';
 
 interface EnrollmentSelectionPanelProps {
   selections: EnrollmentSelectionState;
@@ -68,10 +55,9 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
   onRemoveSelection,
   onReorderSelections,
   onStartEnrollment,
-  enrollmentPeriod,
 }) => {
   const theme = useTheme();
-  const remainingDays = getRemainingDays(enrollmentPeriod);
+  // const remainingDays = getRemainingDays(enrollmentPeriod);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -99,35 +85,44 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
     [packets, selections.packets]
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!active || !over || active.id === over.id) return;
 
-    const activeId = active.id.toString();
-    const overId = over?.id.toString();
+      const overId = over.id.toString();
 
-    const [packetPart1, packetPart2] = activeId.split('-');
-    const packetId = `${packetPart1}-${packetPart2}`;
+      const activePacketId = active.data.current?.packetId;
+      if (!activePacketId) return;
 
-    const startIndex = parseInt(activeId.split('-').pop() || '0');
-    const endIndex = parseInt(overId?.split('-').pop() || '0');
+      const packet = selections.packets[activePacketId];
+      if (!packet) return;
 
-    if (startIndex !== endIndex) {
-      onReorderSelections(packetId, startIndex, endIndex);
-    }
-  };
+      const startIndex = packet.selections.findIndex(
+        (s) => s.disciplineId === active.data.current?.disciplineId
+      );
+      const endIndex = parseInt(overId.split('-').pop() || '0');
 
-  const dropAnimation = useMemo(
-    () => ({
-      sideEffects: defaultDropAnimationSideEffects({
-        styles: {
-          active: {
-            opacity: '0.5',
-          },
-        },
-      }),
-    }),
-    []
+      if (startIndex !== -1 && startIndex !== endIndex) {
+        onReorderSelections(activePacketId, startIndex, endIndex);
+      }
+    },
+    [selections, onReorderSelections]
   );
+
+  // const dropAnimation = useMemo(
+  //   () => ({
+  //     sideEffects: defaultDropAnimationSideEffects({
+  //       styles: {
+  //         active: {
+  //           opacity: '0.5',
+  //         },
+  //       },
+  //     }),
+  //   }),
+  //   []
+  // );
+
   const paperStyles = useMemo(
     () => ({
       p: { xs: 2.5, sm: 3 },
