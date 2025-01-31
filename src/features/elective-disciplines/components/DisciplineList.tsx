@@ -17,6 +17,7 @@ import { FC, useCallback, useMemo, useState } from 'react';
 
 import { DisciplineCard } from './DisciplineCard';
 import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-selection.types';
+import { INITIAL_ELECTIVES_PER_PACKET__DISPLAY_COUNT } from '../../../config/layout.config';
 
 interface DisciplineListProps {
   disciplines: Discipline[];
@@ -35,8 +36,6 @@ export const DisciplineList: FC<DisciplineListProps> = ({
 }) => {
   const theme = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const INITIAL_DISPLAY_COUNT = 4;
 
   const selectionHelpers = useMemo(
     () => ({
@@ -60,9 +59,14 @@ export const DisciplineList: FC<DisciplineListProps> = ({
     () => ({
       visibleDisciplines: disciplines.slice(
         0,
-        isExpanded ? disciplines.length : INITIAL_DISPLAY_COUNT
+        isExpanded
+          ? disciplines.length
+          : INITIAL_ELECTIVES_PER_PACKET__DISPLAY_COUNT
       ),
-      remainingCount: Math.max(0, disciplines.length - INITIAL_DISPLAY_COUNT),
+      remainingCount: Math.max(
+        0,
+        disciplines.length - INITIAL_ELECTIVES_PER_PACKET__DISPLAY_COUNT
+      ),
     }),
     [disciplines, isExpanded]
   );
