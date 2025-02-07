@@ -30,35 +30,48 @@ const DashboardPage: FC = () => {
 
   return (
     <Box
+      component="main"
       sx={{
-        p: { xs: 3, sm: 4, md: 7 },
-        maxWidth: '1900px',
+        position: 'relative',
         width: '100%',
+        height: '90%',
         mx: 'auto',
+        mt: '-30px', 
       }}
     >
-      <Typography
-        variant="h4"
-        color="primary.main"
+      <Box
         sx={{
-          mb: { xs: 3, md: 4 },
-          fontWeight: 800,
-          fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+          p: { xs: 3, sm: 5, md: 7 },
+          pt: {xs: 7, sm: 6, md: 7},
+          px: { xs: 2 },
+          maxWidth: '1900px',
+          width: '100%',
+          mx: 'auto',
         }}
       >
-        Dashboard
-      </Typography>
+        <Typography
+          variant="h4"
+          color="primary.main"
+          sx={{
+            mb: { xs: 3, md: 4 },
+            fontWeight: 600,
+            fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+          }}
+        >
+          Dashboard
+        </Typography>
 
-      <Grid container spacing={3}>
-        <EnrollmentsSection
-          enrollmentPeriods={enrollmentPeriods}
-          isLoading={isLoadingStudent || isLoadingEnrollments}
-          error={studentError || enrollmentError}
-        />
-        <QuickActionsSection actions={mockQuickActions} />
-      </Grid>
+        <Grid container spacing={3}>
+          <EnrollmentsSection
+            enrollmentPeriods={enrollmentPeriods}
+            isLoading={isLoadingStudent || isLoadingEnrollments}
+            error={studentError || enrollmentError}
+          />
+          <QuickActionsSection actions={mockQuickActions} />
+        </Grid>
 
-      <AnnouncementsSection />
+        <AnnouncementsSection />
+      </Box>
     </Box>
   );
 };

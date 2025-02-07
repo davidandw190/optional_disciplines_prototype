@@ -42,6 +42,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ContentSkeleton } from '../components/skeletons/ContentSkeleton';
 import { DisciplineDetailsDrawer } from '../components/DisciplineDetailsDrawer';
 import { DisciplineList } from '../components/DisciplineList';
+import { EnrollmentConfirmation } from '../../enrollments/components/EnrollmentConfirmation';
 import { EnrollmentSelectionPanel } from '../../enrollments/components/EnrollmentSelectionPanel';
 import { SelectionRequirementsModal } from '../components/SelectionRequirementsModal';
 import { useEnrollmentSelections } from '../../enrollments/hooks/useEnrollmentSelection';
@@ -58,6 +59,7 @@ export const ElectiveDisciplinesPage: FC = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isSelectionDrawerOpen, setIsSelectionDrawerOpen] = useState(false);
   const [isRequirementsModalOpen, setIsRequirementsModalOpen] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
   useEffect(() => {
     if (!periodId) {
@@ -65,22 +67,19 @@ export const ElectiveDisciplinesPage: FC = () => {
     }
   }, [periodId, navigate]);
 
-  if (!periodId) {
-    navigate('/dashboard');
-    return null;
-  }
+  if (!periodId) return null;
 
   const {
     data: enrollmentPeriod,
     isLoading: isLoadingPeriod,
     error: periodError,
-  } = useGetElectivePeriodQuery(periodId ?? '');
+  } = useGetElectivePeriodQuery(periodId);
 
   const {
     data: packetsData,
     isLoading: isLoadingPackets,
     error: packetsError,
-  } = useGetElectivePacketsQuery(periodId ?? '');
+  } = useGetElectivePacketsQuery(periodId);
 
   const {
     selections,
@@ -104,7 +103,6 @@ export const ElectiveDisciplinesPage: FC = () => {
 
   const disciplinesByPacket = useMemo(() => {
     if (!packetsData) return {};
-
     return packetsData.packets.reduce((acc, { packet, disciplines }) => {
       acc[packet.id] = disciplines;
       return acc;
@@ -124,12 +122,12 @@ export const ElectiveDisciplinesPage: FC = () => {
     }
   }, [enrollmentPeriod, status, navigate, isLoadingPeriod]);
 
-  const getTotalSelections = () => {
+  const getTotalSelections = useCallback(() => {
     return Object.values(selections.packets).reduce(
       (total, packet) => total + packet.selections.length,
       0
     );
-  };
+  }, [selections]);
 
   const getPacketForDiscipline = useCallback(
     (disciplineId: string): DisciplinePacket | undefined => {
@@ -158,7 +156,24 @@ export const ElectiveDisciplinesPage: FC = () => {
     [canAddToPacket, addSelection, isMobile]
   );
 
-  if (!periodId) return null;
+  const handleStartEnrollment = useCallback(() => {
+    const errors = getSelectionErrors();
+    if (errors.length === 0) {
+      setIsConfirmationOpen(true);
+    }
+  }, [getSelectionErrors]);
+
+  const handleConfirmEnrollment = async () => {
+    try {
+      // await enrollDisciplines(selections, periodId);
+      setIsConfirmationOpen(false);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Enrollment failed:', error);
+    }
+  };
+
+
   if (periodError) {
     return (
       <Box sx={{ p: 3 }}>
@@ -191,7 +206,6 @@ export const ElectiveDisciplinesPage: FC = () => {
       <Grid item xs={12} lg={8} sx={{ width: '100%', pr: { xs: 0, lg: 2 } }}>
         <Box sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 8, lg: 3 } }}>
           {/* Header Card */}
-
           <Paper
             elevation={0}
             sx={{
@@ -200,11 +214,10 @@ export const ElectiveDisciplinesPage: FC = () => {
               borderRadius: 2,
               border: '1px solid',
               borderColor: 'divider',
-              background: theme.palette.background.paper,
             }}
           >
             <Stack spacing={3}>
-              {/* Main Header Section */}
+              {/* Title and Period Info */}
               <Stack
                 direction={{ xs: 'column', sm: 'row' }}
                 justifyContent="space-between"
@@ -213,13 +226,7 @@ export const ElectiveDisciplinesPage: FC = () => {
               >
                 <Box sx={{ flex: 1 }}>
                   <Stack direction="row" alignItems="baseline" spacing={2}>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: { xs: '1.5rem', sm: '2rem', md: '2.25rem' },
-                      }}
-                    >
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
                       Elective Disciplines
                     </Typography>
                   </Stack>
@@ -229,10 +236,7 @@ export const ElectiveDisciplinesPage: FC = () => {
                     sx={{ mt: 1 }}
                   >
                     {enrollmentPeriod.academicYear} - Semester{' '}
-                    {enrollmentPeriod.semester} -{' '}
-                    {enrollmentPeriod.targetSpecializations?.[0] ||
-                      'All Specializations'}{' '}
-                    - Year {enrollmentPeriod.yearOfStudy}
+                    {enrollmentPeriod.semester}
                   </Typography>
                 </Box>
 
@@ -244,21 +248,13 @@ export const ElectiveDisciplinesPage: FC = () => {
                     label={`${remainingDays} days remaining`}
                     color={remainingDays <= 3 ? 'warning' : 'default'}
                     icon={<AccessTime />}
-                    sx={{
-                      px: 1,
-                      height: { xs: 32, sm: 36 },
-                      '& .MuiChip-label': { px: { xs: 1, sm: 2 } },
-                      '& .MuiChip-icon': {
-                        fontSize: { xs: '1.25rem', sm: '1.5rem' },
-                      },
-                    }}
                   />
                 </Stack>
               </Stack>
 
               <Divider />
 
-              {/* Information and Actions Row */}
+              {/* Period Details */}
               <Stack
                 direction={{ xs: 'column', md: 'row' }}
                 justifyContent="space-between"
@@ -268,13 +264,9 @@ export const ElectiveDisciplinesPage: FC = () => {
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
                   spacing={{ xs: 1.5, sm: 3 }}
-                  sx={{ width: { xs: '100%', md: 'auto' } }}
                 >
                   <Stack direction="row" spacing={1} alignItems="center">
-                    <CalendarToday
-                      color="action"
-                      sx={{ fontSize: '1.25rem' }}
-                    />
+                    <CalendarToday color="action" />
                     <Typography variant="body2" color="text.secondary">
                       {new Date(
                         enrollmentPeriod.startDate
@@ -283,31 +275,13 @@ export const ElectiveDisciplinesPage: FC = () => {
                       {new Date(enrollmentPeriod.endDate).toLocaleDateString()}
                     </Typography>
                   </Stack>
-
-                  {/* <Stack direction="row" spacing={1} alignItems="center">
-                    <School color="action" sx={{ fontSize: '1.25rem' }} />
-                   
-                  </Stack> */}
                 </Stack>
 
                 <Button
                   variant="outlined"
-                  color="primary"
                   size="small"
                   onClick={() => setIsRequirementsModalOpen(true)}
                   startIcon={<Info />}
-                  sx={{
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    borderRadius: 2,
-                    px: 2,
-                    height: 36,
-                    borderColor: alpha(theme.palette.primary.main, 0.3),
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      bgcolor: alpha(theme.palette.primary.main, 0.04),
-                    },
-                  }}
                 >
                   Selection Requirements
                 </Button>
@@ -321,15 +295,12 @@ export const ElectiveDisciplinesPage: FC = () => {
             if (packetDisciplines.length === 0) return null;
 
             return (
-              <Box key={packet.id} sx={{ mb: { xs: 4, md: 6 } }}>
+              <Box key={packet.id} sx={{ mb: 4 }}>
                 <Typography
                   variant="h5"
                   gutterBottom
                   color="primary"
-                  sx={{
-                    fontSize: { xs: '1.25rem', sm: '1.5rem' },
-                    fontWeight: 600,
-                  }}
+                  sx={{ fontWeight: 600 }}
                 >
                   {packet.name}
                 </Typography>
@@ -375,16 +346,6 @@ export const ElectiveDisciplinesPage: FC = () => {
               overflowY: 'auto',
               zIndex: 2,
               px: 2,
-              '&::-webkit-scrollbar': { width: '8px' },
-              '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
-              '&::-webkit-scrollbar-thumb': {
-                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
-                borderRadius: '4px',
-                transition: 'background-color 0.2s ease',
-                '&:hover': {
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, 0.2),
-                },
-              },
             }}
           >
             <EnrollmentSelectionPanel
@@ -393,13 +354,14 @@ export const ElectiveDisciplinesPage: FC = () => {
               disciplines={disciplinesMap}
               onRemoveSelection={removeSelection}
               onReorderSelections={reorderSelections}
-              onStartEnrollment={() => {}}
+              onStartEnrollment={handleStartEnrollment}
               enrollmentPeriod={enrollmentPeriod}
             />
           </Box>
         </Grid>
       ) : (
         <>
+          {/* Mobile FAB for selections */}
           <Fab
             color="primary"
             onClick={() => setIsSelectionDrawerOpen(true)}
@@ -408,24 +370,14 @@ export const ElectiveDisciplinesPage: FC = () => {
               bottom: { xs: 16, sm: 24 },
               right: { xs: 16, sm: 24 },
               display: { lg: 'none' },
-              width: { xs: 56, sm: 64 },
-              height: { xs: 56, sm: 64 },
             }}
           >
-            <Badge
-              badgeContent={getTotalSelections()}
-              color="error"
-              sx={{
-                '& .MuiBadge-badge': {
-                  right: { xs: 4, sm: 6 },
-                  top: { xs: 4, sm: 6 },
-                },
-              }}
-            >
-              <PlaylistAdd sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem' } }} />
+            <Badge badgeContent={getTotalSelections()} color="error">
+              <PlaylistAdd />
             </Badge>
           </Fab>
 
+          {/* Mobile Selection Drawer */}
           <Drawer
             anchor="bottom"
             open={isSelectionDrawerOpen}
@@ -435,7 +387,6 @@ export const ElectiveDisciplinesPage: FC = () => {
                 maxHeight: { xs: '85vh', sm: '75vh' },
                 borderTopLeftRadius: { xs: 16, sm: 24 },
                 borderTopRightRadius: { xs: 16, sm: 24 },
-                pb: 'env(safe-area-inset-bottom, 16px)',
               },
             }}
           >
@@ -446,7 +397,7 @@ export const ElectiveDisciplinesPage: FC = () => {
                 disciplines={disciplinesMap}
                 onRemoveSelection={removeSelection}
                 onReorderSelections={reorderSelections}
-                onStartEnrollment={() => {}}
+                onStartEnrollment={handleStartEnrollment}
                 enrollmentPeriod={enrollmentPeriod}
               />
             </Box>
@@ -474,10 +425,22 @@ export const ElectiveDisciplinesPage: FC = () => {
         />
       )}
 
+      {/* Requirements Modal */}
       <SelectionRequirementsModal
         open={isRequirementsModalOpen}
         onClose={() => setIsRequirementsModalOpen(false)}
         packets={enrollmentPeriod.packets}
+      />
+
+      {/* Enrollment Confirmation Modal/Drawer */}
+      <EnrollmentConfirmation
+        open={isConfirmationOpen}
+        onClose={() => setIsConfirmationOpen(false)}
+        onConfirm={handleConfirmEnrollment}
+        selections={selections}
+        packets={enrollmentPeriod.packets}
+        disciplines={disciplinesMap}
+        enrollmentPeriod={enrollmentPeriod}
       />
     </Grid>
   );

@@ -1,7 +1,6 @@
 import {
   AccessTime,
   AssignmentTurnedIn,
-  CalendarToday,
   Grade,
   Language,
   Person,
