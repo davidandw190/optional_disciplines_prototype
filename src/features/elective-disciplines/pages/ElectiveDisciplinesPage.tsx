@@ -81,6 +81,7 @@ export const ElectiveDisciplinesPage: FC = () => {
     error: packetsError,
   } = useGetElectivePacketsQuery(periodId);
 
+
   const {
     selections,
     addSelection,
@@ -192,7 +193,7 @@ export const ElectiveDisciplinesPage: FC = () => {
     );
   }
 
-  if (isLoadingPeriod || !enrollmentPeriod) {
+  if (isLoadingPeriod || isLoadingPackets || !enrollmentPeriod) {
     return (
       <Box sx={{ p: { xs: 2, sm: 3 } }}>
         <ContentSkeleton />
