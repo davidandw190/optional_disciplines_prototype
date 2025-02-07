@@ -31,6 +31,7 @@ import {
 } from '@dnd-kit/sortable';
 
 import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-selection.types';
+import { PacketHeaderWithInfo } from './PacketHeaderWithInfo';
 import { SortableSelectionItem } from './SortableSelectionItem';
 import { Warning } from '@mui/icons-material';
 
@@ -151,17 +152,12 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
 
       return (
         <Box key={packet.id} sx={{ mb: 3.5 }}>
-          <Typography
-            variant="subtitle1"
-            sx={{
-              fontWeight: 600,
-              color: theme.palette.primary.main,
-              mb: 2,
-              fontSize: '1rem',
-            }}
-          >
-            {packet.name}
-          </Typography>
+          <PacketHeaderWithInfo
+            title={packet.name}
+            maxChoices={packet.maxChoices}
+            currentSelections={packetSelections}
+            disciplines={disciplines}
+          />
 
           <SortableContext
             items={sortableItems}

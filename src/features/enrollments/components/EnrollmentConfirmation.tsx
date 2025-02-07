@@ -29,6 +29,7 @@ import {
 import { FC, useState } from 'react';
 
 import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-selection.types';
+import { PacketHeaderWithInfo } from './PacketHeaderWithInfo';
 
 interface EnrollmentConfirmationProps {
   open: boolean;
@@ -179,90 +180,12 @@ export const EnrollmentConfirmation: FC<EnrollmentConfirmationProps> = ({
               >
                 <Box sx={{ p: 2.5 }}>
                   {/* Packet Header with Info Tooltip */}
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing={1}
-                    sx={{
-                      mb: 2,
-                      flexWrap: 'wrap',
-                      gap: 1,
-                    }}
-                  >
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      alignItems="center"
-                      sx={{
-                        flexGrow: 1,
-                        minWidth: { xs: '100%', sm: 'auto' },
-                      }}
-                    >
-                      <Typography
-                        variant="subtitle1"
-                        color="primary"
-                        sx={{
-                          fontWeight: 600,
-                          flex: 1,
-                        }}
-                      >
-                        {packet.name}
-                      </Typography>
-                      <Tooltip
-                        title={
-                          <Stack spacing={1}>
-                            <Typography variant="body2">
-                              {packetSelections.length > 0
-                                ? `"${
-                                    disciplines[
-                                      packetSelections[0].disciplineId
-                                    ].name
-                                  }" is your highest priority choice for this packet, giving you better enrollment chances if spaces are limited.`
-                                : `Select ${packet.maxChoices} discipline${
-                                    packet.maxChoices > 1 ? 's' : ''
-                                  } in order of preference. Your first choice has the best enrollment chance.`}
-                            </Typography>
-                          </Stack>
-                        }
-                        arrow
-                        placement="top"
-                        enterTouchDelay={0}
-                        leaveTouchDelay={3000}
-                        componentsProps={{
-                          tooltip: {
-                            sx: {
-                              bgcolor: theme.palette.background.paper,
-                              color: theme.palette.text.primary,
-                              boxShadow: theme.shadows[2],
-                              p: 2,
-                              '& .MuiTooltip-arrow': {
-                                color: theme.palette.background.paper,
-                              },
-                              maxWidth: 300,
-                              '& .MuiTypography-root': {
-                                lineHeight: 1.5,
-                              },
-                            },
-                          },
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            color: theme.palette.primary.main,
-                            transition: 'opacity 0.2s ease',
-                            opacity: 0.7,
-                            '&:hover': {
-                              opacity: 1,
-                            },
-                          }}
-                        >
-                          <InfoOutlined sx={{ fontSize: '1rem' }} />
-                        </Box>
-                      </Tooltip>
-                    </Stack>
-                  </Stack>
+                  <PacketHeaderWithInfo
+                    title={packet.name}
+                    maxChoices={packet.maxChoices}
+                    currentSelections={packetSelections}
+                    disciplines={disciplines}
+                  />
 
                   {/* Selection Items */}
                   <Stack spacing={2}>
