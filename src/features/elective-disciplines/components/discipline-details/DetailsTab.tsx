@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -14,7 +13,7 @@ import {
   Discipline,
   DisciplinePacket,
 } from '../../../../types/disciplines/disciplines.types';
-import { FC, SyntheticEvent } from 'react';
+import { FC, SyntheticEvent, useMemo } from 'react';
 
 import { EvaluationTab } from './EvaluationTab';
 import { OverviewTab } from './OverviewTab';
@@ -75,6 +74,71 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
     onTabChange(newValue);
   };
 
+  const buttonState = useMemo(() => {
+    if (!isEnrollmentPeriodActive) {
+      return {
+        disabled: true,
+        color: 'primary' as const,
+        message: null,
+      };
+    }
+
+    if (!enrollmentInfo.packet) {
+      return {
+        disabled: true,
+        color: 'primary' as const,
+        message: 'This discipline is not available for selection',
+      };
+    }
+
+    if (isSelected) {
+      return {
+        disabled: true,
+        color: 'success' as const,
+        message: `Already selected in ${enrollmentInfo.selections?.packetName}`,
+      };
+    }
+
+    if (!canBeSelected) {
+      return {
+        disabled: true,
+        color: 'primary' as const,
+        message: `Maximum selections reached for ${enrollmentInfo.selections?.packetName} (${enrollmentInfo.selections?.maxSelections}/${enrollmentInfo.selections?.maxSelections})`,
+      };
+    }
+
+    return {
+      disabled: false,
+      color: 'primary' as const,
+      message: null,
+    };
+  }, [isEnrollmentPeriodActive, enrollmentInfo, isSelected, canBeSelected]);
+  
+
+  // Determine alert message and severity based on selection state
+  const getAlertInfo = () => {
+    if (!enrollmentInfo.selections) return null;
+
+    if (isSelected) {
+      return {
+        severity: 'success' as const,
+        message: `This discipline is in your selection for ${enrollmentInfo.selections.packetName}`,
+      };
+    }
+
+    if (!canBeSelected) {
+      return {
+        severity: 'warning' as const,
+        message: `You have already selected ${enrollmentInfo.selections.maxSelections} disciplines for ${enrollmentInfo.selections.packetName}`,
+      };
+    }
+
+    return {
+      severity: 'info' as const,
+      message: `You can add this discipline to ${enrollmentInfo.selections.packetName} (${enrollmentInfo.selections.remainingSelections} selections remaining)`,
+    };
+  };
+
   return (
     <Box
       sx={{
@@ -84,7 +148,7 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
         position: 'relative',
       }}
     >
-      {/* Header Section */}
+      {/* Header Section with Discipline Information */}
       <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
         <Stack
           direction="row"
@@ -126,25 +190,9 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
           </IconButton>
         </Stack>
 
-        {isEnrollmentPeriodActive && enrollmentInfo.selections && (
-          <Box sx={{ mt: 2 }}>
-            <Alert
-              severity={
-                isSelected ? 'success' : canBeSelected ? 'info' : 'warning'
-              }
-              sx={{ mb: 2 }}
-            >
-              {isSelected
-                ? `This discipline is in your selection for ${enrollmentInfo.selections.packetName}`
-                : canBeSelected
-                ? `You can add this discipline to ${enrollmentInfo.selections.packetName} (${enrollmentInfo.selections.remainingSelections} selections remaining)`
-                : `You have already selected ${enrollmentInfo.selections.maxSelections} disciplines for ${enrollmentInfo.selections.packetName}`}
-            </Alert>
-          </Box>
-        )}
       </Box>
 
-      {/* Tabs Navigation */}
+      {/* Tab Navigation */}
       <Tabs
         value={activeTab}
         onChange={handleTabChange}
@@ -164,14 +212,14 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
         <Tab label="Resources" />
       </Tabs>
 
-      {/* Tab Content */}
+      {/* Tab Content Area */}
       <Box
         sx={{
           overflow: 'auto',
           flex: 1,
           px: { xs: 2, sm: 3 },
           ...(isMobile && {
-            pb: '80px',
+            pb: '80px', // Extra padding for mobile to account for fixed button
           }),
         }}
       >
@@ -213,11 +261,13 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
           <Button
             fullWidth
             variant="contained"
-            color={isSelected ? 'success' : 'primary'}
+            color={buttonState.color}
             onClick={onAddToSelection}
-            disabled={!canBeSelected || isSelected}
+            disabled={buttonState.disabled}
             sx={{
-              height: { xs: 44, sm: 52 }, 
+              height: { xs: 44, sm: 52 },
+              opacity: buttonState.disabled ? 0.7 : 1,
+              transition: 'opacity 0.2s ease',
             }}
           >
             {actionButtonText}
