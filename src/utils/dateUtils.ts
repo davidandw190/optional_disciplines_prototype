@@ -31,3 +31,14 @@ export const formatAnnouncementDate = (dateString: string | Date) => {
     minute: '2-digit',
   });
 };
+
+export const formatDate = (date: Date | string): string => {
+  return new Date(date).toLocaleDateString('en-GB', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};

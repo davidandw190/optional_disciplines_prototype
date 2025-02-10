@@ -219,7 +219,7 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
           flex: 1,
           px: { xs: 2, sm: 3 },
           ...(isMobile && {
-            pb: '80px', // Extra padding for mobile to account for fixed button
+            pb: '80px', 
           }),
         }}
       >

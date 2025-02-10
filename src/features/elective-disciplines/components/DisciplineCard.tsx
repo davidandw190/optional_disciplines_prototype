@@ -36,11 +36,8 @@ interface DisciplineCardProps {
 export const DisciplineCard: FC<DisciplineCardProps> = memo(
   ({
     discipline,
-    packet,
     onViewDetails,
-    isEnrollmentPeriodActive,
     isSelected,
-    selectionCount = 0,
   }) => {
     const theme = useTheme();
     const {

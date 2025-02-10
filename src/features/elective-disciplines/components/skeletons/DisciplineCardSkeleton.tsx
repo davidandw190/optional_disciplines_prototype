@@ -1,4 +1,4 @@
-import { Box, Card, Skeleton, Stack, alpha } from '@mui/material';
+import { Box, Card, Skeleton, Stack } from '@mui/material';
 
 export const DisciplineCardSkeleton = () => (
   <Card

@@ -1,4 +1,4 @@
-import { Box, Divider, Paper, Skeleton, Stack } from '@mui/material';
+import { Box, Paper, Skeleton, Stack } from '@mui/material';
 
 export const HeaderSkeleton = () => (
   <Paper

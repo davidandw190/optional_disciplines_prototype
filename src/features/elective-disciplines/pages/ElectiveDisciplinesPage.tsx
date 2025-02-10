@@ -284,7 +284,7 @@ export const ElectiveDisciplinesPage: FC = () => {
                   onClick={() => setIsRequirementsModalOpen(true)}
                   startIcon={<Info />}
                 >
-                  Selection Requirements
+                  Requirements
                 </Button>
               </Stack>
             </Stack>
