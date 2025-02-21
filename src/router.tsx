@@ -11,6 +11,7 @@ import { AvailableThesisPage } from './features/thesis/pages/AvailableThesisPage
 import { ComplementaryDisciplinesPage } from './features/complementary-disciplines/pages/ComplementaryDisciplinesPage';
 import DashboardPage from './features/dashboard/pages/DashboardPage';
 import { ElectiveDisciplinesPage } from './features/elective-disciplines/pages/ElectiveDisciplinesPage';
+import { ElectiveDisciplinesPageContainer } from './features/elective-disciplines/pages/ElectiveDisciplinePageContainer';
 import { MainLayout } from './layout/MainLayout';
 import { MyEnrollmentsPage } from './features/enrollments/pages/MyEnrollmentsPage';
 import ProtectedRoute from './layout/ProtectedRoute';
@@ -32,7 +33,7 @@ const router = createBrowserRouter(
           <Route path="enrollment-periods">
             <Route 
               path=":periodId/elective-disciplines" 
-              element={<ElectiveDisciplinesPage />} 
+              element={<ElectiveDisciplinesPageContainer />} 
             />
             <Route 
               path=":periodId/complementary-disciplines" 

@@ -24,6 +24,7 @@ import {
   Discipline,
   DisciplinePacket,
 } from '../../../types/disciplines/disciplines.types';
+import { DisciplineSelectionProvider, useDisciplineSelection } from '../../../contexts/discipline-selection.context';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   HEADER_HEIGHT,
@@ -45,11 +46,11 @@ import { DisciplineList } from '../components/DisciplineList';
 import { EnrollmentConfirmation } from '../../enrollments/components/EnrollmentConfirmation';
 import { EnrollmentSelectionPanel } from '../../enrollments/components/EnrollmentSelectionPanel';
 import { SelectionRequirementsModal } from '../components/SelectionRequirementsModal';
-import { useEnrollmentSelections } from '../../enrollments/hooks/useEnrollmentSelection';
 
 export const ElectiveDisciplinesPage: FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+
   const { periodId } = useParams();
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -80,8 +81,7 @@ export const ElectiveDisciplinesPage: FC = () => {
     isLoading: isLoadingPackets,
     error: packetsError,
   } = useGetElectivePacketsQuery(periodId);
-
-
+  
   const {
     selections,
     addSelection,
@@ -90,7 +90,17 @@ export const ElectiveDisciplinesPage: FC = () => {
     canAddToPacket,
     isDisciplineSelected,
     getSelectionErrors,
-  } = useEnrollmentSelections(enrollmentPeriod?.packets || []);
+  } = useDisciplineSelection();
+
+  // const {
+  //   selections,
+  //   addSelection,
+  //   removeSelection,
+  //   reorderSelections,
+  //   canAddToPacket,
+  //   isDisciplineSelected,
+  //   getSelectionErrors,
+  // } = useEnrollmentSelections(enrollmentPeriod?.packets || []);
 
   const disciplinesMap = useMemo(() => {
     const map: Record<string, Discipline> = {};
@@ -174,7 +184,6 @@ export const ElectiveDisciplinesPage: FC = () => {
     }
   };
 
-
   if (periodError) {
     return (
       <Box sx={{ p: 3 }}>
@@ -202,196 +211,156 @@ export const ElectiveDisciplinesPage: FC = () => {
   }
 
   return (
-    <Grid container spacing={3} sx={{ position: 'relative' }}>
-      {/* Main Content Area */}
-      <Grid item xs={12} lg={8} sx={{ width: '100%', pr: { xs: 0, lg: 2 } }}>
-        <Box sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 8, lg: 3 } }}>
-          {/* Header Card */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              mb: 4,
-              borderRadius: 2,
-              border: '1px solid',
-              borderColor: 'divider',
-            }}
-          >
-            <Stack spacing={3}>
-              {/* Title and Period Info */}
-              <Stack
-                direction={{ xs: 'column', sm: 'row' }}
-                justifyContent="space-between"
-                alignItems={{ xs: 'flex-start', sm: 'center' }}
-                spacing={{ xs: 2, sm: 0 }}
-              >
-                <Box sx={{ flex: 1 }}>
-                  <Stack direction="row" alignItems="baseline" spacing={2}>
-                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                      Elective Disciplines
-                    </Typography>
-                  </Stack>
-                  <Typography
-                    variant="subtitle1"
-                    color="text.secondary"
-                    sx={{ mt: 1 }}
-                  >
-                    {enrollmentPeriod.academicYear} - Semester{' '}
-                    {enrollmentPeriod.semester}
-                  </Typography>
-                </Box>
-
-                <Stack
-                  spacing={1}
-                  alignItems={{ xs: 'flex-start', sm: 'flex-end' }}
-                >
-                  <Chip
-                    label={`${remainingDays} days remaining`}
-                    color={remainingDays <= 3 ? 'warning' : 'default'}
-                    icon={<AccessTime />}
-                  />
-                </Stack>
-              </Stack>
-
-              <Divider />
-
-              {/* Period Details */}
-              <Stack
-                direction={{ xs: 'column', md: 'row' }}
-                justifyContent="space-between"
-                alignItems={{ xs: 'flex-start', md: 'center' }}
-                spacing={2}
-              >
+    <DisciplineSelectionProvider enrollmentPeriod={enrollmentPeriod}>
+      <Grid container spacing={3} sx={{ position: 'relative' }}>
+        {/* Main Content Area */}
+        <Grid item xs={12} lg={8} sx={{ width: '100%', pr: { xs: 0, lg: 2 } }}>
+          <Box sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 8, lg: 3 } }}>
+            {/* Header Card */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                mb: 4,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <Stack spacing={3}>
+                {/* Title and Period Info */}
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
-                  spacing={{ xs: 1.5, sm: 3 }}
+                  justifyContent="space-between"
+                  alignItems={{ xs: 'flex-start', sm: 'center' }}
+                  spacing={{ xs: 2, sm: 0 }}
                 >
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <CalendarToday color="action" />
-                    <Typography variant="body2" color="text.secondary">
-                      {new Date(
-                        enrollmentPeriod.startDate
-                      ).toLocaleDateString()}{' '}
-                      -{' '}
-                      {new Date(enrollmentPeriod.endDate).toLocaleDateString()}
+                  <Box sx={{ flex: 1 }}>
+                    <Stack direction="row" alignItems="baseline" spacing={2}>
+                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                        Elective Disciplines
+                      </Typography>
+                    </Stack>
+                    <Typography
+                      variant="subtitle1"
+                      color="text.secondary"
+                      sx={{ mt: 1 }}
+                    >
+                      {enrollmentPeriod.academicYear} - Semester{' '}
+                      {enrollmentPeriod.semester}
                     </Typography>
+                  </Box>
+
+                  <Stack
+                    spacing={1}
+                    alignItems={{ xs: 'flex-start', sm: 'flex-end' }}
+                  >
+                    <Chip
+                      label={`${remainingDays} days remaining`}
+                      color={remainingDays <= 3 ? 'warning' : 'default'}
+                      icon={<AccessTime />}
+                    />
                   </Stack>
                 </Stack>
 
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => setIsRequirementsModalOpen(true)}
-                  startIcon={<Info />}
+                <Divider />
+
+                {/* Period Details */}
+                <Stack
+                  direction={{ xs: 'column', md: 'row' }}
+                  justifyContent="space-between"
+                  alignItems={{ xs: 'flex-start', md: 'center' }}
+                  spacing={2}
                 >
-                  Requirements
-                </Button>
+                  <Stack
+                    direction={{ xs: 'column', sm: 'row' }}
+                    spacing={{ xs: 1.5, sm: 3 }}
+                  >
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <CalendarToday color="action" />
+                      <Typography variant="body2" color="text.secondary">
+                        {new Date(
+                          enrollmentPeriod.startDate
+                        ).toLocaleDateString()}{' '}
+                        -{' '}
+                        {new Date(
+                          enrollmentPeriod.endDate
+                        ).toLocaleDateString()}
+                      </Typography>
+                    </Stack>
+                  </Stack>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => setIsRequirementsModalOpen(true)}
+                    startIcon={<Info />}
+                  >
+                    Requirements
+                  </Button>
+                </Stack>
               </Stack>
-            </Stack>
-          </Paper>
+            </Paper>
 
-          {/* Discipline Packets */}
-          {enrollmentPeriod.packets.map((packet) => {
-            const packetDisciplines = disciplinesByPacket[packet.id] || [];
-            if (packetDisciplines.length === 0) return null;
+            {/* Discipline Packets */}
+            {enrollmentPeriod.packets.map((packet) => {
+              const packetDisciplines = disciplinesByPacket[packet.id] || [];
+              if (packetDisciplines.length === 0) return null;
 
-            return (
-              <Box key={packet.id} sx={{ mb: 4 }}>
-                <Typography
-                  variant="h5"
-                  gutterBottom
-                  color="primary"
-                  sx={{ fontWeight: 600 }}
-                >
-                  {packet.name}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  gutterBottom
-                  color="text.secondary"
-                  sx={{ mb: 3 }}
-                >
-                  {packet.description}
-                </Typography>
+              return (
+                <Box key={packet.id} sx={{ mb: 4 }}>
+                  <Typography
+                    variant="h5"
+                    gutterBottom
+                    color="primary"
+                    sx={{ fontWeight: 600 }}
+                  >
+                    {packet.name}
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    gutterBottom
+                    color="text.secondary"
+                    sx={{ mb: 3 }}
+                  >
+                    {packet.description}
+                  </Typography>
 
-                <DisciplineList
-                  disciplines={packetDisciplines}
-                  packet={packet}
-                  onViewDetails={handleViewDetails}
-                  selectedDisciplines={selections}
-                  isEnrollmentPeriodActive={status === 'active'}
-                />
-              </Box>
-            );
-          })}
-        </Box>
-      </Grid>
-
-      {/* Selection Panel - Desktop */}
-      {isDesktop ? (
-        <Grid
-          item
-          md={4}
-          lg={4}
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            width: SELECTIONS_PANEL_WIDTH,
-          }}
-        >
-          <Box
-            sx={{
-              position: 'fixed',
-              top: `calc(${HEADER_HEIGHT} + 58px)`,
-              width: SELECTIONS_PANEL_WIDTH,
-              maxHeight: `calc(100vh - ${HEADER_HEIGHT} - 32px)`,
-              overflowY: 'auto',
-              zIndex: 2,
-              px: 2,
-            }}
-          >
-            <EnrollmentSelectionPanel
-              selections={selections}
-              packets={enrollmentPeriod.packets}
-              disciplines={disciplinesMap}
-              onRemoveSelection={removeSelection}
-              onReorderSelections={reorderSelections}
-              onStartEnrollment={handleStartEnrollment}
-              enrollmentPeriod={enrollmentPeriod}
-            />
+                  <DisciplineList
+                    disciplines={packetDisciplines}
+                    packet={packet}
+                    onViewDetails={handleViewDetails}
+                    selectedDisciplines={selections}
+                    isEnrollmentPeriodActive={status === 'active'}
+                  />
+                </Box>
+              );
+            })}
           </Box>
         </Grid>
-      ) : (
-        <>
-          {/* Mobile FAB for selections */}
-          <Fab
-            color="primary"
-            onClick={() => setIsSelectionDrawerOpen(true)}
-            sx={{
-              position: 'fixed',
-              bottom: { xs: 16, sm: 24 },
-              right: { xs: 16, sm: 24 },
-              display: { lg: 'none' },
-            }}
-          >
-            <Badge badgeContent={getTotalSelections()} color="error">
-              <PlaylistAdd />
-            </Badge>
-          </Fab>
 
-          {/* Mobile Selection Drawer */}
-          <Drawer
-            anchor="bottom"
-            open={isSelectionDrawerOpen}
-            onClose={() => setIsSelectionDrawerOpen(false)}
-            PaperProps={{
-              sx: {
-                maxHeight: { xs: '85vh', sm: '75vh' },
-                borderTopLeftRadius: { xs: 16, sm: 24 },
-                borderTopRightRadius: { xs: 16, sm: 24 },
-              },
+        {/* Selection Panel - Desktop */}
+        {isDesktop ? (
+          <Grid
+            item
+            md={4}
+            lg={4}
+            sx={{
+              display: { xs: 'none', md: 'block' },
+              width: SELECTIONS_PANEL_WIDTH,
             }}
           >
-            <Box sx={{ p: { xs: 2, sm: 3 }, height: '100%' }}>
+            <Box
+              sx={{
+                position: 'fixed',
+                top: `calc(${HEADER_HEIGHT} + 58px)`,
+                width: SELECTIONS_PANEL_WIDTH,
+                maxHeight: `calc(100vh - ${HEADER_HEIGHT} - 32px)`,
+                overflowY: 'auto',
+                zIndex: 2,
+                px: 2,
+              }}
+            >
               <EnrollmentSelectionPanel
                 selections={selections}
                 packets={enrollmentPeriod.packets}
@@ -402,47 +371,91 @@ export const ElectiveDisciplinesPage: FC = () => {
                 enrollmentPeriod={enrollmentPeriod}
               />
             </Box>
-          </Drawer>
-        </>
-      )}
+          </Grid>
+        ) : (
+          <>
+            {/* Mobile FAB for selections */}
+            <Fab
+              color="primary"
+              onClick={() => setIsSelectionDrawerOpen(true)}
+              sx={{
+                position: 'fixed',
+                bottom: { xs: 16, sm: 24 },
+                right: { xs: 16, sm: 24 },
+                display: { lg: 'none' },
+              }}
+            >
+              <Badge badgeContent={getTotalSelections()} color="error">
+                <PlaylistAdd />
+              </Badge>
+            </Fab>
 
-      {/* Modals and Drawers */}
-      {selectedDiscipline && (
-        <DisciplineDetailsDrawer
-          discipline={selectedDiscipline}
-          open={isDetailsOpen}
-          onClose={() => {
-            setIsDetailsOpen(false);
-            setSelectedDiscipline(null);
-          }}
-          onAddToSelection={(disciplineId) =>
-            handleAddToSelection(selectedDiscipline.id, disciplineId)
-          }
-          isEnrollmentPeriodActive={status === 'active'}
-          isSelected={isDisciplineSelected(selectedDiscipline.id)}
-          canBeSelected={true}
-          packet={getPacketForDiscipline(selectedDiscipline.id)}
-          currentSelections={selections}
+            {/* Mobile Selection Drawer */}
+            <Drawer
+              anchor="bottom"
+              open={isSelectionDrawerOpen}
+              onClose={() => setIsSelectionDrawerOpen(false)}
+              PaperProps={{
+                sx: {
+                  maxHeight: { xs: '85vh', sm: '75vh' },
+                  borderTopLeftRadius: { xs: 16, sm: 24 },
+                  borderTopRightRadius: { xs: 16, sm: 24 },
+                },
+              }}
+            >
+              <Box sx={{ p: { xs: 2, sm: 3 }, height: '100%' }}>
+                <EnrollmentSelectionPanel
+                  selections={selections}
+                  packets={enrollmentPeriod.packets}
+                  disciplines={disciplinesMap}
+                  onRemoveSelection={removeSelection}
+                  onReorderSelections={reorderSelections}
+                  onStartEnrollment={handleStartEnrollment}
+                  enrollmentPeriod={enrollmentPeriod}
+                />
+              </Box>
+            </Drawer>
+          </>
+        )}
+
+        {/* Modals and Drawers */}
+        {selectedDiscipline && (
+          <DisciplineDetailsDrawer
+            discipline={selectedDiscipline}
+            open={isDetailsOpen}
+            onClose={() => {
+              setIsDetailsOpen(false);
+              setSelectedDiscipline(null);
+            }}
+            onAddToSelection={(disciplineId) =>
+              handleAddToSelection(selectedDiscipline.id, disciplineId)
+            }
+            isEnrollmentPeriodActive={status === 'active'}
+            isSelected={isDisciplineSelected(selectedDiscipline.id)}
+            canBeSelected={true}
+            packet={getPacketForDiscipline(selectedDiscipline.id)}
+            currentSelections={selections}
+          />
+        )}
+
+        {/* Requirements Modal */}
+        <SelectionRequirementsModal
+          open={isRequirementsModalOpen}
+          onClose={() => setIsRequirementsModalOpen(false)}
+          packets={enrollmentPeriod.packets}
         />
-      )}
 
-      {/* Requirements Modal */}
-      <SelectionRequirementsModal
-        open={isRequirementsModalOpen}
-        onClose={() => setIsRequirementsModalOpen(false)}
-        packets={enrollmentPeriod.packets}
-      />
-
-      {/* Enrollment Confirmation Modal/Drawer */}
-      <EnrollmentConfirmation
-        open={isConfirmationOpen}
-        onClose={() => setIsConfirmationOpen(false)}
-        onConfirm={handleConfirmEnrollment}
-        selections={selections}
-        packets={enrollmentPeriod.packets}
-        disciplines={disciplinesMap}
-        enrollmentPeriod={enrollmentPeriod}
-      />
-    </Grid>
+        {/* Enrollment Confirmation Modal/Drawer */}
+        <EnrollmentConfirmation
+          open={isConfirmationOpen}
+          onClose={() => setIsConfirmationOpen(false)}
+          onConfirm={handleConfirmEnrollment}
+          selections={selections}
+          packets={enrollmentPeriod.packets}
+          disciplines={disciplinesMap}
+          enrollmentPeriod={enrollmentPeriod}
+        />
+      </Grid>
+    </DisciplineSelectionProvider>
   );
 };

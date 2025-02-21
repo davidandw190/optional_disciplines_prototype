@@ -1,4 +1,3 @@
-// features/enrollments/components/EnrollmentDetailsModal.tsx
 import {
   AccessTime,
   CalendarToday,
