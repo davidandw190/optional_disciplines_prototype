@@ -4,6 +4,7 @@ import {
   CheckCircleOutline,
   Close,
   Info,
+  InfoOutlined,
   Person,
   School,
 } from '@mui/icons-material';
@@ -15,6 +16,7 @@ import {
   IconButton,
   Paper,
   Stack,
+  Tooltip,
   Typography,
   alpha,
   useMediaQuery,
@@ -24,33 +26,72 @@ import {
 import { EnrollmentStatus } from '../../../types/disciplines/disciplines.enums';
 import { EnrollmentSummary } from '../../../types/enrollments/enrollment-summary.types';
 import { FC } from 'react';
+import { Student } from '../../../types/student/student.types';
 import { getStatusColor } from '../utils/enrollmentsUtils';
 
 interface EnrollmentDetailsModalProps {
   open: boolean;
   onClose: () => void;
   enrollment: EnrollmentSummary;
+  student: Student;
 }
 
 export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
   open,
   onClose,
   enrollment,
+  student,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const containerStyles = {
-    backgroundImage: 'none',
-    bgcolor: alpha(theme.palette.background.paper, 0.98),
-    backdropFilter: 'blur(20px)',
+  // const containerStyles = {
+  //   backgroundImage: 'none',
+  //   bgcolor: alpha(theme.palette.background.paper, 0.98),
+  //   backdropFilter: 'blur(20px)',
+  // };
+
+  const getSpecializationInfo = (
+    enrollment: EnrollmentSummary,
+    student: Student
+  ) => {
+    const { targetSpecializations } = enrollment.enrollmentPeriod;
+    if (targetSpecializations?.includes(student.specialization)) {
+      return student.specialization;
+    }
+    if (targetSpecializations?.includes('All Specializations')) {
+      return student.specialization;
+    }
+    return null;
   };
 
-  const formatSubmissionTime = (date: Date) => {
-    return new Date(date).toLocaleString('en-GB', {
-      dateStyle: 'long',
-      timeStyle: 'short',
-    });
+  //@ts-ignore
+  const getPacketTooltipMessage = (packet) => {
+    const selectedCount = packet.selections.length;
+    const maxChoices = packet.packet.maxChoices;
+
+    //@ts-ignore
+    const allConfirmed = packet.selections.every(
+      (s: any) => s.status === EnrollmentStatus.CONFIRMED
+    );
+
+    let message = `This packet allows ${maxChoices} selection${
+      maxChoices > 1 ? 's' : ''
+    }.`;
+    message += ` You have selected ${selectedCount} discipline${
+      selectedCount !== 1 ? 's' : ''
+    }.`;
+
+    if (allConfirmed) {
+      message += ' All your selections have been confirmed.';
+    } else if (packet.status === EnrollmentStatus.PENDING) {
+      message +=
+        ' Your selections are being processed according to your priority order.';
+    } else if (packet.status === EnrollmentStatus.WAITLIST) {
+      message += ' You are on the waitlist for some selections.';
+    }
+
+    return message;
   };
 
   const getEnrollmentStatusMessage = () => {
@@ -101,6 +142,9 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
     }
   };
 
+  const specialization = getSpecializationInfo(enrollment, student);
+
+  //@ts-ignore
   const DisciplineCard = ({ selection }) => (
     <Paper
       elevation={0}
@@ -212,6 +256,12 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
     </Paper>
   );
 
+  const formatSubmissionTime = (date: Date) =>
+    new Date(date).toLocaleString('en-GB', {
+      dateStyle: 'long',
+      timeStyle: 'short',
+    });
+
   const Content = () => {
     const statusInfo = getEnrollmentStatusMessage();
 
@@ -233,8 +283,10 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
             direction="row"
             justifyContent="space-between"
             alignItems="flex-start"
+            spacing={2}
           >
-            <Stack spacing={1}>
+            <Stack spacing={2}>
+              {/* Title */}
               <Typography
                 variant="h5"
                 sx={{
@@ -245,48 +297,71 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
                 {enrollment.enrollmentPeriod.type.split('_').join(' ')}
               </Typography>
 
-              {/* Academic period and submission time */}
-              <Stack
-                direction="row"
-                spacing={3}
-                flexWrap="wrap"
-                useFlexGap
-                alignItems="center"
-              >
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <School
-                    sx={{
-                      fontSize: '1rem',
-                      color: theme.palette.primary.main,
-                    }}
-                  />
-                  <Typography variant="subtitle2">
-                    {enrollment.enrollmentPeriod.academicYear} • Year{' '}
-                    {enrollment.enrollmentPeriod.yearOfStudy}, Semester{' '}
-                    {enrollment.enrollmentPeriod.semester}
-                  </Typography>
+              {/* Academic Information with Minimalist Layout */}
+              <Stack spacing={1.5}>
+                {/* Academic Period Info */}
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <School
+                      sx={{
+                        fontSize: '1rem',
+                        color: theme.palette.primary.main,
+                      }}
+                    />
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ color: theme.palette.text.primary }}
+                    >
+                      {`${enrollment.enrollmentPeriod.academicYear} • Y${enrollment.enrollmentPeriod.yearOfStudy}/S${enrollment.enrollmentPeriod.semester}`}
+                    </Typography>
+                  </Stack>
+
+                  {specialization && (
+                    <Chip
+                      label={specialization}
+                      size="small"
+                      color="primary"
+                      icon={<School sx={{ fontSize: '0.875rem' }} />}
+                      sx={{
+                        height: 24,
+                        px: 0.25,
+                        '& .MuiChip-label': {
+                          px: 0.75,
+                          fontSize: '0.75rem',
+                          fontWeight: 500,
+                        },
+                        '& .MuiChip-icon': {
+                          ml: 0.5,
+                          mr: -0.25,
+                        },
+                      }}
+                    />
+                  )}
                 </Stack>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <AccessTime
-                    sx={{
-                      fontSize: '1rem',
-                      color: theme.palette.text.secondary,
-                    }}
-                  />
-                  <Typography variant="body2" color="text.secondary">
-                    Submitted {formatSubmissionTime(enrollment.enrollmentDate)}
-                  </Typography>
-                </Stack>
+
+                {/* Minimalist Time Display */}
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: theme.palette.text.secondary,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.75,
+                  }}
+                >
+                  <AccessTime sx={{ fontSize: '0.875rem' }} />
+                  {formatSubmissionTime(enrollment.enrollmentDate)}
+                </Typography>
               </Stack>
             </Stack>
 
+            {/* Close button remains unchanged */}
             <IconButton
               onClick={onClose}
               size="small"
               sx={{
-                bgcolor: alpha(theme.palette.primary.main, 0.05),
                 '&:hover': {
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  bgcolor: alpha(theme.palette.primary.main, 0.05),
                 },
               }}
             >
@@ -329,7 +404,7 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
                 </Typography>
               </Stack>
             </Stack>
-          </Paper>{' '}
+          </Paper>
         </Paper>
 
         {/* Packets and Selections */}
@@ -369,12 +444,71 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
                     >
                       {packet.packet.name}
                     </Typography>
-                    <Chip
-                      label={`${packet.selections.length}/${packet.packet.maxChoices} Selected`}
-                      size="small"
-                      color="primary"
-                      variant="outlined"
-                    />
+
+                    <Tooltip
+                      title={
+                        <Typography variant="body2">
+                          {/* {getTooltipMessage()} */}
+                          asdasd
+                        </Typography>
+                      }
+                      arrow
+                      placement="top"
+                      enterTouchDelay={0}
+                      leaveTouchDelay={3000}
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            bgcolor: theme.palette.background.paper,
+                            color: theme.palette.text.primary,
+                            border: `1px solid ${alpha(
+                              theme.palette.divider,
+                              0.15
+                            )}`,
+                            boxShadow: `0 3px 6px ${alpha(
+                              theme.palette.common.black,
+                              0.1
+                            )}`,
+                            p: 2,
+                            '& .MuiTooltip-arrow': {
+                              color: theme.palette.background.paper,
+                              '&::before': {
+                                border: `1px solid ${alpha(
+                                  theme.palette.divider,
+                                  0.15
+                                )}`,
+                                backgroundColor: theme.palette.background.paper,
+                                boxSizing: 'border-box',
+                              },
+                            },
+                            maxWidth: 300,
+                            '& .MuiTypography-root': {
+                              lineHeight: 1.5,
+                            },
+                          },
+                        },
+                        popper: {
+                          sx: {
+                            zIndex: theme.zIndex.tooltip,
+                          },
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          color: theme.palette.primary.main,
+                          transition: 'opacity 0.2s ease',
+                          opacity: 0.7,
+                          '&:hover': {
+                            opacity: 1,
+                          },
+                        }}
+                      >
+                        <InfoOutlined sx={{ fontSize: '1rem' }} />
+                      </Box>
+                    </Tooltip>
                   </Stack>
                 </Box>
 
@@ -406,7 +540,6 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
           height: '90vh',
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
-          ...containerStyles,
         },
       }}
     >
@@ -422,13 +555,6 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
         sx: {
           borderRadius: 2,
           maxHeight: '90vh',
-          ...containerStyles,
-        },
-      }}
-      BackdropProps={{
-        sx: {
-          bgcolor: alpha(theme.palette.background.default, 0.8),
-          backdropFilter: 'blur(8px)',
         },
       }}
     >

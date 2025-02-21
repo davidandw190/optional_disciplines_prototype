@@ -13,14 +13,17 @@ import { FC, useState } from 'react';
 
 import { EnrollmentDetailsModal } from './EnrollmentDetailsModal';
 import { EnrollmentSummary } from '../../../types/enrollments/enrollment-summary.types';
+import { Student } from '../../../types/student/student.types';
 import { getStatusColor } from '../utils/enrollmentsUtils';
 
 interface EnrollmentSummaryCardProps {
   enrollment: EnrollmentSummary;
+  student: Student;
 }
 
 export const EnrollmentSummaryCard: FC<EnrollmentSummaryCardProps> = ({
   enrollment,
+  student
 }) => {
   const theme = useTheme();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -144,6 +147,7 @@ export const EnrollmentSummaryCard: FC<EnrollmentSummaryCardProps> = ({
         open={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
         enrollment={enrollment}
+        student={student}
       />
     </>
   );

@@ -20,6 +20,7 @@ import { FC, SyntheticEvent, useState } from 'react';
 import { EnrollmentPeriodType } from '../../../types/disciplines/disciplines.enums';
 import { EnrollmentsList } from '../components/EnrollmentsList';
 import { useEnrollments } from '../hooks/useEnrollments';
+import { useStudent } from '../../../contexts/student.context';
 
 const enrollmentTypes = [
   {
