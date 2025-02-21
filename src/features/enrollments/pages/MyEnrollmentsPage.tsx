@@ -2,7 +2,6 @@ import {
   Alert,
   Box,
   Container,
-  Grid,
   Paper,
   Stack,
   Tab,
@@ -11,9 +10,13 @@ import {
   alpha,
   useTheme,
 } from '@mui/material';
+import {
+  Assignment,
+  BookmarkBorder,
+  LibraryBooks,
+} from '@mui/icons-material';
 import { FC, SyntheticEvent, useState } from 'react';
 
-import { ContentSkeleton } from '../../elective-disciplines/components/skeletons/ContentSkeleton';
 import { EnrollmentPeriodType } from '../../../types/disciplines/disciplines.enums';
 import { EnrollmentsList } from '../components/EnrollmentsList';
 import { useEnrollments } from '../hooks/useEnrollments';
@@ -23,19 +26,19 @@ const enrollmentTypes = [
     type: EnrollmentPeriodType.ELECTIVE_DISCIPLINES,
     label: 'Elective Disciplines',
     description:
-      'View and manage your elective discipline enrollments across academic periods',
+      'Track your elective course selections that allow you to specialize in specific areas of interest within your academic program.',
   },
   {
     type: EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES,
     label: 'Complementary Disciplines',
     description:
-      'Track your complementary discipline selections and enrollment status',
+      'Track your interdisciplinary course selections that broaden your academic perspective and provide valuable additional skills.',
   },
   {
     type: EnrollmentPeriodType.THESIS_REGISTRATION,
     label: 'Thesis Registration',
     description:
-      'Access your thesis topic registrations and supervision assignments',
+      'Track your thesis registration and supervision arrangements, and share drafts of your work with your supervisor.',
   },
 ];
 
@@ -46,6 +49,31 @@ export const MyEnrollmentsPage: FC = () => {
   );
 
   const { enrollments, isLoading, error } = useEnrollments(activeTab);
+
+  const getEnrollmentTypeIcon = (type: EnrollmentPeriodType) => {
+    switch (type) {
+      case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
+        return (
+          <LibraryBooks
+            sx={{ fontSize: 28, color: theme.palette.primary.main }}
+          />
+        );
+      case EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES:
+        return (
+          <BookmarkBorder
+            sx={{ fontSize: 28, color: theme.palette.primary.main }}
+          />
+        );
+      case EnrollmentPeriodType.THESIS_REGISTRATION:
+        return (
+          <Assignment
+            sx={{ fontSize: 28, color: theme.palette.primary.main }}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   const handleTabChange = (_: SyntheticEvent, value: EnrollmentPeriodType) => {
     setActiveTab(value);
@@ -81,13 +109,68 @@ export const MyEnrollmentsPage: FC = () => {
             width: '100%',
           }}
         >
-          <Stack spacing={2}>
-            <Typography variant="h4" sx={{ fontWeight: 700 }}>
-              My Enrollments
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {activeTabInfo?.description}
-            </Typography>
+          <Stack spacing={3}>
+            {/* Title Section */}
+            <Stack
+              direction="row"
+              spacing={2}
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Stack direction="row" spacing={2} alignItems="center">
+                {/* <School
+                  sx={{
+                    fontSize: 40,
+                    color: theme.palette.primary.main,
+                  }}
+                /> */}
+                <Stack spacing={0.5}>
+                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    My Enrollments
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    color="text.secondary"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    View and manage enrollments history
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Stack>
+
+            {/* Active Tab Information */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                bgcolor: alpha(theme.palette.primary.main, 0.03),
+                borderRadius: 1.5,
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              }}
+            >
+              <Stack direction="row" spacing={2} alignItems="center">
+                {getEnrollmentTypeIcon(activeTab)}
+                <Stack spacing={0.5}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontWeight: 600,
+                      color: theme.palette.primary.main,
+                    }}
+                  >
+                    {activeTabInfo?.label}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ maxWidth: 800 }}
+                  >
+                    {activeTabInfo?.description}
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Paper>
           </Stack>
         </Paper>
 
@@ -103,7 +186,7 @@ export const MyEnrollmentsPage: FC = () => {
             width: '100%',
           }}
         >
-          {/* Tabs Navigation */}
+          {/* Tab Navigation */}
           <Box
             sx={{
               borderBottom: 1,
@@ -151,17 +234,16 @@ export const MyEnrollmentsPage: FC = () => {
                 severity="error"
                 sx={{
                   mb: 2,
-                  '& .MuiAlert-message': {
-                    width: '100%',
-                  },
                 }}
               >
                 {error}
               </Alert>
-            ) : isLoading ? (
-              <ContentSkeleton />
             ) : (
-              <EnrollmentsList enrollments={enrollments} type={activeTab} />
+              <EnrollmentsList
+                enrollments={enrollments}
+                type={activeTab}
+                isLoading={isLoading}
+              />
             )}
           </Box>
         </Paper>
