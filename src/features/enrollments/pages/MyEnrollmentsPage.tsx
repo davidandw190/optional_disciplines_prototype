@@ -11,9 +11,9 @@ import {
   useTheme,
 } from '@mui/material';
 import {
-  Assignment,
-  BookmarkBorder,
-  LibraryBooks,
+  BookOutlined,
+  MenuBookOutlined,
+  SchoolOutlined,
 } from '@mui/icons-material';
 import { FC, SyntheticEvent, useState } from 'react';
 
@@ -55,19 +55,19 @@ export const MyEnrollmentsPage: FC = () => {
     switch (type) {
       case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
         return (
-          <LibraryBooks
+          <BookOutlined
             sx={{ fontSize: 28, color: theme.palette.primary.main }}
           />
         );
       case EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES:
         return (
-          <BookmarkBorder
+          <MenuBookOutlined
             sx={{ fontSize: 28, color: theme.palette.primary.main }}
           />
         );
       case EnrollmentPeriodType.THESIS_REGISTRATION:
         return (
-          <Assignment
+          <SchoolOutlined
             sx={{ fontSize: 28, color: theme.palette.primary.main }}
           />
         );

@@ -14,11 +14,28 @@ import { useLocation } from 'react-router-dom';
 
 const pathTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
-  '/elective-disciplines': 'Elective Disciplines',
-  '/complementary-disciplines': 'Complementary Disciplines',
   '/enrollments': 'My Enrollments',
-  '/thesis': 'Thesis',
   '/profile': 'Profile',
+  '/faq': 'FAQ',
+};
+
+const getPathTitle = (currentPath: string): string => {
+  if (currentPath.startsWith('/enrollment-periods')) {
+    const parts = currentPath.split('/');
+    // expected parts: ['', 'enrollment-periods', ':periodId', 'enrollment-type']
+    const enrollmentType = parts[3];
+    switch (enrollmentType) {
+      case 'elective-disciplines':
+        return 'Elective Disciplines';
+      case 'complementary-disciplines':
+        return 'Complementary Disciplines';
+      case 'thesis-registration':
+        return 'Thesis Registration';
+      default:
+        return 'Enrollment Period';
+    }
+  }
+  return pathTitles[currentPath] || 'Dashboard';
 };
 
 export const Header: FC<HeaderProps> = ({ onMenuClick, sidebarOpen }) => {
@@ -72,7 +89,7 @@ export const Header: FC<HeaderProps> = ({ onMenuClick, sidebarOpen }) => {
               padding: '8px',
             }}
           >
-            <Menu sx={{ fontSize: '1.25rem' }} /> 
+            <Menu sx={{ fontSize: '1.25rem' }} />
           </IconButton>
 
           <Stack
@@ -105,7 +122,7 @@ export const Header: FC<HeaderProps> = ({ onMenuClick, sidebarOpen }) => {
                 fontSize: '0.875rem',
               }}
             >
-              {pathTitles[currentPath] || 'Dashboard'}
+              {getPathTitle(currentPath)}
             </Typography>
           </Stack>
         </Toolbar>

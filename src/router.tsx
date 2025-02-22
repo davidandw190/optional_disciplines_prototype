@@ -10,7 +10,6 @@ import { AuthPage } from './features/auth/pages/AuthPage';
 import { AvailableThesisPage } from './features/thesis/pages/AvailableThesisPage';
 import { ComplementaryDisciplinesPage } from './features/complementary-disciplines/pages/ComplementaryDisciplinesPage';
 import DashboardPage from './features/dashboard/pages/DashboardPage';
-import { ElectiveDisciplinesPage } from './features/elective-disciplines/pages/ElectiveDisciplinesPage';
 import { ElectiveDisciplinesPageContainer } from './features/elective-disciplines/pages/ElectiveDisciplinePageContainer';
 import { FAQPage } from './features/faq/pages/FAQPage';
 import { MainLayout } from './layout/MainLayout';
@@ -32,17 +31,17 @@ const router = createBrowserRouter(
 
           {/* Enrollment Period Routes */}
           <Route path="enrollment-periods">
-            <Route 
-              path=":periodId/elective-disciplines" 
-              element={<ElectiveDisciplinesPageContainer />} 
+            <Route
+              path=":periodId/elective-disciplines"
+              element={<ElectiveDisciplinesPageContainer />}
             />
-            <Route 
-              path=":periodId/complementary-disciplines" 
-              element={<ComplementaryDisciplinesPage />} 
+            <Route
+              path=":periodId/complementary-disciplines"
+              element={<ComplementaryDisciplinesPage />}
             />
-            <Route 
-              path=":periodId/thesis-registration" 
-              element={<AvailableThesisPage />} 
+            <Route
+              path=":periodId/thesis-registration"
+              element={<AvailableThesisPage />}
             />
           </Route>
 
@@ -60,7 +59,6 @@ const router = createBrowserRouter(
             <Route path="*" element={<Navigate to="details" />} />
           </Route>
 
-          {/* Catch any unmatched routes under protected area */}
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Route>
       </Route>

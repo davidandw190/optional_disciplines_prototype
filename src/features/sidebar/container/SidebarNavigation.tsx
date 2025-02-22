@@ -5,6 +5,9 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Tooltip,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -18,6 +21,9 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   items,
 }) => {
   const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const tooltipPlacement = isMobile ? 'bottom' : 'right';
 
   return (
     <List
@@ -31,8 +37,8 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
         },
       }}
     >
-      {items.map((item) => (
-        <ListItem key={item.path} disablePadding>
+      {items.map((item) => {
+        const listButton = (
           <ListItemButton
             component={Link}
             to={item.path}
@@ -81,8 +87,24 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
               />
             )}
           </ListItemButton>
-        </ListItem>
-      ))}
+        );
+
+        return (
+          <ListItem key={`${item.title}-${item.path}`} disablePadding>
+            {item.disabled ? (
+              <Tooltip
+                title="This enrollment will come soon"
+                placement={tooltipPlacement}
+                arrow
+              >
+                <span>{listButton}</span>
+              </Tooltip>
+            ) : (
+              listButton
+            )}
+          </ListItem>
+        );
+      })}
     </List>
   );
 };

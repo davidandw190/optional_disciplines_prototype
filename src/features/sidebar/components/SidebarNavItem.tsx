@@ -9,7 +9,7 @@ import {
   Logout,
   MenuBook,
   Person,
-  School,
+  SpaceDashboardRounded,
 } from '@mui/icons-material';
 import {
   Avatar,
@@ -44,7 +44,9 @@ const DRAWER_WIDTH = '340px';
 
 const getEnrollmentPeriodPath = (period: EnrollmentPeriod) => {
   const periodId = period.id.toString();
-  return `/enrollment-periods/${periodId}/${period.type.toLowerCase().replace('_', '-')}`;
+  return `/enrollment-periods/${periodId}/${period.type
+    .toLowerCase()
+    .replace('_', '-')}`;
 };
 
 const getEnrollmentPeriodTitle = (type: EnrollmentPeriodType) => {
@@ -121,38 +123,41 @@ export const SidebarView: FC<SidebarViewProps> = ({
     const baseItems: NavigationItem[] = [
       {
         title: 'Dashboard',
-        icon: <School />,
+        icon: <SpaceDashboardRounded />,
         path: '/dashboard',
       },
     ];
 
     if (enrollmentPeriods?.length) {
       const activePeriodsMap = new Map<string, EnrollmentPeriod>();
-      
-      enrollmentPeriods.forEach(period => {
+
+      enrollmentPeriods.forEach((period) => {
         const status = getEnrollmentPeriodStatus(period);
         const existingPeriod = activePeriodsMap.get(period.type);
-        const existingStatus = existingPeriod 
-          ? getEnrollmentPeriodStatus(existingPeriod) 
+        const existingStatus = existingPeriod
+          ? getEnrollmentPeriodStatus(existingPeriod)
           : null;
 
-        if (!existingPeriod || status === 'active' || 
-            (status === 'upcoming' && existingStatus === 'ended')) {
+        if (
+          !existingPeriod ||
+          status === 'active' ||
+          (status === 'upcoming' && existingStatus === 'ended')
+        ) {
           activePeriodsMap.set(period.type, period);
         }
       });
 
-      Object.values(EnrollmentPeriodType).forEach(type => {
+      Object.values(EnrollmentPeriodType).forEach((type) => {
         const period = activePeriodsMap.get(type);
         const status = period ? getEnrollmentPeriodStatus(period) : undefined;
-        
+
         baseItems.push({
           title: getEnrollmentPeriodTitle(type),
           icon: getEnrollmentPeriodIcon(type),
           path: period ? getEnrollmentPeriodPath(period) : '#',
           badge: status === 'active' ? 'Active' : undefined,
           badgeColor: 'success',
-          disabled: !period || status !== 'active'
+          disabled: !period || status !== 'active',
         });
       });
     }
@@ -174,157 +179,168 @@ export const SidebarView: FC<SidebarViewProps> = ({
         title: 'FAQ',
         icon: <HelpOutline />,
         path: '/faq',
-      }
+      },
     ];
   }, [enrollmentPeriods]);
 
-  const drawerContent = useMemo(() => (
-    <Box sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      overflow: 'hidden',
-    }}>
-      {/* Logo and Title Section */}
-      <Box sx={{ p: 2, textAlign: 'center' }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <Box
-            component="img"
-            src={uvtLogo}
-            alt="FMI Logo"
+  const drawerContent = useMemo(
+    () => (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Logo and Title Section */}
+        <Box sx={{ p: 2, textAlign: 'center' }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <Box
+              component="img"
+              src={uvtLogo}
+              alt="FMI Logo"
+              sx={{
+                width: '120px',
+                height: 'auto',
+                mb: 2,
+                transition: 'transform 0.15s ease',
+                '&:hover': { transform: 'scale(1.05)' },
+              }}
+            />
+          </Link>
+          <Typography
+            variant="h6"
             sx={{
-              width: '120px',
-              height: 'auto',
-              mb: 2,
-              transition: 'transform 0.15s ease',
-              '&:hover': { transform: 'scale(1.05)' },
+              color: 'primary.main',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              letterSpacing: '0.02em',
             }}
-          />
-        </Link>
-        <Typography
-          variant="h6"
+          >
+            FMI Enroll
+          </Typography>
+        </Box>
+
+        <Divider sx={{ mx: 2 }} />
+
+        {/* Navigation Items */}
+        <List
           sx={{
-            color: 'primary.main',
-            fontWeight: 600,
-            fontSize: '1.1rem',
-            letterSpacing: '0.02em',
+            flex: 1,
+            px: 1,
+            py: 1,
+            '& .MuiListItem-root': {
+              width: 'auto',
+              mx: 0.5,
+            },
           }}
         >
-          FMI Enroll
-        </Typography>
-      </Box>
+          {navigationItems.map((item) => (
+            <ListItem key={item.path} disablePadding>
+              <ListItemButton
+                component={Link}
+                to={item.path}
+                selected={location.pathname.startsWith(item.path)}
+                disabled={item.disabled}
+                sx={{
+                  borderRadius: 1,
+                  mb: 0.5,
+                  color: item.disabled
+                    ? 'text.disabled'
+                    : location.pathname.startsWith(item.path)
+                    ? 'primary.main'
+                    : 'text.primary',
+                  '&.Mui-disabled': {
+                    opacity: 0.7,
+                    cursor: 'not-allowed',
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    color: 'inherit',
+                    minWidth: 40,
+                    opacity: item.disabled ? 0.5 : 1,
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.title}
+                  primaryTypographyProps={{
+                    fontWeight: location.pathname.startsWith(item.path)
+                      ? 600
+                      : 400,
+                    sx: { opacity: item.disabled ? 0.7 : 1 },
+                  }}
+                />
+                {item.badge && (
+                  <Chip
+                    label={item.badge}
+                    size="small"
+                    color={item.badgeColor}
+                    sx={{
+                      ml: 1,
+                      height: 24,
+                      opacity: item.disabled ? 0.7 : 1,
+                    }}
+                  />
+                )}
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
 
-      <Divider sx={{ mx: 2 }} />
-
-      {/* Navigation Items */}
-      <List sx={{
-        flex: 1,
-        px: 1,
-        py: 1,
-        '& .MuiListItem-root': {
-          width: 'auto',
-          mx: 0.5,
-        },
-      }}>
-        {navigationItems.map((item) => (
-          <ListItem key={item.path} disablePadding>
+        {/* User Profile Section */}
+        <Box>
+          <Divider />
+          <ListItem
+            sx={{
+              p: 1.5,
+              '&:hover': { backgroundColor: 'action.hover' },
+            }}
+          >
             <ListItemButton
-              component={Link}
-              to={item.path}
-              selected={location.pathname.startsWith(item.path)}
-              disabled={item.disabled}
+              onClick={handleMenuOpen}
               sx={{
-                borderRadius: 1,
-                mb: 0.5,
-                color: item.disabled
-                  ? 'text.disabled'
-                  : location.pathname.startsWith(item.path)
-                  ? 'primary.main'
-                  : 'text.primary',
-                '&.Mui-disabled': {
-                  opacity: 0.7,
-                  cursor: 'not-allowed',
+                px: 1.5,
+                '& .MuiListItemText-root': {
+                  overflow: 'hidden',
                 },
               }}
             >
-              <ListItemIcon
-                sx={{
-                  color: 'inherit',
-                  minWidth: 40,
-                  opacity: item.disabled ? 0.5 : 1,
-                }}
-              >
-                {item.icon}
+              <ListItemIcon>
+                <Avatar
+                  sx={{
+                    bgcolor: 'primary.main',
+                    width: 32,
+                    height: 32,
+                  }}
+                >
+                  {student?.firstName[0]}
+                </Avatar>
               </ListItemIcon>
               <ListItemText
-                primary={item.title}
+                primary={`${student?.firstName} ${student?.lastName}`}
+                secondary={student?.email}
                 primaryTypographyProps={{
-                  fontWeight: location.pathname.startsWith(item.path) ? 600 : 400,
-                  sx: { opacity: item.disabled ? 0.7 : 1 },
+                  variant: 'body2',
+                  fontWeight: 600,
+                  color: 'text.primary',
+                }}
+                secondaryTypographyProps={{
+                  variant: 'caption',
+                  color: 'text.secondary',
                 }}
               />
-              {item.badge && (
-                <Chip
-                  label={item.badge}
-                  size="small"
-                  color={item.badgeColor}
-                  sx={{
-                    ml: 1,
-                    height: 24,
-                    opacity: item.disabled ? 0.7 : 1,
-                  }}
-                />
-              )}
             </ListItemButton>
           </ListItem>
-        ))}
-      </List>
-
-      {/* User Profile Section */}
-      <Box>
-        <Divider />
-        <ListItem sx={{
-          p: 1.5,
-          '&:hover': { backgroundColor: 'action.hover' },
-        }}>
-          <ListItemButton
-            onClick={handleMenuOpen}
-            sx={{
-              px: 1.5,
-              '& .MuiListItemText-root': {
-                overflow: 'hidden',
-              },
-            }}
-          >
-            <ListItemIcon>
-              <Avatar
-                sx={{
-                  bgcolor: 'primary.main',
-                  width: 32,
-                  height: 32,
-                }}
-              >
-                {student?.firstName[0]}
-              </Avatar>
-            </ListItemIcon>
-            <ListItemText
-              primary={`${student?.firstName} ${student?.lastName}`}
-              secondary={student?.email}
-              primaryTypographyProps={{
-                variant: 'body2',
-                fontWeight: 600,
-                color: 'text.primary',
-              }}
-              secondaryTypographyProps={{
-                variant: 'caption',
-                color: 'text.secondary',
-              }}
-            />
-          </ListItemButton>
-        </ListItem>
+        </Box>
       </Box>
-    </Box>
-  ), [navigationItems, student, handleMenuOpen, location.pathname]);
+    ),
+    [navigationItems, student, handleMenuOpen, location.pathname]
+  );
 
   return (
     <>
@@ -417,7 +433,9 @@ export const SidebarView: FC<SidebarViewProps> = ({
           ].map((item) => (
             <ListItem key={item.value} disableGutters>
               <ListItemButton
-                onClick={() => handleChooseTheme(item.value as 'dark' | 'light' | 'system')}
+                onClick={() =>
+                  handleChooseTheme(item.value as 'dark' | 'light' | 'system')
+                }
               >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.label} />

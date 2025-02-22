@@ -1,4 +1,12 @@
-import { Assignment, Book, HelpOutline, MenuBook, Person, School } from '@mui/icons-material';
+import {
+  AssignmentIndRounded,
+  BookRounded,
+  HelpRounded,
+  MenuBookRounded,
+  Person,
+  SchoolRounded,
+  SpaceDashboardRounded,
+} from '@mui/icons-material';
 
 import { EnrollmentPeriod } from '../../../types/disciplines/disciplines.types';
 import { EnrollmentPeriodType } from '../../../types/disciplines/disciplines.enums';
@@ -28,58 +36,66 @@ export const getEnrollmentPeriodIcon = (
   type: EnrollmentPeriodType
 ): JSX.Element => {
   const icons = {
-    [EnrollmentPeriodType.ELECTIVE_DISCIPLINES]: <Book />,
-    [EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES]: <MenuBook />,
-    [EnrollmentPeriodType.THESIS_REGISTRATION]: <Assignment />,
+    [EnrollmentPeriodType.ELECTIVE_DISCIPLINES]: <BookRounded />,
+    [EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES]: <MenuBookRounded />,
+    [EnrollmentPeriodType.THESIS_REGISTRATION]: <SchoolRounded />,
   };
   return icons[type];
 };
 
-export const getNavigationItems = (enrollmentPeriods?: EnrollmentPeriod[]): NavigationItem[] => {
+export const getNavigationItems = (
+  enrollmentPeriods?: EnrollmentPeriod[]
+): NavigationItem[] => {
   const baseItems: NavigationItem[] = [
     {
       title: 'Dashboard',
-      icon: <School />,
+      icon: <SpaceDashboardRounded />,
       path: '/dashboard',
     },
   ];
 
+  const activePeriodsMap = new Map<string, EnrollmentPeriod>();
+
   if (enrollmentPeriods?.length) {
-    const activePeriodsMap = new Map<string, EnrollmentPeriod>();
-    
-    enrollmentPeriods.forEach(period => {
+    enrollmentPeriods.forEach((period) => {
       const status = getEnrollmentPeriodStatus(period);
       const existingPeriod = activePeriodsMap.get(period.type);
-      const existingStatus = existingPeriod 
-        ? getEnrollmentPeriodStatus(existingPeriod) 
+      const existingStatus = existingPeriod
+        ? getEnrollmentPeriodStatus(existingPeriod)
         : null;
 
-      if (!existingPeriod || status === 'active' || 
-          (status === 'upcoming' && existingStatus === 'ended')) {
+      if (
+        !existingPeriod ||
+        status === 'active' ||
+        (status === 'upcoming' && existingStatus === 'ended')
+      ) {
         activePeriodsMap.set(period.type, period);
       }
     });
-
-    Object.values(EnrollmentPeriodType).forEach(type => {
-      const period = activePeriodsMap.get(type);
-      const status = period ? getEnrollmentPeriodStatus(period) : undefined;
-      
-      baseItems.push({
-        title: getEnrollmentPeriodTitle(type),
-        icon: getEnrollmentPeriodIcon(type),
-        path: period ? getEnrollmentPeriodPath(period) : '#',
-        badge: status === 'active' ? 'Active' : undefined,
-        badgeColor: 'success',
-        disabled: !period || status !== 'active'
-      });
-    });
   }
+
+  Object.values(EnrollmentPeriodType).forEach((type) => {
+    const period = activePeriodsMap.get(type);
+    const status = period ? getEnrollmentPeriodStatus(period) : undefined;
+
+    baseItems.push({
+      title: getEnrollmentPeriodTitle(type),
+      icon: getEnrollmentPeriodIcon(type),
+      path: period
+        ? getEnrollmentPeriodPath(period)
+        : `/enrollment-periods/${type.toLowerCase().replace('_', '-')}`,
+      badge: period && status === 'active' ? 'Active' : undefined,
+      badgeColor: 'success',
+      // by default, if no period exists, the tab is enabled.
+      disabled: period ? status !== 'active' : false,
+    });
+  });
 
   return [
     ...baseItems,
     {
       title: 'My Enrollments',
-      icon: <Assignment />,
+      icon: <AssignmentIndRounded />,
       path: '/enrollments',
     },
     {
@@ -89,8 +105,8 @@ export const getNavigationItems = (enrollmentPeriods?: EnrollmentPeriod[]): Navi
     },
     {
       title: 'FAQ',
-      icon: <HelpOutline />,
+      icon: <HelpRounded />,
       path: '/faq',
-    }
+    },
   ];
 };

@@ -1,6 +1,5 @@
 import { Box, CssBaseline } from '@mui/material';
 
-import { DisciplineSelectionProvider } from './contexts/discipline-selection.context';
 import { FC } from 'react';
 import { Outlet } from 'react-router-dom';
 import { StudentProvider } from './contexts/student.context';
@@ -10,7 +9,6 @@ const App: FC = () => {
   return (
     <ThemeProvider>
       <StudentProvider>
-        {/* <DisciplineSelectionProvider> */}
           <CssBaseline />
           <Box
             sx={{
@@ -23,7 +21,6 @@ const App: FC = () => {
           >
             <Outlet />
           </Box>
-        {/* </DisciplineSelectionProvider> */}
       </StudentProvider>
     </ThemeProvider>
   );

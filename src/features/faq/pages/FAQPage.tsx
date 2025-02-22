@@ -15,18 +15,14 @@ import {
   useTheme,
 } from '@mui/material';
 import {
+  BookRounded,
   ExpandMore,
-  Help,
-  HowToReg,
-  ImportContacts,
+  HelpRounded,
   Info,
-  Schedule,
+  MenuBookRounded,
+  SchoolRounded,
 } from '@mui/icons-material';
-import {
-  FC,
-  SyntheticEvent,
-  useState,
-} from 'react';
+import { FC, SyntheticEvent, useState } from 'react';
 
 enum FAQCategory {
   GENERAL = 'general',
@@ -90,25 +86,25 @@ const categories = [
   {
     value: FAQCategory.GENERAL,
     label: 'General',
-    icon: Help,
+    icon: HelpRounded,
     description: 'Basic information about the enrollment system and process',
   },
   {
     value: FAQCategory.ELECTIVE,
     label: 'Elective Disciplines',
-    icon: ImportContacts,
+    icon: BookRounded,
     description: 'Information about choosing and enrolling in elective courses',
   },
   {
     value: FAQCategory.COMPLEMENTARY,
     label: 'Complementary Disciplines',
-    icon: Schedule,
+    icon: MenuBookRounded,
     description: 'Details about interdisciplinary course selection',
   },
   {
     value: FAQCategory.THESIS,
     label: 'Thesis Registration',
-    icon: HowToReg,
+    icon: SchoolRounded,
     description: 'Guidance on thesis topic and supervisor selection',
   },
 ];
@@ -263,12 +259,16 @@ const faqData: FAQItem[] = [
 
   {
     category: FAQCategory.GENERAL,
-    question: "When do enrollment periods typically occur and how long do they last?",
+    question:
+      'When do enrollment periods typically occur and how long do they last?',
     answer: (
       <FAQResponseContainer>
         <Stack spacing={3}>
           <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
-            Enrollment periods are scheduled strategically throughout the academic year to ensure students have adequate time to make informed decisions about their course selections. The timing and duration vary by enrollment type and academic level.
+            Enrollment periods are scheduled strategically throughout the
+            academic year to ensure students have adequate time to make informed
+            decisions about their course selections. The timing and duration
+            vary by enrollment type and academic level.
           </Typography>
 
           <Box>
@@ -277,20 +277,31 @@ const faqData: FAQItem[] = [
             </Typography>
             <Stack spacing={2}>
               <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1, color: 'primary.main' }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ mb: 1, color: 'primary.main' }}
+                >
                   For Fall Semester (Semester 1)
                 </Typography>
                 <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
-                  Enrollment typically opens in late July or early August and remains active for approximately two weeks. Early enrollment periods are allocated based on academic year, with higher-year students generally having priority access.
+                  Enrollment typically opens in late July or early August and
+                  remains active for approximately two weeks. Early enrollment
+                  periods are allocated based on academic year, with higher-year
+                  students generally having priority access.
                 </Typography>
               </Box>
 
               <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1, color: 'primary.main' }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ mb: 1, color: 'primary.main' }}
+                >
                   For Spring Semester (Semester 2)
                 </Typography>
                 <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
-                  The enrollment period usually begins in early December and continues for about two weeks. This timing allows students to plan their courses during the winter break.
+                  The enrollment period usually begins in early December and
+                  continues for about two weeks. This timing allows students to
+                  plan their courses during the winter break.
                 </Typography>
               </Box>
             </Stack>
@@ -300,7 +311,7 @@ const faqData: FAQItem[] = [
             elevation={0}
             sx={{
               p: { xs: 2, sm: 2.5 },
-              bgcolor: theme => alpha(theme.palette.info.main, 0.05),
+              bgcolor: (theme) => alpha(theme.palette.info.main, 0.05),
               borderRadius: 2,
               // border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
             }}
@@ -310,9 +321,10 @@ const faqData: FAQItem[] = [
                 Important Notes About Timing
               </Typography>
               <Typography variant="body2" sx={{ lineHeight: 1.7 }}>
-                - Specific dates are announced at least one month before each enrollment period
-                - Late enrollment requests require special approval and may have limited course availability
-                - Some specialized programs may have different enrollment schedules
+                - Specific dates are announced at least one month before each
+                enrollment period - Late enrollment requests require special
+                approval and may have limited course availability - Some
+                specialized programs may have different enrollment schedules
               </Typography>
             </Stack>
           </Paper>
@@ -322,12 +334,15 @@ const faqData: FAQItem[] = [
   },
   {
     category: FAQCategory.GENERAL,
-    question: "What happens if I miss an enrollment deadline?",
+    question: 'What happens if I miss an enrollment deadline?',
     answer: (
       <FAQResponseContainer>
         <Stack spacing={3}>
           <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
-            Missing an enrollment deadline can impact your course selection options, but there are established procedures for handling such situations. The specific consequences and available solutions depend on the timing and circumstances.
+            Missing an enrollment deadline can impact your course selection
+            options, but there are established procedures for handling such
+            situations. The specific consequences and available solutions depend
+            on the timing and circumstances.
           </Typography>
 
           <Box>
@@ -339,17 +354,23 @@ const faqData: FAQItem[] = [
                 elevation={0}
                 sx={{
                   p: { xs: 2, sm: 2.5 },
-                  bgcolor: theme => alpha(theme.palette.warning.main, 0.05),
+                  bgcolor: (theme) => alpha(theme.palette.warning.main, 0.05),
                   borderRadius: 2,
                   // border: `1px solid ${alpha(theme.palette.warning.main, 0.1)}`,
                 }}
               >
                 <Stack spacing={1}>
-                  <Typography variant="subtitle2" sx={{ color: 'warning.main', fontWeight: 600 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ color: 'warning.main', fontWeight: 600 }}
+                  >
                     Late Enrollment Request
                   </Typography>
                   <Typography variant="body2" sx={{ lineHeight: 1.7 }}>
-                    You can submit a late enrollment request through your academic advisor. These requests are evaluated on a case-by-case basis, considering factors such as course availability and the reason for missing the deadline.
+                    You can submit a late enrollment request through your
+                    academic advisor. These requests are evaluated on a
+                    case-by-case basis, considering factors such as course
+                    availability and the reason for missing the deadline.
                   </Typography>
                 </Stack>
               </Paper>
@@ -358,17 +379,23 @@ const faqData: FAQItem[] = [
                 elevation={0}
                 sx={{
                   p: { xs: 2, sm: 2.5 },
-                  bgcolor: theme => alpha(theme.palette.info.main, 0.05),
+                  bgcolor: (theme) => alpha(theme.palette.info.main, 0.05),
                   borderRadius: 2,
                   // border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
                 }}
               >
                 <Stack spacing={1}>
-                  <Typography variant="subtitle2" sx={{ color: 'info.main', fontWeight: 600 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ color: 'info.main', fontWeight: 600 }}
+                  >
                     Alternative Course Selection
                   </Typography>
                   <Typography variant="body2" sx={{ lineHeight: 1.7 }}>
-                    If late enrollment isn't possible, your advisor can help you identify alternative courses or make adjustments to your academic plan to ensure you stay on track with your program requirements.
+                    If late enrollment isn't possible, your advisor can help you
+                    identify alternative courses or make adjustments to your
+                    academic plan to ensure you stay on track with your program
+                    requirements.
                   </Typography>
                 </Stack>
               </Paper>
@@ -380,7 +407,10 @@ const faqData: FAQItem[] = [
               Recommended Actions
             </Typography>
             <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
-              If you miss a deadline, contact your academic advisor immediately. They can guide you through the available options and help minimize any impact on your academic progress. Remember that early communication is key to finding the best possible solution.
+              If you miss a deadline, contact your academic advisor immediately.
+              They can guide you through the available options and help minimize
+              any impact on your academic progress. Remember that early
+              communication is key to finding the best possible solution.
             </Typography>
           </Box>
         </Stack>
@@ -480,7 +510,7 @@ export const FAQPage: FC = () => {
               value={activeCategory}
               onChange={handleCategoryChange}
               variant="scrollable"
-              // we show scroll buttons only on mobile 
+              // we show scroll buttons only on mobile
               scrollButtons={
                 useMediaQuery(theme.breakpoints.down('sm')) ? true : false
               }
