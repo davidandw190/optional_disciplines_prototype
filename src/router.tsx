@@ -12,6 +12,7 @@ import { ComplementaryDisciplinesPage } from './features/complementary-disciplin
 import DashboardPage from './features/dashboard/pages/DashboardPage';
 import { ElectiveDisciplinesPage } from './features/elective-disciplines/pages/ElectiveDisciplinesPage';
 import { ElectiveDisciplinesPageContainer } from './features/elective-disciplines/pages/ElectiveDisciplinePageContainer';
+import { FAQPage } from './features/faq/pages/FAQPage';
 import { MainLayout } from './layout/MainLayout';
 import { MyEnrollmentsPage } from './features/enrollments/pages/MyEnrollmentsPage';
 import ProtectedRoute from './layout/ProtectedRoute';
@@ -44,6 +45,8 @@ const router = createBrowserRouter(
               element={<AvailableThesisPage />} 
             />
           </Route>
+
+          <Route path="faq" element={<FAQPage />} />
 
           {/* Enrollments Management */}
           <Route path="enrollments">
