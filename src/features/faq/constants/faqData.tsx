@@ -1,8 +1,45 @@
-import { Box, Paper, Stack, Typography, alpha } from "@mui/material";
-import { FAQCategory, FAQItem } from "../../../types/faq/faq.types";
+import {
+  BookRounded,
+  HelpRounded,
+  Info,
+  MenuBookRounded,
+  SchoolRounded,
+} from '@mui/icons-material';
+import { Box, Paper, Stack, Typography, alpha } from '@mui/material';
+import {
+  CategoryItem,
+  FAQCategory,
+  FAQItem,
+} from '../../../types/faq/faq.types';
 
-import { FAQResponseContainer } from "../components/FAQResponseContainer";
-import { Info } from "@mui/icons-material";
+import { FAQResponseContainer } from '../components/FAQResponseContainer';
+
+export const categories: CategoryItem[] = [
+  {
+    value: FAQCategory.GENERAL,
+    label: 'General',
+    icon: HelpRounded,
+    description: 'Basic information about the enrollment system and process',
+  },
+  {
+    value: FAQCategory.ELECTIVE,
+    label: 'Elective Disciplines',
+    icon: BookRounded,
+    description: 'Information about choosing and enrolling in elective courses',
+  },
+  {
+    value: FAQCategory.COMPLEMENTARY,
+    label: 'Complementary Disciplines',
+    icon: MenuBookRounded,
+    description: 'Details about interdisciplinary course selection',
+  },
+  {
+    value: FAQCategory.THESIS,
+    label: 'Thesis Registration',
+    icon: SchoolRounded,
+    description: 'Guidance on thesis topic and supervisor selection',
+  },
+];
 
 export const faqData: FAQItem[] = [
   {

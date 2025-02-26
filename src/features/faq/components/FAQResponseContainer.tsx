@@ -1,12 +1,14 @@
-import { Box } from "@mui/material";
-import { FC } from "react";
-import { useTheme } from "@emotion/react";
+import React, { FC } from 'react';
 
-export const FAQResponseContainer: FC<{ children: React.ReactNode }> = ({
+import { Box } from '@mui/material';
+
+interface FAQResponseContainerProps {
+  children: React.ReactNode;
+}
+
+export const FAQResponseContainer: FC<FAQResponseContainerProps> = ({
   children,
 }) => {
-  const theme = useTheme();
-
   return (
     <Box
       sx={{

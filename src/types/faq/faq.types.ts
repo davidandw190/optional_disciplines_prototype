@@ -1,5 +1,3 @@
-import { SvgIconComponent } from '@mui/icons-material';
-
 export enum FAQCategory {
   GENERAL = 'general',
   ELECTIVE = 'elective',
@@ -13,9 +11,9 @@ export interface FAQItem {
   category: FAQCategory;
 }
 
-export interface FAQCategoryInfo {
+export interface CategoryItem {
   value: FAQCategory;
   label: string;
-  icon: SvgIconComponent;
+  icon: React.ElementType;
   description: string;
 }
