@@ -1,5 +1,7 @@
 import {
-  Box,
+  Alert,
+  AlertTitle,
+  Button,
   Grid,
   Skeleton,
   Stack,
@@ -7,46 +9,88 @@ import {
   alpha,
   useTheme,
 } from '@mui/material';
+import { Refresh, School } from '@mui/icons-material';
 
+import { EmptyStateContainer } from '../styles/enrollment-styles';
 import { EnrollmentPeriodType } from '../../../types/disciplines/disciplines.enums';
 import { EnrollmentSummary } from '../../../types/enrollments/enrollment-summary.types';
 import { EnrollmentSummaryCard } from './EnrollmentSummaryCard';
 import { FC } from 'react';
-import { School } from '@mui/icons-material';
 import { useStudent } from '../../../contexts/student.context';
 
 interface EnrollmentsListProps {
   enrollments: EnrollmentSummary[];
   type: EnrollmentPeriodType;
   isLoading: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 export const EnrollmentsList: FC<EnrollmentsListProps> = ({
   enrollments,
   type,
   isLoading,
+  error,
+  onRetry,
 }) => {
   const theme = useTheme();
   const { student } = useStudent();
+
   if (!student) {
-    return null;
+    return (
+      <Alert severity="warning" sx={{ my: 2 }}>
+        <AlertTitle>Student information unavailable</AlertTitle>
+        Please log in again or contact student services if this issue persists.
+      </Alert>
+    );
   }
 
-  const LoadingSkeleton = () => (
-    <Grid container spacing={3}>
-      {[1, 2].map((item) => (
-        <Grid item xs={12} md={6} key={item}>
-          <Box
-            sx={{
-              p: 2.5,
-              height: '100%',
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 2,
-              bgcolor: 'background.paper',
-            }}
-          >
-            <Stack spacing={2}>
+  // Error state
+  if (error) {
+    return (
+      <Alert 
+        severity="error" 
+        sx={{ 
+          mb: 2,
+          alignItems: 'flex-start',
+        }}
+        action={
+          onRetry && (
+            <Button 
+              color="error" 
+              size="small" 
+              startIcon={<Refresh />}
+              onClick={onRetry}
+              sx={{ mt: 0.5 }}
+            >
+              Retry
+            </Button>
+          )
+        }
+      >
+        <AlertTitle>Error loading enrollments</AlertTitle>
+        {error}
+      </Alert>
+    );
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <Grid container spacing={3}>
+        {[1, 2].map((item) => (
+          <Grid item xs={12} md={6} key={item}>
+            <Stack
+              sx={{
+                p: 2.5,
+                height: '100%',
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                bgcolor: 'background.paper',
+              }}
+              spacing={2}
+            >
               {/* Header skeleton */}
               <Stack
                 direction="row"
@@ -72,38 +116,28 @@ export const EnrollmentsList: FC<EnrollmentsListProps> = ({
               </Stack>
 
               {/* Summary footer skeleton */}
-              <Box sx={{ mt: 'auto' }}>
-                <Skeleton
-                  variant="rectangular"
-                  width="100%"
-                  height={48}
-                  sx={{
-                    borderRadius: 1,
-                    bgcolor: alpha(theme.palette.primary.main, 0.04),
-                  }}
-                />
-              </Box>
+              <Skeleton
+                variant="rectangular"
+                width="100%"
+                height={48}
+                sx={{
+                  borderRadius: 1,
+                  mt: 'auto',
+                }}
+              />
             </Stack>
-          </Box>
-        </Grid>
-      ))}
-    </Grid>
-  );
+          </Grid>
+        ))}
+      </Grid>
+    );
+  }
 
   // No enrollments found
-  if (!isLoading && enrollments.length === 0) {
+  if (enrollments.length === 0) {
     return (
-      <Stack
+      <EmptyStateContainer
         spacing={3}
         alignItems="center"
-        sx={{
-          py: 8,
-          px: 3,
-          textAlign: 'center',
-          color: 'text.secondary',
-          bgcolor: alpha(theme.palette.primary.main, 0.04),
-          borderRadius: 2,
-        }}
       >
         <School
           sx={{
@@ -128,14 +162,11 @@ export const EnrollmentsList: FC<EnrollmentsListProps> = ({
               "You haven't registered for thesis supervision yet. When the registration period opens, you'll be able to select your thesis topic and supervisor."}
           </Typography>
         </Stack>
-      </Stack>
+      </EmptyStateContainer>
     );
   }
 
-  if (isLoading) {
-    return <LoadingSkeleton />;
-  }
-
+  // Display enrollments
   return (
     <Grid
       container

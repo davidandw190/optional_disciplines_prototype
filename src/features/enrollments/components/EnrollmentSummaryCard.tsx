@@ -1,20 +1,25 @@
-import { AccessTime, ChevronRight, School } from '@mui/icons-material';
+import {
+  AccessTime,
+  CalendarMonth,
+  ChevronRight,
+  School
+} from '@mui/icons-material';
 import {
   Box,
-  Card,
-  Chip,
   IconButton,
   Stack,
+  Tooltip,
   Typography,
   alpha,
-  useTheme,
+  useTheme
 } from '@mui/material';
+import { EnrollmentCard, StatusChip } from '../styles/enrollment-styles';
 import { FC, useState } from 'react';
+import { formatDate, getStatusColor, getStatusLabel } from '../utils/enrollmentsUtils';
 
 import { EnrollmentDetailsModal } from './EnrollmentDetailsModal';
 import { EnrollmentSummary } from '../../../types/enrollments/enrollment-summary.types';
 import { Student } from '../../../types/student/student.types';
-import { getStatusColor } from '../utils/enrollmentsUtils';
 
 interface EnrollmentSummaryCardProps {
   enrollment: EnrollmentSummary;
@@ -37,24 +42,8 @@ export const EnrollmentSummaryCard: FC<EnrollmentSummaryCardProps> = ({
 
   return (
     <>
-      <Card
+      <EnrollmentCard
         elevation={0}
-        sx={{
-          p: 2.5,
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 2,
-          transition: 'all 0.2s ease-in-out',
-          cursor: 'pointer',
-          '&:hover': {
-            borderColor: theme.palette.primary.main,
-            transform: 'translateY(-2px)',
-            boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.08)}`,
-          },
-        }}
         onClick={() => setIsDetailsOpen(true)}
       >
         <Stack spacing={2} sx={{ height: '100%' }}>
@@ -64,28 +53,35 @@ export const EnrollmentSummaryCard: FC<EnrollmentSummaryCardProps> = ({
             justifyContent="space-between"
             alignItems="center"
           >
-            <Chip
-              label={enrollment.status}
-              size="small"
-              sx={{
-                bgcolor: alpha(statusColor.main, 0.1),
-                color: statusColor.main,
-                fontWeight: 500,
-                px: 1,
-              }}
-            />
-            <IconButton
-              size="small"
-              color="primary"
-              sx={{
-                bgcolor: alpha(theme.palette.primary.main, 0.04),
-                '&:hover': {
-                  bgcolor: alpha(theme.palette.primary.main, 0.08),
-                },
-              }}
+            <Tooltip 
+              title={`Status: ${getStatusLabel(enrollment.status)}`} 
+              arrow
+              placement="top"
             >
-              <ChevronRight />
-            </IconButton>
+              <StatusChip
+                color={statusColor.main}
+              >
+                {getStatusLabel(enrollment.status)}
+              </StatusChip>
+            </Tooltip>
+            <Tooltip title="View details" arrow>
+              <IconButton
+                size="small"
+                color="primary"
+                aria-label="View enrollment details"
+                sx={{
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                  transition: theme.transitions.create('background-color', {
+                    duration: 200,
+                  }),
+                  '&:hover': {
+                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  },
+                }}
+              >
+                <ChevronRight />
+              </IconButton>
+            </Tooltip>
           </Stack>
 
           {/* Main content */}
@@ -111,11 +107,11 @@ export const EnrollmentSummaryCard: FC<EnrollmentSummaryCardProps> = ({
               </Stack>
 
               <Stack direction="row" spacing={1} alignItems="center">
-                <AccessTime
+                <CalendarMonth
                   sx={{ fontSize: '0.875rem', color: 'text.secondary' }}
                 />
                 <Typography variant="body2" color="text.secondary">
-                  {new Date(enrollment.enrollmentDate).toLocaleDateString()}
+                  {formatDate(enrollment.enrollmentDate)}
                 </Typography>
               </Stack>
             </Stack>
@@ -128,6 +124,9 @@ export const EnrollmentSummaryCard: FC<EnrollmentSummaryCardProps> = ({
               bgcolor: alpha(theme.palette.primary.main, 0.04),
               borderRadius: 1,
               mt: 'auto',
+              transition: theme.transitions.create('background-color', {
+                duration: 200,
+              }),
             }}
           >
             <Typography
@@ -141,7 +140,7 @@ export const EnrollmentSummaryCard: FC<EnrollmentSummaryCardProps> = ({
             </Typography>
           </Box>
         </Stack>
-      </Card>
+      </EnrollmentCard>
 
       <EnrollmentDetailsModal
         open={isDetailsOpen}
