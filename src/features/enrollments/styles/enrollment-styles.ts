@@ -1,11 +1,4 @@
-import {
-  Box,
-  Card,
-  Paper,
-  Stack,
-  alpha,
-  styled,
-} from '@mui/material';
+import { Box, Card, Paper, Stack, alpha, styled } from '@mui/material';
 
 export const PageContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -62,17 +55,19 @@ export const EnrollmentCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-export const StatusChip = styled(Box)<{ color: string }>(({ theme, color }) => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-  padding: theme.spacing(0.5, 1),
-  borderRadius: theme.shape.borderRadius,
-  fontSize: '0.75rem',
-  fontWeight: 500,
-  backgroundColor: alpha(color, 0.1),
-  color,
-  lineHeight: '1.5',
-}));
+export const StatusChip = styled(Box)<{ color: string }>(
+  ({ theme, color }) => ({
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: theme.spacing(0.5, 1),
+    borderRadius: theme.shape.borderRadius,
+    fontSize: '0.75rem',
+    fontWeight: 500,
+    backgroundColor: alpha(color, 0.1),
+    color,
+    lineHeight: '1.5',
+  })
+);
 
 export const EmptyStateContainer = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(8, 3),

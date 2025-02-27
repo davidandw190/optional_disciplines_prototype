@@ -10,8 +10,8 @@ export const getStatusColor = (status: EnrollmentStatus, theme: Theme) => {
       };
     case EnrollmentStatus.PENDING:
       return {
-        main: theme.palette.info.main,
-        light: theme.palette.info.light,
+        main: theme.palette.warning.main,
+        light: theme.palette.warning.light,
       };
     case EnrollmentStatus.REJECTED:
       return {

@@ -1,12 +1,13 @@
 import {
   AccessTime,
-  CalendarToday,
   CheckCircleOutline,
   Close,
-  Info,
+  ErrorOutline,
+  HourglassTop,
   InfoOutlined,
   Person,
   School,
+  WarningAmber,
 } from '@mui/icons-material';
 import {
   Box,
@@ -22,12 +23,12 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import { DisciplineSelection, EnrollmentPacketSummary, EnrollmentSummary } from '../../../types/enrollments/enrollment-summary.types';
+import { getStatusColor, getStatusLabel } from '../utils/enrollmentsUtils';
 
 import { EnrollmentStatus } from '../../../types/disciplines/disciplines.enums';
-import { EnrollmentSummary } from '../../../types/enrollments/enrollment-summary.types';
 import { FC } from 'react';
 import { Student } from '../../../types/student/student.types';
-import { getStatusColor } from '../utils/enrollmentsUtils';
 
 interface EnrollmentDetailsModalProps {
   open: boolean;
@@ -35,6 +36,7 @@ interface EnrollmentDetailsModalProps {
   enrollment: EnrollmentSummary;
   student: Student;
 }
+
 
 export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
   open,
@@ -44,12 +46,6 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  // const containerStyles = {
-  //   backgroundImage: 'none',
-  //   bgcolor: alpha(theme.palette.background.paper, 0.98),
-  //   backdropFilter: 'blur(20px)',
-  // };
 
   const getSpecializationInfo = (
     enrollment: EnrollmentSummary,
@@ -65,33 +61,64 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
     return null;
   };
 
-  //@ts-ignore
-  const getPacketTooltipMessage = (packet) => {
+
+  interface DisciplineCardProps {
+    selection: DisciplineSelection;
+  }
+
+  const getPacketTooltipMessage = (packet: EnrollmentPacketSummary) => {
     const selectedCount = packet.selections.length;
     const maxChoices = packet.packet.maxChoices;
-
-    //@ts-ignore
+  
+    // Fix the type for 's' in this filter
     const allConfirmed = packet.selections.every(
-      (s: any) => s.status === EnrollmentStatus.CONFIRMED
+      (s: DisciplineSelection) => s.status === EnrollmentStatus.CONFIRMED
     );
+    
+    const pendingSelections = packet.selections.filter(
+      (s: DisciplineSelection) => s.status === EnrollmentStatus.PENDING
+    ).length;
+    
+    const waitlistedSelections = packet.selections.filter(
+      (s: DisciplineSelection) => s.status === EnrollmentStatus.WAITLIST
+    ).length;
 
     let message = `This packet allows ${maxChoices} selection${
       maxChoices > 1 ? 's' : ''
     }.`;
+    
     message += ` You have selected ${selectedCount} discipline${
       selectedCount !== 1 ? 's' : ''
     }.`;
 
     if (allConfirmed) {
       message += ' All your selections have been confirmed.';
-    } else if (packet.status === EnrollmentStatus.PENDING) {
-      message +=
-        ' Your selections are being processed according to your priority order.';
-    } else if (packet.status === EnrollmentStatus.WAITLIST) {
-      message += ' You are on the waitlist for some selections.';
+    } else if (pendingSelections > 0) {
+      message += ` ${pendingSelections} selection${pendingSelections !== 1 ? 's are' : ' is'} pending approval.`;
+    } else if (waitlistedSelections > 0) {
+      message += ` You are on the waitlist for ${waitlistedSelections} selection${waitlistedSelections !== 1 ? 's' : ''}.`;
+    }
+
+    if (packet.packet.description) {
+      message += `\n\nAbout this packet: ${packet.packet.description}`;
     }
 
     return message;
+  };
+
+  const getStatusIcon = (status: EnrollmentStatus) => {
+    switch (status) {
+      case EnrollmentStatus.CONFIRMED:
+        return <CheckCircleOutline />;
+      case EnrollmentStatus.PENDING:
+        return <HourglassTop />;
+      case EnrollmentStatus.WAITLIST:
+        return <WarningAmber />;
+      case EnrollmentStatus.REJECTED:
+        return <ErrorOutline />;
+      default:
+        return <InfoOutlined />;
+    }
   };
 
   const getEnrollmentStatusMessage = () => {
@@ -102,162 +129,217 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
           .length,
       0
     );
+    
+    const pendingCount = enrollment.packets.reduce(
+      (count, packet) =>
+        count +
+        packet.selections.filter((s) => s.status === EnrollmentStatus.PENDING)
+          .length,
+      0
+    );
+    
+    const waitlistedCount = enrollment.packets.reduce(
+      (count, packet) =>
+        count +
+        packet.selections.filter((s) => s.status === EnrollmentStatus.WAITLIST)
+          .length,
+      0
+    );
 
     switch (enrollment.status) {
       case EnrollmentStatus.CONFIRMED:
         return {
           message: `You have been successfully enrolled in ${confirmedCount} discipline${
             confirmedCount !== 1 ? 's' : ''
-          }.`,
+          }. Your academic schedule is now finalized for the upcoming semester.`,
           icon: <CheckCircleOutline />,
           color: theme.palette.success.main,
+          title: 'Enrollment Confirmed'
         };
       case EnrollmentStatus.PENDING:
         return {
-          message:
-            'Your enrollment request is currently being processed. You will receive a notification when the results are available.',
-          icon: <AccessTime />,
+          message: `Your enrollment request with ${pendingCount} discipline${
+            pendingCount !== 1 ? 's' : ''
+          } is being processed. This typically takes 2-3 business days. You'll receive a notification when results are available.`,
+          icon: <HourglassTop />,
           color: theme.palette.warning.main,
+          title: 'Processing Enrollment'
         };
       case EnrollmentStatus.WAITLIST:
         return {
-          message:
-            'You are on the waitlist. Should a spot become available, you will be automatically notified and enrolled based on your priority.',
-          icon: <Info />,
+          message: `You are on the waitlist for ${waitlistedCount} discipline${
+            waitlistedCount !== 1 ? 's' : ''
+          }. If spaces become available, you'll be automatically enrolled based on your priority order.`,
+          icon: <WarningAmber />,
           color: theme.palette.info.main,
+          title: 'On Waitlist'
         };
       case EnrollmentStatus.REJECTED:
         return {
           message:
-            'Your enrollment request was not successful. Please contact the academic office for detailed information and available alternatives.',
-          icon: <Info />,
+            'Your enrollment request could not be processed. Please contact Student Services for assistance and to discuss alternative options.',
+          icon: <ErrorOutline />,
           color: theme.palette.error.main,
+          title: 'Enrollment Unsuccessful'
         };
       default:
         return {
           message: '',
-          icon: <Info />,
+          icon: <InfoOutlined />,
           color: theme.palette.grey[500],
+          title: 'Status Unknown'
         };
     }
   };
 
   const specialization = getSpecializationInfo(enrollment, student);
 
-  //@ts-ignore
-  const DisciplineCard = ({ selection }) => (
-    <Paper
-      elevation={0}
-      sx={{
-        bgcolor: alpha(
-          selection.status === EnrollmentStatus.CONFIRMED
-            ? theme.palette.success.main
-            : theme.palette.background.paper,
-          selection.status === EnrollmentStatus.CONFIRMED ? 0.04 : 0.6
-        ),
-        borderRadius: 1.5,
-        border: `1px solid ${
-          selection.status === EnrollmentStatus.CONFIRMED
-            ? theme.palette.success.main
-            : alpha(theme.palette.divider, 0.1)
-        }`,
-        overflow: 'hidden',
-      }}
-    >
-      <Box sx={{ p: 2 }}>
-        <Stack spacing={1.5}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="flex-start"
-            spacing={2}
-          >
-            <Stack spacing={0.5} sx={{ flex: 1 }}>
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 600, lineHeight: 1.3 }}
-              >
-                {selection.name}
-              </Typography>
-              <Stack direction="row" spacing={1} alignItems="center">
+  const DisciplineCard: FC<DisciplineCardProps> = ({ selection }) => {
+    const statusColor = getStatusColor(selection.status, theme);
+    
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          bgcolor: alpha(
+            statusColor.main,
+            selection.status === EnrollmentStatus.CONFIRMED ? 0.05 : 0.02
+          ),
+          borderRadius: 1.5,
+          border: `1px solid ${
+            alpha(statusColor.main, 
+              selection.status === EnrollmentStatus.CONFIRMED ? 0.2 : 0.1
+            )
+          }`,
+          overflow: 'hidden',
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            bgcolor: alpha(statusColor.main, 0.07),
+          }
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Stack spacing={1.5}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="flex-start"
+              spacing={2}
+            >
+              <Stack spacing={0.5} sx={{ flex: 1 }}>
                 <Typography
-                  variant="caption"
-                  sx={{
-                    px: 1,
-                    py: 0.25,
-                    borderRadius: 0.75,
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    color: theme.palette.primary.main,
-                    fontFamily: 'monospace',
-                    fontWeight: 500,
-                  }}
+                  variant="subtitle2"
+                  sx={{ fontWeight: 600, lineHeight: 1.3 }}
                 >
-                  {selection.code}
+                  {selection.name}
                 </Typography>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: 0.75,
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
+                      fontFamily: 'monospace',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {selection.code}
+                  </Typography>
+                  <Tooltip 
+                    title={`This is your priority ${selection.priority} choice for this packet. ${
+                      selection.priority === 1 
+                        ? "This is your top preference." 
+                        : "Higher priority (lower number) selections are considered first."
+                    }`} 
+                    arrow
+                  >
+                    <Chip
+                      label={`Priority ${selection.priority}`}
+                      size="small"
+                      color={selection.priority === 1 ? 'success' : 'default'}
+                      sx={{
+                        height: 20,
+                        '& .MuiChip-label': {
+                          px: 1,
+                          fontSize: '0.75rem',
+                          fontWeight: 500,
+                        },
+                      }}
+                    />
+                  </Tooltip>
+                </Stack>
+              </Stack>
+              <Tooltip 
+                title={`Status: ${getStatusLabel(selection.status)}${
+                  selection.status === EnrollmentStatus.PENDING 
+                    ? " - Your selection is being processed"
+                    : selection.status === EnrollmentStatus.WAITLIST
+                    ? " - You'll be enrolled if a spot becomes available"
+                    : selection.status === EnrollmentStatus.CONFIRMED
+                    ? " - You've been successfully enrolled"
+                    : selection.status === EnrollmentStatus.REJECTED
+                    ? " - Your selection couldn't be processed"
+                    : ""
+                }`}
+                arrow
+              >
                 <Chip
-                  label={`Priority ${selection.priority}`}
+                  label={getStatusLabel(selection.status)}
                   size="small"
-                  color={selection.priority === 1 ? 'success' : 'default'}
+                  icon={getStatusIcon(selection.status)}
                   sx={{
                     height: 20,
+                    bgcolor: alpha(statusColor.main, 0.1),
+                    color: statusColor.main,
                     '& .MuiChip-label': {
-                      px: 1,
+                      px: 0.5,
                       fontSize: '0.75rem',
-                      fontWeight: 500,
+                      fontWeight: 600,
+                    },
+                    '& .MuiChip-icon': {
+                      fontSize: '0.875rem',
+                      ml: 0.5,
+                      mr: -0.25,
                     },
                   }}
                 />
-              </Stack>
+              </Tooltip>
             </Stack>
-            <Chip
-              label={selection.status}
-              size="small"
-              sx={{
-                height: 20,
-                bgcolor: alpha(
-                  getStatusColor(selection.status, theme).main,
-                  0.1
-                ),
-                color: getStatusColor(selection.status, theme).main,
-                '& .MuiChip-label': {
-                  px: 1,
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                },
-              }}
-            />
-          </Stack>
 
-          {selection.teacher && (
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              sx={{
-                p: 1,
-                bgcolor: alpha(theme.palette.background.paper, 0.5),
-                borderRadius: 1,
-                minHeight: 32,
-              }}
-            >
-              <Person
+            {selection.teacher && (
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
                 sx={{
-                  fontSize: '0.875rem',
-                  color: theme.palette.primary.main,
+                  p: 1,
+                  bgcolor: alpha(theme.palette.background.paper, 0.5),
+                  borderRadius: 1,
+                  minHeight: 32,
                 }}
-              />
-              <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>
-                {`${selection.teacher.academicTitle.abbreviation} ${selection.teacher.firstName} ${selection.teacher.lastName}`}
-              </Typography>
-            </Stack>
-          )}
-        </Stack>
-      </Box>
-    </Paper>
-  );
+              >
+                <Person
+                  sx={{
+                    fontSize: '0.875rem',
+                    color: theme.palette.primary.main,
+                  }}
+                />
+                <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>
+                  {`${selection.teacher.academicTitle.abbreviation} ${selection.teacher.firstName} ${selection.teacher.lastName}`}
+                </Typography>
+              </Stack>
+            )}
+          </Stack>
+        </Box>
+      </Paper>
+    );
+  };
 
   const formatSubmissionTime = (date: Date) =>
-    new Date(date).toLocaleString('en-GB', {
+    new Date(date).toLocaleString(undefined, {
       dateStyle: 'long',
       timeStyle: 'short',
     });
@@ -270,12 +352,12 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
         <Paper
           elevation={0}
           sx={{
-            p: { xs: 2.5, sm: 3 },
+            p: { xs: 2, sm: 2.5 }, // Slightly more compact
             borderBottom: '1px solid',
             borderColor: 'divider',
             position: 'sticky',
             top: 0,
-            bgcolor: 'background.paper',
+            bgcolor: theme.palette.background.paper,
             zIndex: 1,
           }}
         >
@@ -285,7 +367,7 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
             alignItems="flex-start"
             spacing={2}
           >
-            <Stack spacing={2}>
+            <Stack spacing={1.5}> {/* Reduced spacing */}
               {/* Title */}
               <Typography
                 variant="h5"
@@ -298,9 +380,14 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
               </Typography>
 
               {/* Academic Information with Minimalist Layout */}
-              <Stack spacing={1.5}>
+              <Stack spacing={1}>
                 {/* Academic Period Info */}
-                <Stack direction="row" alignItems="center" spacing={2}>
+                <Stack 
+                  direction={{ xs: 'column', sm: 'row' }} 
+                  alignItems={{ xs: 'flex-start', sm: 'center' }} 
+                  spacing={{ xs: 0.5, sm: 2 }}
+                  sx={{ mb: { xs: 0.5, sm: 0 } }}
+                >
                   <Stack direction="row" alignItems="center" spacing={1}>
                     <School
                       sx={{
@@ -355,10 +442,11 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
               </Stack>
             </Stack>
 
-            {/* Close button remains unchanged */}
+            {/* Close button */}
             <IconButton
               onClick={onClose}
               size="small"
+              aria-label="Close details"
               sx={{
                 '&:hover': {
                   bgcolor: alpha(theme.palette.primary.main, 0.05),
@@ -368,29 +456,32 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
               <Close />
             </IconButton>
           </Stack>
+          
           {/* Status banner */}
           <Paper
             elevation={0}
             sx={{
               p: 2,
+              mt: 2,
               bgcolor: alpha(statusInfo.color, 0.08),
               borderRadius: 2,
               border: `1px solid ${alpha(statusInfo.color, 0.2)}`,
             }}
           >
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack direction="row" spacing={1.5} alignItems="flex-start">
               <Box
                 sx={{
                   color: statusInfo.color,
                   display: 'flex',
                   alignItems: 'center',
+                  pt: 0.25,
                 }}
               >
                 {statusInfo.icon}
               </Box>
               <Stack spacing={0.5} sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                  {enrollment.status}
+                  {statusInfo.title}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -408,7 +499,14 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
         </Paper>
 
         {/* Packets and Selections */}
-        <Box sx={{ flex: 1, overflow: 'auto', p: { xs: 2.5, sm: 3 } }}>
+        <Box 
+          sx={{ 
+            flex: 1, 
+            overflow: 'auto', 
+            p: { xs: 2, sm: 2.5 },
+            maxHeight: { xs: undefined, sm: 'calc(80vh - 170px)' }, // Limits height on desktop
+          }}
+        >
           <Stack spacing={3}>
             {enrollment.packets.map((packet) => (
               <Paper
@@ -447,9 +545,8 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
 
                     <Tooltip
                       title={
-                        <Typography variant="body2">
-                          {/* {getTooltipMessage()} */}
-                          asdasd
+                        <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
+                          {getPacketTooltipMessage(packet)}
                         </Typography>
                       }
                       arrow
@@ -494,20 +591,20 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
                         },
                       }}
                     >
-                      <Box
+                      <IconButton
+                        size="small"
+                        aria-label="Packet information"
                         sx={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
                           color: theme.palette.primary.main,
-                          transition: 'opacity 0.2s ease',
                           opacity: 0.7,
                           '&:hover': {
                             opacity: 1,
+                            backgroundColor: alpha(theme.palette.primary.main, 0.08),
                           },
                         }}
                       >
                         <InfoOutlined sx={{ fontSize: '1rem' }} />
-                      </Box>
+                      </IconButton>
                     </Tooltip>
                   </Stack>
                 </Box>
@@ -537,7 +634,7 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
       onClose={onClose}
       PaperProps={{
         sx: {
-          height: '90vh',
+          height: '85vh', // Reduced from 90vh to be less tall
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
         },
@@ -554,7 +651,7 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
       PaperProps={{
         sx: {
           borderRadius: 2,
-          maxHeight: '90vh',
+          maxHeight: '85vh', // Reduced from 90vh to be less tall
         },
       }}
     >
