@@ -20,9 +20,9 @@ import {
   formatDate,
   getStatusColor,
   getStatusLabel,
-} from '../utils/enrollmentsUtils';
+} from '../utils/utils';
 
-import { EnrollmentDetailsModal } from './EnrollmentDetailsModal';
+import { EnrollmentDetailsModal } from '../modals/EnrollmentDetailsModal';
 import { EnrollmentStatus } from '../../../types/disciplines/disciplines.enums';
 import { EnrollmentSummary } from '../../../types/enrollments/enrollment-summary.types';
 import { Student } from '../../../types/student/student.types';

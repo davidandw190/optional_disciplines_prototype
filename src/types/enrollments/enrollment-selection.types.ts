@@ -1,3 +1,5 @@
+import { ReactElement } from "react";
+
 export interface DisciplineSelectionItem {
   disciplineId: string;
   priority: number;
@@ -20,4 +22,11 @@ export enum EnrollmentPeriodStatus {
   ACTIVE = 'ACTIVE',
   UPCOMING = 'UPCOMING',
   ENDED = 'ENDED',
+}
+
+export interface StatusInfo {
+  message: string;
+  icon: ReactElement;
+  color: string;
+  title: string;
 }
