@@ -8,7 +8,7 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
-import { Close, Grade, Language, Schedule } from '@mui/icons-material';
+import { Close, CompareArrows, Grade, Language, Schedule } from '@mui/icons-material';
 import {
   Discipline,
   DisciplinePacket,
@@ -40,6 +40,7 @@ interface DetailsTabsProps {
     } | null;
   };
   isMobile: boolean;
+  onOpenComparison: () => void;
 }
 
 const TabPanel: FC<{
@@ -69,6 +70,7 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
   actionButtonText,
   enrollmentInfo,
   isMobile,
+  onOpenComparison,
 }) => {
   const handleTabChange = (_: SyntheticEvent, newValue: number) => {
     onTabChange(newValue);
@@ -184,6 +186,18 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
                 size="small"
               />
             </Stack>
+
+            <Button 
+              variant="outlined" 
+              color="primary" 
+              startIcon={<CompareArrows />} 
+              onClick={onOpenComparison}
+              sx={{ mt: 2 }}
+              fullWidth={isMobile}
+              size={isMobile ? "medium" : "small"}
+            >
+              Compare
+            </Button>
           </Box>
           <IconButton onClick={onClose} size="small">
             <Close fontSize="small" />

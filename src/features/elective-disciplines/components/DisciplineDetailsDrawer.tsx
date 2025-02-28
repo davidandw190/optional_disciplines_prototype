@@ -6,6 +6,7 @@ import {
 import { FC, useState } from 'react';
 
 import { DetailsTabs } from './discipline-details/DetailsTab';
+import { DisciplineComparisonModal } from './discipline-details/DisciplineComparisonModal';
 import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-selection.types';
 
 export interface DisciplineDetailsDrawerProps {
@@ -39,6 +40,10 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
   const isTablet = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down('md')
   );
+
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+  const [comparisonDiscipline, setComparisonDiscipline] =
+    useState<Discipline | null>(null);
 
   const getSelectionInfo = () => {
     if (!packet) return null;
@@ -75,50 +80,63 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
   };
 
   return (
-    <Drawer
-      anchor={isMobile ? 'bottom' : 'right'}
-      open={open}
-      onClose={onClose}
-      PaperProps={{
-        sx: {
-          width: isMobile ? '100%' : isTablet ? '600px' : '800px',
-          height: isMobile ? '90vh' : '100vh',
-          maxHeight: isMobile ? '90vh' : '100vh',
-          borderTopLeftRadius: isMobile ? theme.shape.borderRadius * 2 : 0,
-          borderTopRightRadius: isMobile ? theme.shape.borderRadius * 2 : 0,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-        },
-      }}
-    >
-      <Box
-        sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          ...(isMobile && {
-            pb: `env(safe-area-inset-bottom, ${theme.spacing(2)})`,
-          }),
+    <>
+      <Drawer
+        anchor={isMobile ? 'bottom' : 'right'}
+        open={open}
+        onClose={onClose}
+        PaperProps={{
+          sx: {
+            width: isMobile ? '100%' : isTablet ? '600px' : '800px',
+            height: isMobile ? '90vh' : '100vh',
+            maxHeight: isMobile ? '90vh' : '100vh',
+            borderTopLeftRadius: isMobile ? theme.shape.borderRadius * 2 : 0,
+            borderTopRightRadius: isMobile ? theme.shape.borderRadius * 2 : 0,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          },
         }}
       >
-        <DetailsTabs
-          discipline={discipline}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          onClose={onClose}
-          isEnrollmentPeriodActive={isEnrollmentPeriodActive}
-          isSelected={isSelected}
-          canBeSelected={canBeSelected}
-          onAddToSelection={handleAddToSelection}
-          actionButtonText={getActionButtonText()}
-          enrollmentInfo={{
-            packet: packet,
-            selections: getSelectionInfo(),
+        <Box
+          sx={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            ...(isMobile && {
+              pb: `env(safe-area-inset-bottom, ${theme.spacing(2)})`,
+            }),
           }}
-          isMobile={isMobile}
-        />
-      </Box>
-    </Drawer>
+        >
+          <DetailsTabs
+            discipline={discipline}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onClose={onClose}
+            isEnrollmentPeriodActive={isEnrollmentPeriodActive}
+            isSelected={isSelected}
+            canBeSelected={canBeSelected}
+            onAddToSelection={handleAddToSelection}
+            actionButtonText={getActionButtonText()}
+            enrollmentInfo={{
+              packet: packet,
+              selections: getSelectionInfo(),
+            }}
+            isMobile={isMobile}
+            onOpenComparison={() => setIsComparisonOpen(true)} // New prop
+          />
+        </Box>
+      </Drawer>
+
+      {/* Comparison Modal */}
+      <DisciplineComparisonModal
+        open={isComparisonOpen}
+        onClose={() => setIsComparisonOpen(false)}
+        currentDiscipline={discipline}
+        comparisonDiscipline={comparisonDiscipline}
+        onSelectComparisonDiscipline={setComparisonDiscipline}
+        packet={packet}
+      />
+    </>
   );
 };
