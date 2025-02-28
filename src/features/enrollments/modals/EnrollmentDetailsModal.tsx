@@ -24,7 +24,10 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { formatSubmissionTime, getPacketTooltipMessage } from './utils/utils';
+import {
+  formatSubmissionTime,
+  getPacketTooltipMessage,
+} from './utils/details-utils';
 
 import { EnrollmentDisciplineCard } from './components/EnrollmentDisciplineCard';
 import { EnrollmentStatus } from '../../../types/disciplines/disciplines.enums';
@@ -143,7 +146,7 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
         <Paper
           elevation={0}
           sx={{
-            p: { xs: 2, sm: 2.5 }, 
+            p: { xs: 2, sm: 2.5 },
             borderBottom: '1px solid',
             borderColor: 'divider',
             position: 'sticky',
@@ -431,7 +434,7 @@ export const EnrollmentDetailsModal: FC<EnrollmentDetailsModalProps> = ({
       onClose={onClose}
       PaperProps={{
         sx: {
-          height: '90vh', 
+          height: '90vh',
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
         },

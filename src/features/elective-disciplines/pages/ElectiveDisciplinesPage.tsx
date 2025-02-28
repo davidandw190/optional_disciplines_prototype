@@ -43,7 +43,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ContentSkeleton } from '../components/skeletons/ContentSkeleton';
 import { DisciplineDetailsDrawer } from '../components/DisciplineDetailsDrawer';
 import { DisciplineList } from '../components/DisciplineList';
-import { EnrollmentConfirmation } from '../../enrollments/components/EnrollmentConfirmation';
+import { EnrollmentConfirmationModal } from '../../enrollments/modals/EnrollmentConfirmationModal';
 import { EnrollmentSelectionPanel } from '../../enrollments/components/EnrollmentSelectionPanel';
 import { SelectionRequirementsModal } from '../components/SelectionRequirementsModal';
 
@@ -446,7 +446,7 @@ export const ElectiveDisciplinesPage: FC = () => {
         />
 
         {/* Enrollment Confirmation Modal/Drawer */}
-        <EnrollmentConfirmation
+        <EnrollmentConfirmationModal
           open={isConfirmationOpen}
           onClose={() => setIsConfirmationOpen(false)}
           onConfirm={handleConfirmEnrollment}

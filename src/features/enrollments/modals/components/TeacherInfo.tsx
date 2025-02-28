@@ -42,16 +42,16 @@ export const TeacherInfo: FC<TeacherInfoProps> = ({ teacher }) => {
       <Paper
         elevation={0}
         sx={{
-          p: 1.25,
-          bgcolor: alpha(theme.palette.background.paper, 0.6),
+          p: 0.75,
+          bgcolor: alpha(theme.palette.background.paper, 0),
           borderRadius: 1,
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1.5px solid ${alpha(theme.palette.divider, 0.1)}`,
           transition: 'all 0.2s ease',
           cursor: 'pointer',
-          '&:hover': {
-            bgcolor: alpha(theme.palette.primary.main, 0.04),
-            borderColor: alpha(theme.palette.primary.main, 0.2),
-          },
+          // '&:hover': {
+          //   bgcolor: alpha(theme.palette.primary.main, 0.04),
+          //   borderColor: alpha(theme.palette.primary.main, 0.2),
+          // },
         }}
       >
         <Stack direction="row" spacing={1.5} alignItems="center">

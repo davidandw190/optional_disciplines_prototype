@@ -14,7 +14,7 @@ import { DisciplineSelection } from '../../../../types/enrollments/enrollment-su
 import { EnrollmentStatus } from '../../../../types/disciplines/disciplines.enums';
 import { FC } from 'react';
 import { TeacherInfo } from './TeacherInfo';
-import { getStatusIcon } from '../utils/utils';
+import { getStatusIcon } from '../utils/details-utils';
 
 export interface EnrollmentDisciplineCardProps {
   selection: DisciplineSelection;

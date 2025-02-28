@@ -1,5 +1,14 @@
-import { CheckCircleOutline, ErrorOutline, HourglassTop, InfoOutlined, WarningAmber } from '@mui/icons-material';
-import { DisciplineSelection, EnrollmentPacketSummary } from '../../../../types/enrollments/enrollment-summary.types';
+import {
+  CheckCircleOutline,
+  ErrorOutline,
+  HourglassTop,
+  InfoOutlined,
+  WarningAmber,
+} from '@mui/icons-material';
+import {
+  DisciplineSelection,
+  EnrollmentPacketSummary,
+} from '../../../../types/enrollments/enrollment-summary.types';
 
 import { EnrollmentStatus } from '../../../../types/disciplines/disciplines.enums';
 import { StatusInfo } from '../../../../types/enrollments/enrollment-selection.types';
@@ -33,11 +42,11 @@ export const getPacketTooltipMessage = (packet: EnrollmentPacketSummary) => {
   const allConfirmed = packet.selections.every(
     (s: DisciplineSelection) => s.status === EnrollmentStatus.CONFIRMED
   );
-  
+
   const pendingSelections = packet.selections.filter(
     (s: DisciplineSelection) => s.status === EnrollmentStatus.PENDING
   ).length;
-  
+
   const waitlistedSelections = packet.selections.filter(
     (s: DisciplineSelection) => s.status === EnrollmentStatus.WAITLIST
   ).length;
@@ -45,7 +54,7 @@ export const getPacketTooltipMessage = (packet: EnrollmentPacketSummary) => {
   let message = `This packet allows ${maxChoices} selection${
     maxChoices > 1 ? 's' : ''
   }.`;
-  
+
   message += ` You have selected ${selectedCount} discipline${
     selectedCount !== 1 ? 's' : ''
   }.`;
@@ -53,9 +62,13 @@ export const getPacketTooltipMessage = (packet: EnrollmentPacketSummary) => {
   if (allConfirmed) {
     message += ' All your selections have been confirmed.';
   } else if (pendingSelections > 0) {
-    message += ` ${pendingSelections} selection${pendingSelections !== 1 ? 's are' : ' is'} pending approval.`;
+    message += ` ${pendingSelections} selection${
+      pendingSelections !== 1 ? 's are' : ' is'
+    } pending approval.`;
   } else if (waitlistedSelections > 0) {
-    message += ` You are on the waitlist for ${waitlistedSelections} selection${waitlistedSelections !== 1 ? 's' : ''}.`;
+    message += ` You are on the waitlist for ${waitlistedSelections} selection${
+      waitlistedSelections !== 1 ? 's' : ''
+    }.`;
   }
 
   if (packet.packet.description) {
@@ -66,9 +79,9 @@ export const getPacketTooltipMessage = (packet: EnrollmentPacketSummary) => {
 };
 
 export const getStatusInfo = (
-  status: EnrollmentStatus, 
-  confirmedCount: number, 
-  pendingCount: number, 
+  status: EnrollmentStatus,
+  confirmedCount: number,
+  pendingCount: number,
   waitlistedCount: number,
   theme: Theme
 ): StatusInfo => {
@@ -80,7 +93,7 @@ export const getStatusInfo = (
         }. Your academic schedule is now finalized for the upcoming semester.`,
         icon: <CheckCircleOutline />,
         color: theme.palette.success.main,
-        title: 'Enrollment Confirmed'
+        title: 'Enrollment Confirmed',
       };
     case EnrollmentStatus.PENDING:
       return {
@@ -89,7 +102,7 @@ export const getStatusInfo = (
         } is being processed. This typically takes 2-3 business days. You'll receive a notification when results are available.`,
         icon: <HourglassTop />,
         color: theme.palette.warning.main,
-        title: 'Processing Enrollment'
+        title: 'Processing Enrollment',
       };
     case EnrollmentStatus.WAITLIST:
       return {
@@ -98,7 +111,7 @@ export const getStatusInfo = (
         }. If spaces become available, you'll be automatically enrolled based on your priority order.`,
         icon: <WarningAmber />,
         color: theme.palette.info.main,
-        title: 'On Waitlist'
+        title: 'On Waitlist',
       };
     case EnrollmentStatus.REJECTED:
       return {
@@ -106,14 +119,14 @@ export const getStatusInfo = (
           'Your enrollment request could not be processed. Please contact Student Services for assistance and to discuss alternative options.',
         icon: <ErrorOutline />,
         color: theme.palette.error.main,
-        title: 'Enrollment Unsuccessful'
+        title: 'Enrollment Unsuccessful',
       };
     default:
       return {
         message: '',
         icon: <InfoOutlined />,
         color: theme.palette.grey[500],
-        title: 'Status Unknown'
+        title: 'Status Unknown',
       };
   }
 };

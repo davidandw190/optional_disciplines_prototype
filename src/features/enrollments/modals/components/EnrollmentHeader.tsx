@@ -11,7 +11,7 @@ import {
 
 import { EnrollmentSummary } from '../../../../types/enrollments/enrollment-summary.types';
 import { FC } from 'react';
-import { formatSubmissionTime } from '../utils/utils';
+import { formatSubmissionTime } from '../utils/details-utils';
 
 export interface EnrollmentHeaderProps {
   enrollment: EnrollmentSummary;
