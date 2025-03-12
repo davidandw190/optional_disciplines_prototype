@@ -2,13 +2,22 @@ import {
   Box,
   Button,
   Chip,
+  Divider,
   IconButton,
   Stack,
   Tab,
   Tabs,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import { Close, CompareArrows, Grade, Language, Schedule } from '@mui/icons-material';
+import {
+  Close,
+  CompareArrows,
+  Grade,
+  Language,
+  Schedule,
+} from '@mui/icons-material';
 import {
   Discipline,
   DisciplinePacket,
@@ -72,6 +81,9 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
   isMobile,
   onOpenComparison,
 }) => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const handleTabChange = (_: SyntheticEvent, newValue: number) => {
     onTabChange(newValue);
   };
@@ -115,31 +127,6 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
       message: null,
     };
   }, [isEnrollmentPeriodActive, enrollmentInfo, isSelected, canBeSelected]);
-  
-
-  // Determine alert message and severity based on selection state
-  const getAlertInfo = () => {
-    if (!enrollmentInfo.selections) return null;
-
-    if (isSelected) {
-      return {
-        severity: 'success' as const,
-        message: `This discipline is in your selection for ${enrollmentInfo.selections.packetName}`,
-      };
-    }
-
-    if (!canBeSelected) {
-      return {
-        severity: 'warning' as const,
-        message: `You have already selected ${enrollmentInfo.selections.maxSelections} disciplines for ${enrollmentInfo.selections.packetName}`,
-      };
-    }
-
-    return {
-      severity: 'info' as const,
-      message: `You can add this discipline to ${enrollmentInfo.selections.packetName} (${enrollmentInfo.selections.remainingSelections} selections remaining)`,
-    };
-  };
 
   return (
     <Box
@@ -168,42 +155,101 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
             >
               {discipline.code}
             </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              <Chip
-                icon={<Grade fontSize="small" />}
-                label={`${discipline.credits} credits`}
-                size="small"
-                color={isSelected ? 'success' : 'primary'}
-              />
-              <Chip
-                icon={<Language fontSize="small" />}
-                label={discipline.language}
-                size="small"
-              />
-              <Chip
-                icon={<Schedule fontSize="small" />}
-                label={`Semester ${discipline.semester}`}
-                size="small"
-              />
-            </Stack>
 
-            <Button 
-              variant="outlined" 
-              color="primary" 
-              startIcon={<CompareArrows />} 
-              onClick={onOpenComparison}
-              sx={{ mt: 2 }}
-              fullWidth={isMobile}
-              size={isMobile ? "medium" : "small"}
-            >
-              Compare
-            </Button>
+            {isSmallScreen ? (
+              <>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  flexWrap="wrap"
+                  useFlexGap
+                  sx={{ mb: 2 }}
+                >
+                  <Chip
+                    icon={<Grade fontSize="small" />}
+                    label={`${discipline.credits} credits`}
+                    size="small"
+                    color={isSelected ? 'success' : 'primary'}
+                  />
+                  <Chip
+                    icon={<Language fontSize="small" />}
+                    label={discipline.language}
+                    size="small"
+                  />
+                  <Chip
+                    icon={<Schedule fontSize="small" />}
+                    label={`Semester ${discipline.semester}`}
+                    size="small"
+                  />
+                </Stack>
+
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<CompareArrows />}
+                  onClick={onOpenComparison}
+                  fullWidth
+                  size="medium"
+                  sx={{
+                    mt: 1,
+                    height: 40,
+                    borderRadius: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 500,
+                  }}
+                >
+                  Compare with another discipline
+                </Button>
+              </>
+            ) : (
+              <Stack
+                direction="row"
+                spacing={1}
+                flexWrap="wrap"
+                useFlexGap
+                alignItems="center"
+              >
+                <Chip
+                  icon={<Grade fontSize="small" />}
+                  label={`${discipline.credits} credits`}
+                  size="small"
+                  color={isSelected ? 'success' : 'primary'}
+                />
+                <Chip
+                  icon={<Language fontSize="small" />}
+                  label={discipline.language}
+                  size="small"
+                />
+                <Chip
+                  icon={<Schedule fontSize="small" />}
+                  label={`Semester ${discipline.semester}`}
+                  size="small"
+                />
+                <Chip
+                  icon={<CompareArrows fontSize="small" />}
+                  label="Compare"
+                  size="small"
+                  variant="outlined"
+                  // clickable
+                  onClick={onOpenComparison}
+                  // sx={{
+                  //   fontWeight: 500,
+                  //   '&:hover': {
+                  //     backgroundColor: (theme) => theme.palette.primary.light,
+                  //     color: 'white',
+                  //     '& .MuiChip-icon': {
+                  //       color: 'white',
+                  //     },
+                  //   },
+                  // }}
+                />
+              </Stack>
+            )}
           </Box>
           <IconButton onClick={onClose} size="small">
             <Close fontSize="small" />
           </IconButton>
         </Stack>
-
       </Box>
 
       {/* Tab Navigation */}
@@ -233,7 +279,7 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
           flex: 1,
           px: { xs: 2, sm: 3 },
           ...(isMobile && {
-            pb: '80px', 
+            pb: '80px',
           }),
         }}
       >
