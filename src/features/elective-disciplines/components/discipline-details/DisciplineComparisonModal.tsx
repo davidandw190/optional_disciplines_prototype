@@ -1,19 +1,9 @@
 import {
-  AccessTime,
-  Close,
-  CompareArrows,
-  FilterList,
-  Grade,
-  KeyboardArrowDown,
-  Language,
-  Person,
-  School,
-} from '@mui/icons-material';
-import {
   Autocomplete,
   Box,
   Button,
   Chip,
+  CircularProgress,
   Collapse,
   Dialog,
   DialogActions,
@@ -21,19 +11,23 @@ import {
   DialogTitle,
   Divider,
   Drawer,
-  Fade,
   Grid,
   IconButton,
   Paper,
-  Slide,
   Stack,
-  SwipeableDrawer,
   TextField,
   Typography,
   alpha,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import {
+  Close,
+  CompareArrows,
+  FilterList,
+  KeyboardArrowDown,
+  Person,
+} from '@mui/icons-material';
 import {
   Discipline,
   DisciplinePacket,
@@ -96,6 +90,12 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
     }
   }, [packetsData, currentDiscipline.id, packet, selectedPacket]);
 
+  useEffect(() => {
+    if (open && contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+  }, [open, comparisonDiscipline]);
+
   const filteredDisciplines = selectedPacket
     ? allDisciplines.filter((d) => {
         const packetInfo = packetsData?.packets.find(
@@ -111,13 +111,6 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
       name: p.packet.name,
     })) || [];
 
-  useEffect(() => {
-    if (open && contentRef.current) {
-      contentRef.current.scrollTop = 0;
-    }
-  }, [open, comparisonDiscipline]);
-
-  // Helper function to determine if values are equal
   const areValuesEqual = (value1: any, value2: any) => {
     if (value1 === value2) return true;
     if (value1 == null || value2 == null) return false;
@@ -133,7 +126,10 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
     return false;
   };
 
-  // Define comparison sections
+  const shouldHighlight = (value1: any, value2: any) => {
+    return comparisonDiscipline && !areValuesEqual(value1, value2);
+  };
+
   const getComparisonSections = () => [
     {
       title: 'Basic Information',
@@ -236,22 +232,70 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
     },
   ];
 
-  // Render selection controls
+  const containerStyles = {
+    bgcolor: alpha(theme.palette.background.paper, 0.95),
+    backdropFilter: 'blur(20px)',
+    boxShadow: 'none',
+  };
+
+  const paperStyles = {
+    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+    borderRadius: 2,
+    bgcolor: 'background.paper',
+    boxShadow: 'none',
+  };
+
+  const scrollbarStyles = {
+    '&::-webkit-scrollbar': {
+      width: 8,
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.2),
+      borderRadius: 4,
+      '&:hover': {
+        backgroundColor: alpha(theme.palette.primary.main, 0.3),
+      },
+    },
+    '&::-webkit-scrollbar-track': {
+      backgroundColor: alpha(theme.palette.grey[200], 0.5),
+      borderRadius: 4,
+    },
+  };
+
   const renderSelectionControls = () => (
     <Paper
       elevation={0}
       sx={{
         p: isMobile ? 2 : 2.5,
         mb: 3,
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 2,
+        ...paperStyles,
+        position: 'relative',
       }}
     >
+      {isLoading && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: alpha(theme.palette.background.paper, 0.7),
+            zIndex: 10,
+            borderRadius: 2,
+          }}
+        >
+          <CircularProgress size={28} />
+        </Box>
+      )}
+
       <Stack spacing={isMobile ? 1.5 : 2}>
         {!isMobile && (
           <Typography variant="subtitle1" fontWeight={600}>
-            Select a discipline to compare with "{currentDiscipline.name}"
+            Compare with "{currentDiscipline.name}"
           </Typography>
         )}
 
@@ -278,6 +322,20 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                     fullWidth
                   />
                 )}
+                renderOption={(props, option) => (
+                  <li {...props} style={{ display: 'block', padding: '8px 16px' }}>
+                    <Typography 
+                      noWrap
+                      sx={{
+                        maxWidth: '100%',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {option.code} - {option.name}
+                    </Typography>
+                  </li>
+                )}
                 loading={isLoading}
                 loadingText="Loading disciplines..."
                 noOptionsText="No disciplines available"
@@ -301,19 +359,25 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
               Filter by packet
             </Button>
 
-            <Collapse in={isFilterOpen}>
+            <Collapse in={isFilterOpen} timeout={300}>
               <Stack spacing={1} sx={{ mt: 1 }}>
                 {availablePackets.map((packet) => (
                   <Chip
                     key={packet.id}
                     label={packet.name}
                     clickable
-                    variant={
-                      selectedPacket === packet.id ? 'filled' : 'outlined'
-                    }
+                    variant={selectedPacket === packet.id ? 'filled' : 'outlined'}
                     color={selectedPacket === packet.id ? 'primary' : 'default'}
                     onClick={() => setSelectedPacket(packet.id)}
-                    sx={{ mb: 0.5 }}
+                    sx={{ 
+                      mb: 0.5,
+                      maxWidth: '100%',
+                      '& .MuiChip-label': {
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }
+                    }}
                   />
                 ))}
                 {selectedPacket && (
@@ -322,6 +386,7 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                     size="small"
                     onClick={() => setSelectedPacket(null)}
                     sx={{ alignSelf: 'flex-start', mt: 1 }}
+                    startIcon={<FilterList />}
                   >
                     Show all disciplines
                   </Button>
@@ -350,6 +415,20 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                     size="small"
                   />
                 )}
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    <Typography 
+                      noWrap
+                      sx={{
+                        maxWidth: '100%',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {option.name}
+                    </Typography>
+                  </li>
+                )}
                 fullWidth
               />
             </Grid>
@@ -372,6 +451,20 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                     size="small"
                   />
                 )}
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    <Typography 
+                      noWrap
+                      sx={{
+                        maxWidth: '100%',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {option.code} - {option.name}
+                    </Typography>
+                  </li>
+                )}
                 fullWidth
                 loading={isLoading}
                 loadingText="Loading disciplines..."
@@ -384,7 +477,6 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
     </Paper>
   );
 
-  // Render comparison headers
   const renderComparisonHeaders = () => (
     <Grid container spacing={isMobile ? 1 : 2} sx={{ mb: isMobile ? 1 : 2 }}>
       <Grid item xs={isSmallMobile ? 3 : 4} md={3}>
@@ -407,8 +499,9 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
           elevation={0}
           sx={{
             p: isSmallMobile ? 1 : 1.5,
-            bgcolor: alpha(theme.palette.primary.main, 0.08),
+            border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
             borderRadius: 2,
+            bgcolor: alpha(theme.palette.primary.main, 0.05),
           }}
         >
           <Typography
@@ -416,7 +509,6 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
             fontWeight={600}
             noWrap
             textAlign="center"
-            title={currentDiscipline.name}
           >
             {currentDiscipline.name}
           </Typography>
@@ -427,10 +519,13 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
           elevation={0}
           sx={{
             p: isSmallMobile ? 1 : 1.5,
-            bgcolor: comparisonDiscipline
-              ? alpha(theme.palette.secondary.main, 0.08)
-              : 'grey.100',
+            border: `1px solid ${comparisonDiscipline 
+              ? alpha(theme.palette.secondary.main, 0.2) 
+              : alpha(theme.palette.divider, 0.2)}`,
             borderRadius: 2,
+            bgcolor: comparisonDiscipline
+              ? alpha(theme.palette.secondary.main, 0.05)
+              : alpha(theme.palette.background.default, 0.5),
           }}
         >
           <Typography
@@ -439,9 +534,6 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
             noWrap
             textAlign="center"
             color={comparisonDiscipline ? 'text.primary' : 'text.secondary'}
-            title={
-              comparisonDiscipline?.name || 'Select a discipline to compare'
-            }
           >
             {comparisonDiscipline
               ? comparisonDiscipline.name
@@ -452,7 +544,6 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
     </Grid>
   );
 
-  // Render detailed comparison content
   const renderComparisonContent = () => (
     <>
       {getComparisonSections().map((section, sectionIndex) => (
@@ -471,9 +562,7 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
           <Paper
             elevation={0}
             sx={{
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 2,
+              ...paperStyles,
               overflow: 'hidden',
             }}
           >
@@ -493,6 +582,12 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                     <Typography
                       variant={isSmallMobile ? 'caption' : 'body2'}
                       fontWeight={field.isHighlight ? 600 : 400}
+                      sx={{
+                        maxWidth: isSmallMobile ? '90px' : '100%',
+                        whiteSpace: isSmallMobile ? 'nowrap' : 'normal',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
                     >
                       {field.label}
                     </Typography>
@@ -501,16 +596,14 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                     <Typography
                       variant={isSmallMobile ? 'caption' : 'body2'}
                       sx={{
-                        fontWeight:
-                          comparisonDiscipline &&
-                          !areValuesEqual(field.value1, field.value2)
-                            ? 600
-                            : 400,
-                        color:
-                          comparisonDiscipline &&
-                          !areValuesEqual(field.value1, field.value2)
-                            ? 'primary.main'
-                            : 'text.primary',
+                        fontWeight: shouldHighlight(field.value1, field.value2) ? 600 : 400,
+                        color: shouldHighlight(field.value1, field.value2) 
+                          ? 'primary.main' 
+                          : 'text.primary',
+                        maxWidth: '100%',
+                        whiteSpace: isSmallMobile ? 'nowrap' : 'normal',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
                       }}
                     >
                       {field.value1 !== undefined && field.value1 !== null
@@ -522,18 +615,14 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                     <Typography
                       variant={isSmallMobile ? 'caption' : 'body2'}
                       sx={{
-                        fontWeight:
-                          comparisonDiscipline &&
-                          !areValuesEqual(field.value1, field.value2)
-                            ? 600
-                            : 400,
-                        color:
-                          comparisonDiscipline &&
-                          !areValuesEqual(field.value1, field.value2)
-                            ? 'secondary.main'
-                            : comparisonDiscipline
-                            ? 'text.primary'
-                            : 'text.secondary',
+                        fontWeight: shouldHighlight(field.value1, field.value2) ? 600 : 400,
+                        color: shouldHighlight(field.value1, field.value2)
+                          ? 'secondary.main'
+                          : comparisonDiscipline ? 'text.primary' : 'text.secondary',
+                        maxWidth: '100%',
+                        whiteSpace: isSmallMobile ? 'nowrap' : 'normal',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
                       }}
                     >
                       {field.value2 !== undefined && field.value2 !== null
@@ -564,10 +653,10 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
               elevation={0}
               sx={{
                 p: isMobile ? 1.5 : 2.5,
-                border: '1px solid',
-                borderColor: 'divider',
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
                 borderRadius: 2,
                 height: '100%',
+                bgcolor: alpha(theme.palette.primary.main, 0.02),
               }}
             >
               <Typography
@@ -578,7 +667,14 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
               >
                 {currentDiscipline.name}
               </Typography>
-              <Typography variant={isMobile ? 'caption' : 'body2'}>
+              <Typography 
+                variant={isMobile ? 'caption' : 'body2'}
+                sx={{
+                  maxHeight: isMobile ? '150px' : '200px',
+                  overflow: 'auto',
+                  pr: 1,
+                }}
+              >
                 {currentDiscipline.description}
               </Typography>
             </Paper>
@@ -588,11 +684,14 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
               elevation={0}
               sx={{
                 p: isMobile ? 1.5 : 2.5,
-                border: '1px solid',
-                borderColor: 'divider',
+                border: `1px solid ${comparisonDiscipline 
+                  ? alpha(theme.palette.secondary.main, 0.15) 
+                  : alpha(theme.palette.divider, 0.1)}`,
                 borderRadius: 2,
                 height: '100%',
-                bgcolor: comparisonDiscipline ? 'inherit' : 'grey.50',
+                bgcolor: comparisonDiscipline
+                  ? alpha(theme.palette.secondary.main, 0.02)
+                  : alpha(theme.palette.background.default, 0.5),
               }}
             >
               {comparisonDiscipline ? (
@@ -605,26 +704,42 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                   >
                     {comparisonDiscipline.name}
                   </Typography>
-                  <Typography variant={isMobile ? 'caption' : 'body2'}>
+                  <Typography 
+                    variant={isMobile ? 'caption' : 'body2'}
+                    sx={{
+                      maxHeight: isMobile ? '150px' : '200px',
+                      overflow: 'auto',
+                      pr: 1,
+                    }}
+                  >
                     {comparisonDiscipline.description}
                   </Typography>
                 </>
               ) : (
-                <Typography
-                  variant={isMobile ? 'caption' : 'body2'}
-                  color="text.secondary"
-                  textAlign="center"
-                  sx={{ py: isMobile ? 2 : 4 }}
+                <Stack 
+                  alignItems="center" 
+                  justifyContent="center" 
+                  sx={{ 
+                    height: '100%', 
+                    minHeight: isMobile ? '100px' : '150px',
+                    p: 2 
+                  }}
                 >
-                  Select a discipline to compare descriptions
-                </Typography>
+                  <Typography
+                    variant={isMobile ? 'caption' : 'body2'}
+                    color="text.secondary"
+                    textAlign="center"
+                  >
+                    Select a discipline to compare descriptions
+                  </Typography>
+                </Stack>
               )}
             </Paper>
           </Grid>
         </Grid>
       </Box>
 
-      {/* Learning Outcomes Comparison - Simplified for mobile */}
+      {/* Learning Outcomes Comparison */}
       <Box sx={{ mb: 3 }}>
         <Typography
           variant={isMobile ? 'body1' : 'subtitle1'}
@@ -640,17 +755,25 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
               elevation={0}
               sx={{
                 p: isMobile ? 1.5 : 2.5,
-                border: '1px solid',
-                borderColor: 'divider',
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
                 borderRadius: 2,
                 height: '100%',
+                bgcolor: alpha(theme.palette.primary.main, 0.02),
               }}
             >
               {currentDiscipline.learningOutcomes.map((outcome, index) => (
-                <Box key={index} sx={{ mb: 2 }}>
+                <Box 
+                  key={index} 
+                  sx={{ 
+                    mb: 2,
+                    maxHeight: isMobile ? '150px' : '200px',
+                    overflow: 'auto'
+                  }}
+                >
                   <Typography
                     variant={isMobile ? 'body2' : 'subtitle2'}
                     color="primary"
+                    fontWeight={600}
                     gutterBottom
                   >
                     {outcome.category}
@@ -666,11 +789,21 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                       pl: isMobile ? 1.5 : 2,
                       mt: 1,
                       listStyleType: isMobile ? 'disc' : 'circle',
+                      pr: 1,
                     }}
                   >
                     {outcome.outcomes.map((item, idx) => (
                       <Box component="li" key={idx} sx={{ mb: 0.5 }}>
-                        <Typography variant={isMobile ? 'caption' : 'body2'}>
+                        <Typography 
+                          variant={isMobile ? 'caption' : 'body2'}
+                          sx={isSmallMobile ? {
+                            display: 'block',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '100%'
+                          } : {}}
+                        >
                           {item}
                         </Typography>
                       </Box>
@@ -685,19 +818,30 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
               elevation={0}
               sx={{
                 p: isMobile ? 1.5 : 2.5,
-                border: '1px solid',
-                borderColor: 'divider',
+                border: `1px solid ${comparisonDiscipline 
+                  ? alpha(theme.palette.secondary.main, 0.15) 
+                  : alpha(theme.palette.divider, 0.1)}`,
                 borderRadius: 2,
                 height: '100%',
-                bgcolor: comparisonDiscipline ? 'inherit' : 'grey.50',
+                bgcolor: comparisonDiscipline
+                  ? alpha(theme.palette.secondary.main, 0.02)
+                  : alpha(theme.palette.background.default, 0.5),
               }}
             >
               {comparisonDiscipline ? (
                 comparisonDiscipline.learningOutcomes.map((outcome, index) => (
-                  <Box key={index} sx={{ mb: 2 }}>
+                  <Box 
+                    key={index} 
+                    sx={{ 
+                      mb: 2,
+                      maxHeight: isMobile ? '150px' : '200px',
+                      overflow: 'auto'
+                    }}
+                  >
                     <Typography
                       variant={isMobile ? 'body2' : 'subtitle2'}
                       color="secondary"
+                      fontWeight={600}
                       gutterBottom
                     >
                       {outcome.category}
@@ -713,11 +857,21 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                         pl: isMobile ? 1.5 : 2,
                         mt: 1,
                         listStyleType: isMobile ? 'disc' : 'circle',
+                        pr: 1,
                       }}
                     >
                       {outcome.outcomes.map((item, idx) => (
                         <Box component="li" key={idx} sx={{ mb: 0.5 }}>
-                          <Typography variant={isMobile ? 'caption' : 'body2'}>
+                          <Typography 
+                            variant={isMobile ? 'caption' : 'body2'}
+                            sx={isSmallMobile ? {
+                              display: 'block',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              maxWidth: '100%'
+                            } : {}}
+                          >
                             {item}
                           </Typography>
                         </Box>
@@ -726,21 +880,30 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                   </Box>
                 ))
               ) : (
-                <Typography
-                  variant={isMobile ? 'caption' : 'body2'}
-                  color="text.secondary"
-                  textAlign="center"
-                  sx={{ py: isMobile ? 2 : 4 }}
+                <Stack 
+                  alignItems="center" 
+                  justifyContent="center" 
+                  sx={{ 
+                    height: '100%', 
+                    minHeight: isMobile ? '100px' : '150px',
+                    p: 2 
+                  }}
                 >
-                  Select a discipline to compare learning outcomes
-                </Typography>
+                  <Typography
+                    variant={isMobile ? 'caption' : 'body2'}
+                    color="text.secondary"
+                    textAlign="center"
+                  >
+                    Select a discipline to compare learning outcomes
+                  </Typography>
+                </Stack>
               )}
             </Paper>
           </Grid>
         </Grid>
       </Box>
 
-      {/* Teaching Staff Comparison - Responsive */}
+      {/* Teaching Staff Comparison */}
       <Box sx={{ mb: isMobile ? 5 : 3 }}>
         <Typography
           variant={isMobile ? 'body1' : 'subtitle1'}
@@ -753,9 +916,7 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
         <Paper
           elevation={0}
           sx={{
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 2,
+            ...paperStyles,
             overflow: 'hidden',
           }}
         >
@@ -769,11 +930,13 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                 borderRight: { xs: 0, md: 1 },
                 borderBottom: { xs: 1, md: 0 },
                 borderColor: 'divider',
+                bgcolor: alpha(theme.palette.primary.main, 0.02),
               }}
             >
               <Typography
                 variant={isMobile ? 'body2' : 'subtitle2'}
                 color="primary"
+                fontWeight={600}
                 gutterBottom
               >
                 {currentDiscipline.name}
@@ -791,7 +954,15 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                     color="primary"
                     sx={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
                   />
-                  <Typography variant={isMobile ? 'caption' : 'body2'}>
+                  <Typography 
+                    variant={isMobile ? 'caption' : 'body2'} 
+                    sx={{
+                      maxWidth: isSmallMobile ? '120px' : '100%',
+                      whiteSpace: isSmallMobile ? 'nowrap' : 'normal',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
                     <strong>{activity.type}:</strong>{' '}
                     {activity.teacher.academicTitle.abbreviation}.{' '}
                     {activity.teacher.firstName} {activity.teacher.lastName}
@@ -805,7 +976,9 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
               md={6}
               sx={{
                 p: isMobile ? 1.5 : 2,
-                bgcolor: comparisonDiscipline ? 'inherit' : 'grey.50',
+                bgcolor: comparisonDiscipline
+                  ? alpha(theme.palette.secondary.main, 0.02)
+                  : alpha(theme.palette.background.default, 0.5),
               }}
             >
               {comparisonDiscipline ? (
@@ -813,6 +986,7 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                   <Typography
                     variant={isMobile ? 'body2' : 'subtitle2'}
                     color="secondary"
+                    fontWeight={600}
                     gutterBottom
                   >
                     {comparisonDiscipline.name}
@@ -831,7 +1005,15 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                           color="secondary"
                           sx={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
                         />
-                        <Typography variant={isMobile ? 'caption' : 'body2'}>
+                        <Typography 
+                          variant={isMobile ? 'caption' : 'body2'}
+                          sx={{
+                            maxWidth: isSmallMobile ? '120px' : '100%',
+                            whiteSpace: isSmallMobile ? 'nowrap' : 'normal',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                          }}
+                        >
                           <strong>{activity.type}:</strong>{' '}
                           {activity.teacher.academicTitle.abbreviation}.{' '}
                           {activity.teacher.firstName}{' '}
@@ -842,14 +1024,23 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
                   )}
                 </>
               ) : (
-                <Typography
-                  variant={isMobile ? 'caption' : 'body2'}
-                  color="text.secondary"
-                  textAlign="center"
-                  sx={{ py: isMobile ? 1.5 : 2 }}
+                <Stack 
+                  alignItems="center" 
+                  justifyContent="center" 
+                  sx={{ 
+                    height: '100%', 
+                    minHeight: isMobile ? '60px' : '100px',
+                    p: isMobile ? 1 : 2 
+                  }}
                 >
-                  Select a discipline to compare teaching staff
-                </Typography>
+                  <Typography
+                    variant={isMobile ? 'caption' : 'body2'}
+                    color="text.secondary"
+                    textAlign="center"
+                  >
+                    Select a discipline to compare teaching staff
+                  </Typography>
+                </Stack>
               )}
             </Grid>
           </Grid>
@@ -858,52 +1049,32 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
     </>
   );
 
-  // Mobile SwipeableDrawer display
   if (isMobile) {
     return (
-      <SwipeableDrawer
+      <Drawer
         anchor="bottom"
         open={open}
         onClose={onClose}
-        onOpen={() => {}}
-        swipeAreaWidth={56}
-        disableSwipeToOpen={false}
-        ModalProps={{
-          keepMounted: true,
-        }}
         PaperProps={{
           sx: {
             height: 'auto',
             maxHeight: '92vh',
+            background: alpha(theme.palette.background.paper, 0.95),
             borderTopLeftRadius: 16,
             borderTopRightRadius: 16,
-            overflow: 'visible',
-          },
+            ...containerStyles,
+          }
         }}
       >
-        {/* Drag Handle */}
-        <Box
-          sx={{
-            width: 40,
-            height: 6,
-            backgroundColor: 'grey.300',
-            borderRadius: 3,
-            margin: '8px auto',
-            position: 'relative',
-            top: -2,
-          }}
-        />
-
         {/* Header */}
         <Box
           sx={{
-            px: 2,
-            py: 1.5,
-            borderBottom: 1,
-            borderColor: 'divider',
+            p: { xs: 2, sm: 3 },
+            borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
             position: 'sticky',
             top: 0,
-            bgcolor: 'background.paper',
+            bgcolor: alpha(theme.palette.background.paper, 0.95),
+            backdropFilter: 'blur(20px)',
             zIndex: 10,
             borderTopLeftRadius: 16,
             borderTopRightRadius: 16,
@@ -914,20 +1085,17 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
             justifyContent="space-between"
             alignItems="center"
           >
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <CompareArrows sx={{ mr: 1 }} color="primary" fontSize="small" />
-              <Typography variant="subtitle1" fontWeight={600}>
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <CompareArrows sx={{ fontSize: 24 }} color="primary" />
+              <Typography variant="h6" fontWeight={600}>
                 Discipline Comparison
               </Typography>
-            </Box>
+            </Stack>
             <IconButton
               onClick={onClose}
               size="small"
               sx={{
-                bgcolor: alpha(theme.palette.grey[200], 0.5),
-                '&:hover': {
-                  bgcolor: alpha(theme.palette.grey[300], 0.7),
-                },
+                color: 'text.secondary',
               }}
             >
               <Close fontSize="small" />
@@ -939,11 +1107,11 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
         <Box
           ref={contentRef}
           sx={{
-            px: 2,
-            py: 2,
+            p: { xs: 2, sm: 3 },
             overflow: 'auto',
-            maxHeight: 'calc(92vh - 56px)',
+            maxHeight: 'calc(92vh - 120px)',
             pb: 8,
+            ...scrollbarStyles,
           }}
         >
           {renderSelectionControls()}
@@ -954,13 +1122,12 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
         {/* Footer with Close Button */}
         <Box
           sx={{
-            py: 1.5,
-            px: 2,
+            p: { xs: 2, sm: 3 },
             position: 'sticky',
             bottom: 0,
-            borderTop: 1,
-            borderColor: 'divider',
-            bgcolor: 'background.paper',
+            borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            bgcolor: alpha(theme.palette.background.paper, 0.95),
+            backdropFilter: 'blur(20px)',
             zIndex: 10,
           }}
         >
@@ -969,15 +1136,21 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
             color="primary"
             fullWidth
             variant="contained"
+            sx={{
+              height: 48,
+              borderRadius: 1.5,
+              textTransform: 'none',
+              fontSize: '0.9375rem',
+              fontWeight: 600,
+            }}
           >
             Close Comparison
           </Button>
         </Box>
-      </SwipeableDrawer>
+      </Drawer>
     );
   }
 
-  // Desktop Dialog display
   return (
     <Dialog
       open={open}
@@ -988,29 +1161,51 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
         sx: {
           borderRadius: 2,
           maxHeight: '90vh',
+          ...containerStyles,
+        },
+      }}
+      BackdropProps={{
+        sx: {
+          backgroundColor: alpha(theme.palette.background.default, 0.5),
+          backdropFilter: 'blur(2px)',
         },
       }}
     >
       <DialogTitle
         sx={{
-          borderBottom: 1,
-          borderColor: 'divider',
-          p: 2,
+          p: { xs: 2, sm: 3 },
+          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          bgcolor: alpha(theme.palette.background.paper, 0.95),
+          backdropFilter: 'blur(20px)',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <CompareArrows sx={{ mr: 1 }} color="primary" />
-          <Typography variant="h6">Discipline Comparison</Typography>
-        </Box>
-        <IconButton onClick={onClose} size="small">
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <CompareArrows sx={{ fontSize: 28 }} color="primary" />
+          <Typography variant="h6" fontWeight={600}>
+            Discipline Comparison
+          </Typography>
+        </Stack>
+        <IconButton 
+          onClick={onClose} 
+          size="small"
+          aria-label="Close"
+        >
           <Close fontSize="small" />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent ref={contentRef} sx={{ p: 3 }}>
+      <DialogContent 
+        ref={contentRef} 
+        sx={{ 
+          p: { xs: 2, sm: 3 },
+          bgcolor: alpha(theme.palette.background.paper, 0.95),
+          backdropFilter: 'blur(20px)',
+          ...scrollbarStyles,
+        }}
+      >
         <Grid container spacing={3}>
           {/* Selection Controls */}
           <Grid item xs={12}>
@@ -1029,8 +1224,26 @@ export const DisciplineComparisonModal: FC<DisciplineComparisonModalProps> = ({
         </Grid>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
-        <Button onClick={onClose} color="inherit">
+      <DialogActions 
+        sx={{ 
+          p: { xs: 2, sm: 3 },
+          borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          bgcolor: alpha(theme.palette.background.paper, 0.95),
+          backdropFilter: 'blur(20px)',
+        }}
+      >
+        <Button 
+          onClick={onClose} 
+          variant="contained"
+          sx={{
+            px: 3,
+            height: 48,
+            borderRadius: 1.5,
+            textTransform: 'none',
+            fontSize: '0.9375rem',
+            fontWeight: 600,
+          }}
+        >
           Close
         </Button>
       </DialogActions>
