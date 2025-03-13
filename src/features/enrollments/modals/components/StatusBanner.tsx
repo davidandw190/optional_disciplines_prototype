@@ -1,4 +1,3 @@
-// src/features/enrollments/modals/components/StatusBanner.tsx
 import { Box, Paper, Stack, Typography, alpha, useTheme } from '@mui/material';
 
 import React from 'react';
@@ -8,13 +7,15 @@ interface StatusBannerProps {
   title: string;
   message: string;
   color: string;
+  severity?: 'info' | 'warning' | 'success' | 'error';
 }
 
 export const StatusBanner: React.FC<StatusBannerProps> = ({ 
   icon, 
   title, 
   message,
-  color 
+  color,
+  severity = 'info'
 }) => {
   const theme = useTheme();
   
@@ -23,7 +24,7 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({
       elevation={0}
       sx={{
         p: 2,
-        bgcolor: alpha(color, 0.08),
+        bgcolor: alpha(color, severity === 'info' ? 0.08 : severity === 'warning' ? 0.12 : 0.1),
         borderRadius: 2,
         border: `1px solid ${alpha(color, 0.2)}`,
       }}
@@ -35,6 +36,7 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({
             display: 'flex',
             alignItems: 'center',
             pt: 0.25,
+            flexShrink: 0,
           }}
         >
           {icon}

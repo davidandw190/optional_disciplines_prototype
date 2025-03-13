@@ -1,8 +1,6 @@
-import { AccessTime, Assignment, Book, School } from '@mui/icons-material';
 import {
   Box,
   Chip,
-  Divider,
   Paper,
   Stack,
   Tooltip,
@@ -11,6 +9,7 @@ import {
   useTheme,
 } from '@mui/material';
 
+import {Book} from '@mui/icons-material';
 import { Discipline } from '../../../../types/disciplines/disciplines.types';
 import { FC } from 'react';
 import { TeacherInfo } from './TeacherInfo';
@@ -31,14 +30,12 @@ export const DisciplineSelection: FC<DisciplineSelectionProps> = ({
 }) => {
   const theme = useTheme();
 
-  // Determine highlight color based on priority
   const priorityColor = isTopPriority
     ? theme.palette.success.main
     : selection.priority === 2
     ? theme.palette.primary.main
     : theme.palette.grey[600];
 
-  // Find the course teacher (usually the one teaching the course activity)
   const courseTeacher = discipline.teachingActivities.find(
     (activity) => activity.type === 'COURSE'
   )?.teacher;
@@ -127,11 +124,8 @@ export const DisciplineSelection: FC<DisciplineSelectionProps> = ({
             </Tooltip>
           </Stack>
 
-          {/* Teacher information - identical to EnrollmentDetailsModal */}
+          {/* Teacher information*/}
           {courseTeacher && <TeacherInfo teacher={courseTeacher} />}
-
-          {/* Academic details */}
-          
         </Stack>
       </Box>
     </Paper>

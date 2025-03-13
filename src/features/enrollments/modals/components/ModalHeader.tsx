@@ -1,13 +1,7 @@
-import {
-  Box,
-  IconButton,
-  Stack,
-  Typography,
-  alpha,
-  useTheme
-} from '@mui/material';
+import { Box, IconButton, Stack, Typography, alpha, useTheme } from '@mui/material';
 
 import { Close } from '@mui/icons-material';
+import React from 'react';
 
 interface ModalHeaderProps {
   title: string;
@@ -16,6 +10,7 @@ interface ModalHeaderProps {
   onClose: () => void;
   statusBanner?: React.ReactNode;
   isSubmitting?: boolean;
+  action?: React.ReactNode;
 }
 
 export const ModalHeader: React.FC<ModalHeaderProps> = ({
@@ -24,7 +19,8 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
   icon,
   onClose,
   statusBanner,
-  isSubmitting = false
+  isSubmitting = false,
+  action
 }) => {
   const theme = useTheme();
   
@@ -39,15 +35,20 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
         zIndex: 1,
       }}
     >
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="flex-start"
-        spacing={2}
-      >
-        <Stack spacing={1.5}>
+      <Stack spacing={1.5}>
+        {/* Title and close button */}
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="flex-start"
+          spacing={2}
+        >
           <Stack direction="row" spacing={1.5} alignItems="center">
-            {icon}
+            {icon && (
+              <Box sx={{ color: theme.palette.primary.main, display: 'flex' }}>
+                {icon}
+              </Box>
+            )}
             <Typography
               variant="h5"
               sx={{
@@ -59,33 +60,38 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
             </Typography>
           </Stack>
 
-          {subtitle && (
-            typeof subtitle === 'string' 
-              ? <Typography variant="subtitle1" color="text.secondary">{subtitle}</Typography>
-              : subtitle
-          )}
+          <Stack direction="row" spacing={1} alignItems="center">
+            {action}
+            <IconButton
+              onClick={onClose}
+              size="small"
+              disabled={isSubmitting}
+              aria-label="Close"
+              sx={{
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.primary.main, 0.05),
+                },
+              }}
+            >
+              <Close />
+            </IconButton>
+          </Stack>
         </Stack>
 
-        <IconButton
-          onClick={onClose}
-          size="small"
-          disabled={isSubmitting}
-          aria-label="Close"
-          sx={{
-            '&:hover': {
-              bgcolor: alpha(theme.palette.primary.main, 0.05),
-            },
-          }}
-        >
-          <Close />
-        </IconButton>
-      </Stack>
+        {/* Subtitle */}
+        {subtitle && (
+          typeof subtitle === 'string' 
+            ? <Typography variant="subtitle1" color="text.secondary">{subtitle}</Typography>
+            : subtitle
+        )}
 
-      {statusBanner && (
-        <Box sx={{ mt: 2 }}>
-          {statusBanner}
-        </Box>
-      )}
+        {/* Status banner */}
+        {statusBanner && (
+          <Box sx={{ mt: 1 }}>
+            {statusBanner}
+          </Box>
+        )}
+      </Stack>
     </Box>
   );
 };

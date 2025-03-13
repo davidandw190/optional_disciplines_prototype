@@ -1,20 +1,25 @@
-// src/features/enrollments/modals/components/PacketSection.tsx
 import { Box, IconButton, Paper, Stack, Tooltip, Typography, alpha, useTheme } from '@mui/material';
 
 import { InfoOutlined } from '@mui/icons-material';
+import React from 'react';
 
 interface PacketSectionProps {
   packetName: string;
   packetInfo?: string;
   children: React.ReactNode;
+  emptyMessage?: string;
 }
 
 export const PacketSection: React.FC<PacketSectionProps> = ({
   packetName,
   packetInfo,
-  children
+  children,
+  emptyMessage = "No selections in this packet"
 }) => {
   const theme = useTheme();
+  
+  // Check if children is empty
+  const isEmpty = React.Children.count(children) === 0;
   
   return (
     <Paper
@@ -31,7 +36,7 @@ export const PacketSection: React.FC<PacketSectionProps> = ({
         sx={{
           p: 2,
           bgcolor: alpha(theme.palette.primary.main, 0.03),
-          borderBottom: '1px solid',
+          borderBottom: isEmpty ? 'none' : '1px solid',
           borderColor: 'divider',
         }}
       >
@@ -80,11 +85,19 @@ export const PacketSection: React.FC<PacketSectionProps> = ({
         </Stack>
       </Box>
 
-      <Box sx={{ p: 2 }}>
-        <Stack spacing={1.5}>
-          {children}
-        </Stack>
-      </Box>
+      {isEmpty ? (
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="body2" color="text.secondary">
+            {emptyMessage}
+          </Typography>
+        </Box>
+      ) : (
+        <Box sx={{ p: 2 }}>
+          <Stack spacing={1.5}>
+            {children}
+          </Stack>
+        </Box>
+      )}
     </Paper>
   );
 };

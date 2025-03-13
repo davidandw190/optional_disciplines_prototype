@@ -1,4 +1,4 @@
-// src/features/enrollments/modals/components/DisciplineItem.tsx
+import { AccessTime, School } from '@mui/icons-material';
 import {
   Box,
   Chip,
@@ -28,6 +28,9 @@ interface DisciplineItemProps {
   isTopPriority?: boolean;
   showStatus?: boolean;
   additionalInfo?: React.ReactNode;
+  credits?: number;
+  language?: string;
+  weeklyHours?: number;
 }
 
 export const DisciplineItem: React.FC<DisciplineItemProps> = ({
@@ -39,10 +42,11 @@ export const DisciplineItem: React.FC<DisciplineItemProps> = ({
   isTopPriority = false,
   showStatus = false,
   additionalInfo,
+  credits,
+  language,
+  weeklyHours,
 }) => {
   const theme = useTheme();
-  
-  // Determine color based on priority/status
   const getItemColor = () => {
     if (showStatus && status) {
       return getStatusColor(status, theme).main;
@@ -54,6 +58,10 @@ export const DisciplineItem: React.FC<DisciplineItemProps> = ({
   
   const itemColor = getItemColor();
   
+  const priorityTooltip = priority === 1 
+    ? 'This is your top choice and has the highest enrollment priority.' 
+    : `This is your priority ${priority} choice and will be considered after higher priorities.`;
+
   return (
     <Paper
       elevation={0}
@@ -69,7 +77,7 @@ export const DisciplineItem: React.FC<DisciplineItemProps> = ({
       }}
     >
       <Box sx={{ p: 2 }}>
-        <Stack spacing={1.5}>
+        <Stack spacing={1}>
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -83,7 +91,7 @@ export const DisciplineItem: React.FC<DisciplineItemProps> = ({
               >
                 {name}
               </Typography>
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" gap={1}>
                 <Typography
                   variant="caption"
                   sx={{
@@ -99,12 +107,7 @@ export const DisciplineItem: React.FC<DisciplineItemProps> = ({
                   {code}
                 </Typography>
                 
-                <Tooltip
-                  title={`Priority ${priority}: ${priority === 1 
-                    ? 'This is your top choice and has the highest enrollment priority.'
-                    : `This is your priority ${priority} choice and will be considered after higher priorities.`}`}
-                  arrow
-                >
+                <Tooltip title={priorityTooltip} arrow>
                   <Chip
                     label={`Priority ${priority}`}
                     size="small"
@@ -161,18 +164,70 @@ export const DisciplineItem: React.FC<DisciplineItemProps> = ({
             )}
           </Stack>
 
+          {/* Teacher info */}
           {teacher && (
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ fontWeight: 500 }}
+                sx={{ 
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5
+                }}
               >
+                <School fontSize="inherit" />
                 {`${teacher.academicTitle.abbreviation} ${teacher.firstName} ${teacher.lastName}`}
               </Typography>
             </Stack>
           )}
           
+          {!additionalInfo && (credits || language || weeklyHours) && (
+            <Box 
+              sx={{ 
+                mt: 0.5, 
+                p: 1, 
+                bgcolor: alpha(theme.palette.background.paper, 0.6),
+                borderRadius: 1,
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: 1
+              }}
+            >
+              {weeklyHours && (
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <AccessTime sx={{ fontSize: '0.75rem', color: theme.palette.text.secondary }} />
+                  <Typography variant="caption" color="text.secondary">
+                    {weeklyHours} hours/week
+                  </Typography>
+                </Stack>
+              )}
+              
+              {credits && (
+                <Typography variant="caption" color="text.secondary">
+                  {credits} {credits === 1 ? 'credit' : 'credits'}
+                </Typography>
+              )}
+              
+              {language && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    ml: 'auto',
+                    px: 1,
+                    py: 0.25,
+                    borderRadius: 0.75,
+                    bgcolor: alpha(theme.palette.grey[500], 0.1),
+                    color: theme.palette.text.secondary,
+                  }}
+                >
+                  {language === 'EN' ? 'English' : 'Romanian'}
+                </Typography>
+              )}
+            </Box>
+          )}
           {additionalInfo}
         </Stack>
       </Box>
