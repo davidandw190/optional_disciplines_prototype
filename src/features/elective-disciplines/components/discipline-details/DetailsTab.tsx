@@ -3,10 +3,13 @@ import {
   Button,
   Chip,
   IconButton,
+  Paper,
   Stack,
   Tab,
   Tabs,
+  Tooltip,
   Typography,
+  alpha,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
@@ -127,6 +130,23 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
     };
   }, [isEnrollmentPeriodActive, enrollmentInfo, isSelected, canBeSelected]);
 
+  const scrollbarStyles = {
+    '&::-webkit-scrollbar': {
+      width: 8,
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.2),
+      borderRadius: 4,
+      '&:hover': {
+        backgroundColor: alpha(theme.palette.primary.main, 0.3),
+      },
+    },
+    '&::-webkit-scrollbar-track': {
+      backgroundColor: alpha(theme.palette.grey[200], 0.5),
+      borderRadius: 4,
+    },
+  };
+
   return (
     <Box
       sx={{
@@ -137,7 +157,15 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
       }}
     >
       {/* Header Section with Discipline Information */}
-      <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          bgcolor: alpha(theme.palette.background.paper, 0.8),
+          backdropFilter: 'blur(8px)',
+        }}
+      >
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -162,23 +190,37 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
                   spacing={1}
                   flexWrap="wrap"
                   useFlexGap
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 2, gap: 1 }}
                 >
                   <Chip
                     icon={<Grade fontSize="small" />}
                     label={`${discipline.credits} credits`}
                     size="small"
                     color={isSelected ? 'success' : 'primary'}
+                    sx={{ 
+                      '& .MuiChip-label': { fontWeight: 500 },
+                      borderRadius: 1
+                    }}
                   />
                   <Chip
                     icon={<Language fontSize="small" />}
                     label={discipline.language}
                     size="small"
+                    variant="outlined"
+                    sx={{ 
+                      '& .MuiChip-label': { fontWeight: 500 },
+                      borderRadius: 1
+                    }}
                   />
                   <Chip
                     icon={<Schedule fontSize="small" />}
                     label={`Semester ${discipline.semester}`}
                     size="small"
+                    variant="outlined"
+                    sx={{ 
+                      '& .MuiChip-label': { fontWeight: 500 },
+                      borderRadius: 1
+                    }}
                   />
                 </Stack>
 
@@ -195,6 +237,11 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
                     borderRadius: 1.5,
                     textTransform: 'none',
                     fontWeight: 500,
+                    border: `1px solid ${alpha(theme.palette.primary.main, 0.5)}`,
+                    '&:hover': {
+                      border: `1px solid ${theme.palette.primary.main}`,
+                      bgcolor: alpha(theme.palette.primary.main, 0.04),
+                    }
                   }}
                 >
                   Compare with another discipline
@@ -207,49 +254,76 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
                 flexWrap="wrap"
                 useFlexGap
                 alignItems="center"
+                sx={{ gap: 1 }}
               >
                 <Chip
                   icon={<Grade fontSize="small" />}
                   label={`${discipline.credits} credits`}
                   size="small"
                   color={isSelected ? 'success' : 'primary'}
+                  sx={{ 
+                    '& .MuiChip-label': { fontWeight: 500 },
+                    borderRadius: 1
+                  }}
                 />
                 <Chip
                   icon={<Language fontSize="small" />}
                   label={discipline.language}
                   size="small"
+                  variant="outlined"
+                  sx={{ 
+                    '& .MuiChip-label': { fontWeight: 500 },
+                    borderRadius: 1
+                  }}
                 />
                 <Chip
                   icon={<Schedule fontSize="small" />}
                   label={`Semester ${discipline.semester}`}
                   size="small"
-                />
-                <Chip
-                  icon={<CompareArrows fontSize="small" />}
-                  label="Compare"
-                  size="small"
                   variant="outlined"
-                  // clickable
-                  onClick={onOpenComparison}
-                  // sx={{
-                  //   fontWeight: 500,
-                  //   '&:hover': {
-                  //     backgroundColor: (theme) => theme.palette.primary.light,
-                  //     color: 'white',
-                  //     '& .MuiChip-icon': {
-                  //       color: 'white',
-                  //     },
-                  //   },
-                  // }}
+                  sx={{ 
+                    '& .MuiChip-label': { fontWeight: 500 },
+                    borderRadius: 1
+                  }}
                 />
+                <Tooltip title="Compare with another discipline">
+                  <Chip
+                    icon={<CompareArrows fontSize="small" />}
+                    label="Compare"
+                    size="small"
+                    variant="outlined"
+                    onClick={onOpenComparison}
+                    clickable
+                    sx={{
+                      fontWeight: 500,
+                      borderRadius: 1,
+                      transition: 'all 0.2s ease',
+                      borderColor: alpha(theme.palette.primary.main, 0.5),
+                      '&:hover': {
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        borderColor: theme.palette.primary.main,
+                      },
+                    }}
+                  />
+                </Tooltip>
               </Stack>
             )}
           </Box>
-          <IconButton onClick={onClose} size="small">
+          <IconButton 
+            onClick={onClose} 
+            size="small"
+            sx={{
+              bgcolor: alpha(theme.palette.background.paper, 0.6),
+              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              '&:hover': {
+                bgcolor: alpha(theme.palette.background.paper, 0.8),
+              }
+            }}
+          >
             <Close fontSize="small" />
           </IconButton>
         </Stack>
-      </Box>
+      </Paper>
 
       {/* Tab Navigation */}
       <Tabs
@@ -259,9 +333,27 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
         scrollButtons="auto"
         sx={{
           px: { xs: 2, sm: 3 },
-          borderBottom: 1,
-          borderColor: 'divider',
+          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           minHeight: { xs: 48, sm: 56 },
+          bgcolor: alpha(theme.palette.background.paper, 0.6),
+          '& .MuiTabs-indicator': {
+            height: 3,
+            borderRadius: '3px 3px 0 0',
+          },
+          '& .MuiTab-root': {
+            fontWeight: 500,
+            textTransform: 'none',
+            minHeight: { xs: 48, sm: 56 },
+            color: theme.palette.text.secondary,
+            '&.Mui-selected': {
+              color: theme.palette.primary.main,
+              fontWeight: 600,
+            },
+            '&:hover': {
+              color: theme.palette.primary.main,
+              opacity: 0.9,
+            }
+          }
         }}
       >
         <Tab label="Overview" />
@@ -275,8 +367,10 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
       <Box
         sx={{
           overflow: 'auto',
+          bgcolor: alpha(theme.palette.background.paper, 0.8),
           flex: 1,
           px: { xs: 2, sm: 3 },
+          ...scrollbarStyles,
           ...(isMobile && {
             pb: '80px',
           }),
@@ -304,9 +398,9 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
         <Box
           sx={{
             p: { xs: 2, sm: 3 },
-            borderTop: 1,
-            borderColor: 'divider',
-            bgcolor: 'background.paper',
+            borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            bgcolor: alpha(theme.palette.background.paper, 0.8),
+            backdropFilter: 'blur(8px)',
             ...(isMobile && {
               position: 'fixed',
               bottom: 0,
@@ -327,10 +421,31 @@ export const DetailsTabs: FC<DetailsTabsProps> = ({
               height: { xs: 44, sm: 52 },
               opacity: buttonState.disabled ? 0.7 : 1,
               transition: 'opacity 0.2s ease',
+              boxShadow: 'none',
+              borderRadius: 1.5,
+              fontWeight: 600,
+              textTransform: 'none',
+              '&:hover': {
+                boxShadow: `0 4px 12px ${alpha(theme.palette[buttonState.color].main, 0.2)}`,
+              },
             }}
           >
             {actionButtonText}
           </Button>
+          {buttonState.message && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ 
+                display: 'block', 
+                mt: 1, 
+                textAlign: 'center',
+                fontStyle: 'italic'
+              }}
+            >
+              {buttonState.message}
+            </Typography>
+          )}
         </Box>
       )}
     </Box>

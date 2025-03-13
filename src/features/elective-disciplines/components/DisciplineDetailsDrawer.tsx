@@ -8,6 +8,7 @@ import { FC, useState } from 'react';
 import { DetailsTabs } from './discipline-details/DetailsTab';
 import { DisciplineComparisonModal } from './discipline-details/DisciplineComparisonModal';
 import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-selection.types';
+import { alpha } from '@mui/material/styles';
 
 export interface DisciplineDetailsDrawerProps {
   discipline: Discipline;
@@ -88,13 +89,30 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
         PaperProps={{
           sx: {
             width: isMobile ? '100%' : isTablet ? '600px' : '800px',
-            height: isMobile ? '90vh' : '100vh',
-            maxHeight: isMobile ? '90vh' : '100vh',
+            height: isMobile ? '90vh' : '100%',
+            maxHeight: isMobile ? '90vh' : '100%',
             borderTopLeftRadius: isMobile ? theme.shape.borderRadius * 2 : 0,
             borderTopRightRadius: isMobile ? theme.shape.borderRadius * 2 : 0,
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
+            bgcolor: (theme) => alpha(theme.palette.background.paper, 0.98),
+            backdropFilter: 'blur(12px)',
+            boxShadow: theme.shadows[8],
+            '&::-webkit-scrollbar': {
+              width: 8,
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.2),
+              borderRadius: 4,
+              '&:hover': {
+                backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.3),
+              },
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: (theme) => alpha(theme.palette.grey[200], 0.5),
+              borderRadius: 4,
+            },
           },
         }}
       >
@@ -123,7 +141,7 @@ export const DisciplineDetailsDrawer: FC<DisciplineDetailsDrawerProps> = ({
               selections: getSelectionInfo(),
             }}
             isMobile={isMobile}
-            onOpenComparison={() => setIsComparisonOpen(true)} // New prop
+            onOpenComparison={() => setIsComparisonOpen(true)}
           />
         </Box>
       </Drawer>
