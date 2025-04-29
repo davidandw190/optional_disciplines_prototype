@@ -2,7 +2,7 @@ import {
   AccessTime,
   CalendarToday,
   Info,
-  PlaylistAdd,
+  PlaylistAddCheck,
 } from '@mui/icons-material';
 import {
   Badge,
@@ -16,7 +16,6 @@ import {
   Paper,
   Stack,
   Typography,
-  alpha,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
@@ -24,7 +23,10 @@ import {
   Discipline,
   DisciplinePacket,
 } from '../../../types/disciplines/disciplines.types';
-import { DisciplineSelectionProvider, useDisciplineSelection } from '../../../contexts/discipline-selection.context';
+import {
+  DisciplineSelectionProvider,
+  useDisciplineSelection,
+} from '../../../contexts/discipline-selection.context';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   HEADER_HEIGHT,
@@ -81,7 +83,7 @@ export const ElectiveDisciplinesPage: FC = () => {
     isLoading: isLoadingPackets,
     error: packetsError,
   } = useGetElectivePacketsQuery(periodId);
-  
+
   const {
     selections,
     addSelection,
@@ -385,8 +387,20 @@ export const ElectiveDisciplinesPage: FC = () => {
                 display: { lg: 'none' },
               }}
             >
-              <Badge badgeContent={getTotalSelections()} color="error">
-                <PlaylistAdd />
+              <Badge
+                badgeContent={getTotalSelections()}
+                color="error"
+                sx={{
+                  '& .MuiBadge-badge': {
+                    color:
+                      theme.palette.mode === 'dark'
+                        ? theme.palette.common.black
+                        : undefined,
+                    fontWeight: 600,
+                  },
+                }}
+              >
+                <PlaylistAddCheck />
               </Badge>
             </Fab>
 
