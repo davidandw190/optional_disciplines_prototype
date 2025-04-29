@@ -1,4 +1,10 @@
-import { Theme, alpha, createTheme } from '@mui/material/styles';
+import {
+  Theme,
+  alpha,
+  createTheme,
+  darken,
+  lighten,
+} from '@mui/material/styles';
 
 const BRAND_COLORS = {
   uvtRed: '#e60155',
@@ -17,12 +23,16 @@ const createSemanticColors = (mode: 'light' | 'dark') => {
     : BRAND_COLORS.darkModePrimary;
 
   const primaryLight = isLight
-    ? alpha(primaryMain, 0.8)
-    : alpha(primaryMain, 0.9);
+    ? lighten(primaryMain, 0.2)
+    : lighten(primaryMain, 0.1);
 
   const primaryDark = isLight
-    ? alpha(primaryMain, 1.2)
-    : alpha(primaryMain, 0.7);
+    ? darken(primaryMain, 0.2)
+    : darken(primaryMain, 0.3);
+
+  const secondaryMain = isLight
+    ? darken(BRAND_COLORS.uvtGold, 0.1)
+    : BRAND_COLORS.uvtGold;
 
   return {
     primary: {
@@ -32,28 +42,32 @@ const createSemanticColors = (mode: 'light' | 'dark') => {
       contrastText: '#ffffff',
     },
     secondary: {
-      main: BRAND_COLORS.uvtGold,
-      light: alpha(BRAND_COLORS.uvtGold, 0.9),
-      dark: alpha(BRAND_COLORS.uvtGold, 0.7),
+      main: secondaryMain,
+      light: isLight
+        ? lighten(secondaryMain, 0.2)
+        : lighten(secondaryMain, 0.1),
+      dark: isLight ? darken(secondaryMain, 0.2) : darken(secondaryMain, 0.3),
       contrastText: '#ffffff',
     },
     background: {
-      default: isLight ? '#f8f9fa' : '#121214',
+      default: isLight ? '#f0f2f5' : '#121214',
       paper: isLight ? '#ffffff' : '#1E1E20',
-      subtle: isLight ? alpha('#f8f9fa', 0.8) : alpha('#1E1E20', 0.8),
+      subtle: isLight ? alpha('#f0f2f5', 0.8) : alpha('#1E1E20', 0.8),
     },
     text: {
-      primary: isLight ? '#1a1a1a' : '#FFFFFF',
-      secondary: isLight ? '#424242' : '#E0E0E0',
-      disabled: isLight ? '#757575' : '#A0A0A0',
+      primary: isLight ? '#111111' : '#FFFFFF',
+      secondary: isLight ? '#333333' : '#E0E0E0',
+      disabled: isLight ? '#666666' : '#A0A0A0',
     },
     action: {
-      active: alpha(primaryMain, isLight ? 0.7 : 0.9),
-      hover: alpha(primaryMain, isLight ? 0.05 : 0.15),
-      selected: alpha(primaryMain, isLight ? 0.1 : 0.2),
+      active: isLight ? darken(primaryMain, 0.1) : alpha(primaryMain, 0.9),
+      hover: isLight ? alpha(primaryMain, 0.08) : alpha(primaryMain, 0.15),
+      selected: isLight ? alpha(primaryMain, 0.12) : alpha(primaryMain, 0.2),
       disabled: isLight ? '#bdbdbd' : '#505050',
+      disabledBackground: isLight ? '#f5f5f5' : '#2c2c2c',
+      focus: isLight ? alpha(primaryMain, 0.15) : alpha(primaryMain, 0.25),
     },
-    divider: isLight ? alpha('#000000', 0.12) : alpha('#ffffff', 0.15), // Slightly stronger divider in dark mode
+    divider: isLight ? alpha('#000000', 0.15) : alpha('#ffffff', 0.15),
   };
 };
 
@@ -75,10 +89,10 @@ const createComponents = (theme: Theme) => ({
           border: '3px solid transparent',
           backgroundClip: 'padding-box',
           backgroundColor:
-            theme.palette.mode === 'light' ? '#c1c1c1' : '#404040',
+            theme.palette.mode === 'light' ? '#a1a1a1' : '#404040',
           '&:hover': {
             backgroundColor:
-              theme.palette.mode === 'light' ? '#a1a1a1' : '#505050',
+              theme.palette.mode === 'light' ? '#888888' : '#505050',
           },
         },
       },
@@ -88,7 +102,10 @@ const createComponents = (theme: Theme) => ({
     styleOverrides: {
       root: {
         borderRadius: 12,
-        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        border: `1px solid ${alpha(
+          theme.palette.divider,
+          theme.palette.mode === 'light' ? 0.15 : 0.1
+        )}`, // Stronger border in light mode
         backgroundColor: alpha(theme.palette.background.paper, 0.8),
         backdropFilter: 'blur(8px)',
         transition: theme.transitions.create(
@@ -110,7 +127,10 @@ const createComponents = (theme: Theme) => ({
       paper: {
         backgroundColor: alpha(theme.palette.background.paper, 0.95),
         backdropFilter: 'blur(8px)',
-        borderRight: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        borderRight: `1px solid ${alpha(
+          theme.palette.divider,
+          theme.palette.mode === 'light' ? 0.15 : 0.1
+        )}`,
       },
     },
   },
@@ -119,7 +139,10 @@ const createComponents = (theme: Theme) => ({
       root: {
         backgroundColor: alpha(theme.palette.background.paper, 0.95),
         backdropFilter: 'blur(8px)',
-        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        borderBottom: `1px solid ${alpha(
+          theme.palette.divider,
+          theme.palette.mode === 'light' ? 0.15 : 0.1
+        )}`,
         color: theme.palette.text.primary,
       },
     },
@@ -133,10 +156,75 @@ const createComponents = (theme: Theme) => ({
         padding: '8px 16px',
       },
       contained: {
-        boxShadow: 'none',
+        boxShadow:
+          theme.palette.mode === 'light'
+            ? '0 1px 3px rgba(0,0,0,0.08)'
+            : 'none', // Subtle shadow for better depth perception
         '&:hover': {
           boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
         },
+      },
+      outlined: {
+        borderColor:
+          theme.palette.mode === 'light'
+            ? alpha(theme.palette.primary.main, 0.5)
+            : alpha(theme.palette.primary.main, 0.3),
+        '&:hover': {
+          backgroundColor: alpha(theme.palette.primary.main, 0.05),
+          borderColor: theme.palette.primary.main,
+        },
+      },
+      text: {
+        '&:hover': {
+          backgroundColor: alpha(theme.palette.primary.main, 0.05),
+        },
+      },
+    },
+  },
+  MuiInputBase: {
+    styleOverrides: {
+      root: {
+        backgroundColor:
+          theme.palette.mode === 'light'
+            ? alpha('#fff', 0.9)
+            : alpha(theme.palette.background.paper, 0.8),
+      },
+    },
+  },
+  MuiTableHead: {
+    styleOverrides: {
+      root: {
+        backgroundColor:
+          theme.palette.mode === 'light'
+            ? alpha(theme.palette.primary.light, 0.1)
+            : alpha(theme.palette.primary.dark, 0.2),
+        '& .MuiTableCell-head': {
+          fontWeight: 600,
+          color: theme.palette.text.primary,
+        },
+      },
+    },
+  },
+  MuiChip: {
+    styleOverrides: {
+      root: {
+        fontWeight: 500,
+      },
+      outlined: {
+        borderColor:
+          theme.palette.mode === 'light'
+            ? alpha(theme.palette.primary.main, 0.3)
+            : alpha(theme.palette.primary.main, 0.2),
+      },
+    },
+  },
+  MuiPaper: {
+    styleOverrides: {
+      outlined: {
+        borderColor:
+          theme.palette.mode === 'light'
+            ? alpha(theme.palette.divider, 0.15)
+            : alpha(theme.palette.divider, 0.1),
       },
     },
   },
