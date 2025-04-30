@@ -48,6 +48,7 @@ import { DisciplineList } from '../components/DisciplineList';
 import { EnrollmentConfirmationModal } from '../../enrollments/modals/EnrollmentConfirmationModal';
 import { EnrollmentSelectionPanel } from '../../enrollments/components/EnrollmentSelectionPanel';
 import { SelectionRequirementsModal } from '../components/SelectionRequirementsModal';
+import { showToast } from '../../../utils/toastUtils';
 
 export const ElectiveDisciplinesPage: FC = () => {
   const theme = useTheme();
@@ -160,13 +161,23 @@ export const ElectiveDisciplinesPage: FC = () => {
     (disciplineId: string, packetId: string) => {
       if (canAddToPacket(packetId)) {
         addSelection(disciplineId, packetId);
+        const discipline = disciplinesMap[disciplineId];
+        const packet = getPacketForDiscipline(disciplineId);
+        showToast.success(
+          `Added ${discipline.name} to ${packet?.name || 'your selection list'}`
+        );
         setIsDetailsOpen(false);
         if (isMobile) {
           setIsSelectionDrawerOpen(true);
         }
+      } else {
+        const packet = getPacketForDiscipline(disciplineId);
+        showToast.warning(
+          `Cannot add more disciplines to ${packet?.name || 'this packet'}. Maximum limit reached.`
+        );
       }
     },
-    [canAddToPacket, addSelection, isMobile]
+    [canAddToPacket, addSelection, isMobile, disciplinesMap, getPacketForDiscipline]
   );
 
   const handleStartEnrollment = useCallback(() => {
@@ -178,13 +189,19 @@ export const ElectiveDisciplinesPage: FC = () => {
 
   const handleConfirmEnrollment = async () => {
     try {
-      // await enrollDisciplines(selections, periodId);
       setIsConfirmationOpen(false);
       navigate('/dashboard');
     } catch (error) {
       console.error('Enrollment failed:', error);
+      showToast.error('Failed to submit enrollment. Please try again later.');
     }
   };
+
+  const handleRemoveSelection = useCallback((disciplineId: string, packetId: string) => {
+    const discipline = disciplinesMap[disciplineId];
+    removeSelection(disciplineId, packetId);
+    showToast.info(`Removed ${discipline?.name || 'discipline'} from your selections`);
+  }, [disciplinesMap, removeSelection]);
 
   if (periodError) {
     return (
@@ -203,6 +220,18 @@ export const ElectiveDisciplinesPage: FC = () => {
       </Box>
     );
   }
+
+  const handleReorderSelections = useCallback((packetId: string, startIndex: number, endIndex: number) => {
+    reorderSelections(packetId, startIndex, endIndex);
+    
+    const packetSelections = selections.packets[packetId]?.selections || [];
+    if (packetSelections.length > 0) {
+      const movedDiscipline = disciplinesMap[packetSelections[endIndex].disciplineId];
+      if (movedDiscipline) {
+        showToast.info(`Changed priority for ${movedDiscipline.name} to ${endIndex + 1}`);
+      }
+    }
+  }, [reorderSelections, selections.packets, disciplinesMap]);
 
   if (isLoadingPeriod || isLoadingPackets || !enrollmentPeriod) {
     return (
@@ -367,8 +396,8 @@ export const ElectiveDisciplinesPage: FC = () => {
                 selections={selections}
                 packets={enrollmentPeriod.packets}
                 disciplines={disciplinesMap}
-                onRemoveSelection={removeSelection}
-                onReorderSelections={reorderSelections}
+                onRemoveSelection={handleRemoveSelection}
+                onReorderSelections={handleReorderSelections}
                 onStartEnrollment={handleStartEnrollment}
                 enrollmentPeriod={enrollmentPeriod}
               />

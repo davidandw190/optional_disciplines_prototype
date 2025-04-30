@@ -28,6 +28,7 @@ import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-
 import { ModalHeader } from './components/ModalHeader';
 import { PacketSection } from './components/PacketSection';
 import { StatusBanner } from './components/StatusBanner';
+import { showToast } from '../../../utils/toastUtils';
 
 interface EnrollmentConfirmationModalProps {
   open: boolean;
@@ -61,12 +62,19 @@ export const EnrollmentConfirmationModal: FC<EnrollmentConfirmationModalProps> =
     
     try {
       await onConfirm();
+      showToast.success('Enrollment submitted successfully!', {
+        autoClose: 3000, 
+        hideProgressBar: true,
+      });
     } catch (err) {
       setError(
         err instanceof Error 
           ? err.message 
-          : 'An error occurred while processing your enrollment. Please try again.'
+          : 'An error occurred. Please try again.'
       );
+      showToast.error('Could not submit enrollment. Please check your selections and try again.', {
+        autoClose: false, 
+      });
       setIsSubmitting(false);
     }
   };

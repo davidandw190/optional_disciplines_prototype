@@ -36,13 +36,13 @@ const DashboardPage: FC = () => {
         width: '100%',
         height: '90%',
         mx: 'auto',
-        mt: '-30px', 
+        mt: '-30px',
       }}
     >
       <Box
         sx={{
           p: { xs: 3, sm: 5, md: 7 },
-          pt: {xs: 7, sm: 6, md: 7},
+          pt: { xs: 7, sm: 6, md: 7 },
           px: { xs: 2 },
           maxWidth: '1900px',
           width: '100%',

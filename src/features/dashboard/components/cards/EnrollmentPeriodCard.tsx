@@ -15,6 +15,7 @@ import {
 import { EnrollmentPeriod } from '../../../../types/disciplines/disciplines.types';
 import { EnrollmentPeriodType } from '../../../../types/disciplines/disciplines.enums';
 import { FC } from 'react';
+import { showToast } from '../../../../utils/toastUtils';
 import { useNavigate } from 'react-router-dom';
 
 interface EnrollmentPeriodCardProps {
@@ -87,16 +88,27 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
   };
 
   const handleClick = () => {
-    if (!isAccessible) return;
+    if (!isAccessible) {
+      if (status === 'upcoming') {
+        showToast.info(
+          `${period.type.replace('_', ' ')} enrollment starts on ${new Date(
+            period.startDate
+          ).toLocaleDateString()}`
+        );
+      } else if (status === 'ended') {
+        showToast.warning(
+          `${period.type.replace('_', ' ')} enrollment has already ended`
+        );
+      }
+      return;
+    }
 
     switch (period.type) {
       case EnrollmentPeriodType.ELECTIVE_DISCIPLINES:
         navigate(`/enrollment-periods/${period.id}/elective-disciplines`);
         break;
       case EnrollmentPeriodType.COMPLEMENTARY_DISCIPLINES:
-        navigate(
-          `/enrollment-periods/${period.id}/complementary-disciplines`
-        );
+        navigate(`/enrollment-periods/${period.id}/complementary-disciplines`);
         break;
       case EnrollmentPeriodType.THESIS_REGISTRATION:
         navigate(`/enrollment-periods/${period.id}/thesis-registration`);
