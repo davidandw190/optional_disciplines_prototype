@@ -10,24 +10,24 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import {
-  CalendarToday,
-  Info,
-  School,
-} from '@mui/icons-material';
+import { CalendarToday, Info, School } from '@mui/icons-material';
 import {
   Discipline,
   DisciplinePacket,
   EnrollmentPeriod,
 } from '../../../types/disciplines/disciplines.types';
 import { FC, useMemo, useState } from 'react';
-import { formatDate, getEnrollmentSummary, getPacketTooltipMessage } from './utils/confirmation-utils';
+import {
+  getEnrollmentSummary,
+  getPacketTooltipMessage,
+} from './utils/confirmation-utils';
 
 import { DisciplineItem } from './components/DisciplineItem';
 import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-selection.types';
 import { ModalHeader } from './components/ModalHeader';
 import { PacketSection } from './components/PacketSection';
 import { StatusBanner } from './components/StatusBanner';
+import { formatDate } from '../../../utils/dateUtils';
 import { showToast } from '../../../utils/toastUtils';
 
 interface EnrollmentConfirmationModalProps {
@@ -40,7 +40,9 @@ interface EnrollmentConfirmationModalProps {
   enrollmentPeriod: EnrollmentPeriod;
 }
 
-export const EnrollmentConfirmationModal: FC<EnrollmentConfirmationModalProps> = ({
+export const EnrollmentConfirmationModal: FC<
+  EnrollmentConfirmationModalProps
+> = ({
   open,
   onClose,
   onConfirm,
@@ -55,76 +57,86 @@ export const EnrollmentConfirmationModal: FC<EnrollmentConfirmationModalProps> =
   const [error, setError] = useState<string | null>(null);
 
   const handleConfirm = async () => {
-    if (isSubmitting) return; 
-    
+    if (isSubmitting) return;
+
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       await onConfirm();
       showToast.success('Enrollment submitted successfully!', {
-        autoClose: 3000, 
+        autoClose: 3000,
         hideProgressBar: true,
       });
     } catch (err) {
       setError(
-        err instanceof Error 
-          ? err.message 
+        err instanceof Error
+          ? err.message
           : 'An error occurred. Please try again.'
       );
-      showToast.error('Could not submit enrollment. Please check your selections and try again.', {
-        autoClose: false, 
-      });
+      showToast.error(
+        'Could not submit enrollment. Please check your selections and try again.',
+        {
+          autoClose: false,
+        }
+      );
       setIsSubmitting(false);
     }
   };
 
-  const renderSubtitle = useMemo(() => (
-    <Stack
-      direction={{ xs: 'column', sm: 'row' }}
-      alignItems={{ xs: 'flex-start', sm: 'center' }}
-      spacing={{ xs: 0.5, sm: 2 }}
-    >
-      <Stack direction="row" alignItems="center" spacing={1}>
-        <CalendarToday
+  const renderSubtitle = useMemo(
+    () => (
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        spacing={{ xs: 0.5, sm: 2 }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <CalendarToday
+            sx={{
+              fontSize: '0.875rem',
+              color: theme.palette.text.secondary,
+            }}
+          />
+          <Typography variant="body2" color="text.secondary">
+            {enrollmentPeriod.academicYear} - Semester{' '}
+            {enrollmentPeriod.semester}
+          </Typography>
+        </Stack>
+        <Typography
+          variant="caption"
           sx={{
-            fontSize: '0.875rem',
-            color: theme.palette.text.secondary,
+            px: 1,
+            py: 0.25,
+            bgcolor: alpha(theme.palette.primary.main, 0.08),
+            color: theme.palette.primary.main,
+            borderRadius: 1,
+            fontWeight: 500,
           }}
-        />
-        <Typography variant="body2" color="text.secondary">
-          {enrollmentPeriod.academicYear} - Semester {enrollmentPeriod.semester}
+        >
+          Deadline: {formatDate(enrollmentPeriod.endDate)}
         </Typography>
       </Stack>
-      <Typography 
-        variant="caption" 
-        sx={{ 
-          px: 1, 
-          py: 0.25, 
-          bgcolor: alpha(theme.palette.primary.main, 0.08),
-          color: theme.palette.primary.main,
-          borderRadius: 1,
-          fontWeight: 500
-        }}
-      >
-        Deadline: {formatDate(enrollmentPeriod.endDate)}
-      </Typography>
-    </Stack>
-  ), [enrollmentPeriod, theme]);
+    ),
+    [enrollmentPeriod, theme]
+  );
 
-  const renderStatusBanner = useMemo(() => (
-    <StatusBanner
-      icon={<Info />}
-      title="Review Your Selections"
-      message={getEnrollmentSummary(selections, packets)}
-      color={theme.palette.info.main}
-      severity="info"
-    />
-  ), [selections, packets, theme]);
+  const renderStatusBanner = useMemo(
+    () => (
+      <StatusBanner
+        icon={<Info />}
+        title="Review Your Selections"
+        message={getEnrollmentSummary(selections, packets)}
+        color={theme.palette.info.main}
+        severity="info"
+      />
+    ),
+    [selections, packets, theme]
+  );
 
   const hasSelections = useMemo(() => {
-    return packets.some(packet => 
-      selections.packets[packet.id]?.selections.length > 0
+    return packets.some(
+      (packet) => selections.packets[packet.id]?.selections.length > 0
     );
   }, [selections, packets]);
 
@@ -153,7 +165,8 @@ export const EnrollmentConfirmationModal: FC<EnrollmentConfirmationModalProps> =
         {hasSelections ? (
           <Stack spacing={3}>
             {packets.map((packet) => {
-              const packetSelections = selections.packets[packet.id]?.selections || [];
+              const packetSelections =
+                selections.packets[packet.id]?.selections || [];
               if (packetSelections.length === 0) return null;
 
               return (
@@ -171,9 +184,11 @@ export const EnrollmentConfirmationModal: FC<EnrollmentConfirmationModalProps> =
                         code={discipline.code}
                         priority={selection.priority}
                         isTopPriority={index === 0}
-                        teacher={discipline.teachingActivities.find(
-                          activity => activity.type === 'COURSE'
-                        )?.teacher}
+                        teacher={
+                          discipline.teachingActivities.find(
+                            (activity) => activity.type === 'COURSE'
+                          )?.teacher
+                        }
                         credits={discipline.credits}
                         language={discipline.language}
                         weeklyHours={discipline.weeklyHours.total}
@@ -185,10 +200,10 @@ export const EnrollmentConfirmationModal: FC<EnrollmentConfirmationModalProps> =
             })}
           </Stack>
         ) : (
-          <Stack 
-            alignItems="center" 
-            justifyContent="center" 
-            spacing={2} 
+          <Stack
+            alignItems="center"
+            justifyContent="center"
+            spacing={2}
             sx={{ py: 6 }}
           >
             <Typography variant="subtitle1" color="text.secondary">
@@ -218,8 +233,8 @@ export const EnrollmentConfirmationModal: FC<EnrollmentConfirmationModalProps> =
         >
           <Stack spacing={2}>
             {error && (
-              <Typography 
-                color="error" 
+              <Typography
+                color="error"
                 variant="body2"
                 sx={{
                   p: 1,
@@ -261,12 +276,12 @@ export const EnrollmentConfirmationModal: FC<EnrollmentConfirmationModalProps> =
               >
                 {isSubmitting ? (
                   <>
-                    <CircularProgress 
-                      size={24} 
+                    <CircularProgress
+                      size={24}
                       thickness={4}
-                      sx={{ 
+                      sx={{
                         mr: 1.5,
-                        color: alpha(theme.palette.primary.contrastText, 0.8)
+                        color: alpha(theme.palette.primary.contrastText, 0.8),
                       }}
                     />
                     Processing...
@@ -307,7 +322,7 @@ export const EnrollmentConfirmationModal: FC<EnrollmentConfirmationModalProps> =
         sx: {
           borderRadius: 2,
           maxHeight: '90vh',
-        }
+        },
       }}
       disableEscapeKeyDown={isSubmitting}
     >

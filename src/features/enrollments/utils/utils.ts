@@ -26,14 +26,6 @@ export const getStatusColor = (status: EnrollmentStatus, theme: Theme) => {
   }
 };
 
-export const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-};
-
 export const getStatusLabel = (status: EnrollmentStatus) => {
   switch (status) {
     case EnrollmentStatus.CONFIRMED:

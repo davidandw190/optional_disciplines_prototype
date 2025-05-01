@@ -1,11 +1,6 @@
-// contexts/discipline-selection.context.tsx
-import {
-  DisciplinePacket,
-  EnrollmentPeriod,
-} from '../types/disciplines/disciplines.types';
 import {
   DisciplineSelectionItem,
-  EnrollmentSelectionState
+  EnrollmentSelectionState,
 } from '../types/enrollments/enrollment-selection.types';
 import {
   FC,
@@ -17,12 +12,18 @@ import {
   useState,
 } from 'react';
 
+import { EnrollmentPeriod } from '../types/disciplines/disciplines.types';
+
 // Define the shape of our context's public API
 interface DisciplineSelectionContextType {
   selections: EnrollmentSelectionState;
   addSelection: (disciplineId: string, packetId: string) => void;
   removeSelection: (disciplineId: string, packetId: string) => void;
-  reorderSelections: (packetId: string, startIndex: number, endIndex: number) => void;
+  reorderSelections: (
+    packetId: string,
+    startIndex: number,
+    endIndex: number
+  ) => void;
   clearSelections: () => void;
   canAddToPacket: (packetId: string) => boolean;
   isDisciplineSelected: (disciplineId: string) => boolean;
@@ -31,7 +32,8 @@ interface DisciplineSelectionContextType {
 }
 
 // Create the context with null as initial value
-const DisciplineSelectionContext = createContext<DisciplineSelectionContextType | null>(null);
+const DisciplineSelectionContext =
+  createContext<DisciplineSelectionContextType | null>(null);
 
 // Provider component props definition
 interface DisciplineSelectionProviderProps {
@@ -46,27 +48,29 @@ interface DisciplineSelectionProviderProps {
 const isValidSelectionState = (data: any): data is EnrollmentSelectionState => {
   if (!data || typeof data !== 'object') return false;
   if (!data.packets || typeof data.packets !== 'object') return false;
-  
+
   for (const packet of Object.values(data.packets)) {
     if (!packet || typeof packet !== 'object') return false;
     if (!Array.isArray((packet as any).selections)) return false;
-    
+
     // Validate each selection has required properties
     for (const selection of (packet as any).selections) {
-      if (!selection.disciplineId || !selection.priority || !selection.selectedAt) {
+      if (
+        !selection.disciplineId ||
+        !selection.priority ||
+        !selection.selectedAt
+      ) {
         return false;
       }
     }
   }
-  
+
   return true;
 };
 
-export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> = ({
-  children,
-  enrollmentPeriod,
-}) => {
-  // Create a unique storage key for this enrollment period and student
+export const DisciplineSelectionProvider: FC<
+  DisciplineSelectionProviderProps
+> = ({ children, enrollmentPeriod }) => {
   const getStorageKey = useCallback(() => {
     if (!enrollmentPeriod) return null;
     // TODO: Get actual student ID from auth context
@@ -74,7 +78,6 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
     return `discipline-selections-${enrollmentPeriod.id}-${studentId}`;
   }, [enrollmentPeriod]);
 
-  // Initialize selections state from localStorage or create fresh state
   const initializeSelections = useCallback(() => {
     const storageKey = getStorageKey();
     if (!storageKey || !enrollmentPeriod) {
@@ -84,7 +87,6 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
       };
     }
 
-    // Try to restore saved selections from localStorage
     const savedSelections = localStorage.getItem(storageKey);
     if (savedSelections) {
       try {
@@ -96,8 +98,7 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
         console.error('Error parsing saved selections:', error);
       }
     }
-    
-    // Create fresh state if no valid saved data exists
+
     return {
       packets: enrollmentPeriod.packets.reduce(
         (acc, packet) => ({
@@ -115,10 +116,9 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
     };
   }, [enrollmentPeriod, getStorageKey]);
 
-  // Initialize state
-  const [selections, setSelections] = useState<EnrollmentSelectionState>(initializeSelections);
+  const [selections, setSelections] =
+    useState<EnrollmentSelectionState>(initializeSelections);
 
-  // Persist selections to localStorage whenever they change
   useEffect(() => {
     const storageKey = getStorageKey();
     if (storageKey) {
@@ -126,64 +126,67 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
     }
   }, [selections, getStorageKey]);
 
-  // Add a new discipline selection to a packet
-  const addSelection = useCallback((disciplineId: string, packetId: string) => {
-    if (!enrollmentPeriod) return;
+  const addSelection = useCallback(
+    (disciplineId: string, packetId: string) => {
+      if (!enrollmentPeriod) return;
 
-    setSelections((prev) => {
-      const packet = prev.packets[packetId];
-      if (!packet || packet.selections.length >= packet.maxSelections) {
-        return prev;
-      }
+      setSelections((prev) => {
+        const packet = prev.packets[packetId];
+        if (!packet || packet.selections.length >= packet.maxSelections) {
+          return prev;
+        }
 
-      const newSelection: DisciplineSelectionItem = {
-        disciplineId,
-        priority: packet.selections.length + 1,
-        selectedAt: new Date(),
-      };
+        const newSelection: DisciplineSelectionItem = {
+          disciplineId,
+          priority: packet.selections.length + 1,
+          selectedAt: new Date(),
+        };
 
-      return {
-        ...prev,
-        packets: {
-          ...prev.packets,
-          [packetId]: {
-            ...packet,
-            selections: [...packet.selections, newSelection],
+        return {
+          ...prev,
+          packets: {
+            ...prev.packets,
+            [packetId]: {
+              ...packet,
+              selections: [...packet.selections, newSelection],
+            },
           },
-        },
-      };
-    });
-  }, [enrollmentPeriod]);
+        };
+      });
+    },
+    [enrollmentPeriod]
+  );
 
-  // Remove a discipline selection and reorder remaining priorities
-  const removeSelection = useCallback((disciplineId: string, packetId: string) => {
-    if (!enrollmentPeriod) return;
+  const removeSelection = useCallback(
+    (disciplineId: string, packetId: string) => {
+      if (!enrollmentPeriod) return;
 
-    setSelections((prev) => {
-      const packet = prev.packets[packetId];
-      if (!packet) return prev;
+      setSelections((prev) => {
+        const packet = prev.packets[packetId];
+        if (!packet) return prev;
 
-      const updatedSelections = packet.selections
-        .filter((s) => s.disciplineId !== disciplineId)
-        .map((s, idx) => ({
-          ...s,
-          priority: idx + 1,
-        }));
+        const updatedSelections = packet.selections
+          .filter((s) => s.disciplineId !== disciplineId)
+          .map((s, idx) => ({
+            ...s,
+            priority: idx + 1,
+          }));
 
-      return {
-        ...prev,
-        packets: {
-          ...prev.packets,
-          [packetId]: {
-            ...packet,
-            selections: updatedSelections,
+        return {
+          ...prev,
+          packets: {
+            ...prev.packets,
+            [packetId]: {
+              ...packet,
+              selections: updatedSelections,
+            },
           },
-        },
-      };
-    });
-  }, [enrollmentPeriod]);
+        };
+      });
+    },
+    [enrollmentPeriod]
+  );
 
-  // Reorder selections within a packet and update priorities
   const reorderSelections = useCallback(
     (packetId: string, startIndex: number, endIndex: number) => {
       if (!enrollmentPeriod) return;
@@ -196,7 +199,6 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
         const [movedItem] = newSelections.splice(startIndex, 1);
         newSelections.splice(endIndex, 0, movedItem);
 
-        // Update priorities after reordering
         const reorderedSelections = newSelections.map((selection, index) => ({
           ...selection,
           priority: index + 1,
@@ -217,7 +219,6 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
     [enrollmentPeriod]
   );
 
-  // Clear all selections and remove from localStorage
   const clearSelections = useCallback(() => {
     const storageKey = getStorageKey();
     if (storageKey) {
@@ -226,7 +227,6 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
     setSelections(initializeSelections());
   }, [getStorageKey, initializeSelections]);
 
-  // Check if more selections can be added to a packet
   const canAddToPacket = useCallback(
     (packetId: string) => {
       const packet = selections.packets[packetId];
@@ -235,7 +235,6 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
     [selections]
   );
 
-  // Check if a discipline is already selected in any packet
   const isDisciplineSelected = useCallback(
     (disciplineId: string) => {
       return Object.values(selections.packets).some((packet) =>
@@ -245,7 +244,6 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
     [selections]
   );
 
-  // Get validation errors for incomplete selections
   const getSelectionErrors = useCallback(
     () =>
       Object.values(selections.packets).reduce((errors, packet) => {
@@ -258,7 +256,6 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
     [selections]
   );
 
-  // Provide context value
   const value = {
     selections,
     addSelection,
@@ -278,7 +275,6 @@ export const DisciplineSelectionProvider: FC<DisciplineSelectionProviderProps> =
   );
 };
 
-// Custom hook for consuming the context
 export const useDisciplineSelection = () => {
   const context = useContext(DisciplineSelectionContext);
   if (!context) {

@@ -1,3 +1,12 @@
+export const formatDate = (date: Date | string): string => {
+  const dateObj = new Date(date);
+  const day = dateObj.getDate();
+  const month = dateObj.toLocaleString('en-US', { month: 'short' }); // 3-letter month
+  const year = dateObj.getFullYear();
+
+  return `${day} ${month} ${year}`;
+};
+
 export const formatAnnouncementDate = (dateString: string | Date) => {
   const date = new Date(dateString);
   const now = new Date();
@@ -22,23 +31,14 @@ export const formatAnnouncementDate = (dateString: string | Date) => {
     return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
   }
 
-  // for the rest
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return formatDate(date);
 };
 
-export const formatDate = (date: Date | string): string => {
-  return new Date(date).toLocaleDateString('en-GB', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+export const formatDateWithTime = (date: Date | string): string => {
+  const dateObj = new Date(date);
+  const formattedDate = formatDate(dateObj);
+  const hours = dateObj.getHours().toString().padStart(2, '0');
+  const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+
+  return `${formattedDate}, ${hours}:${minutes}`;
 };

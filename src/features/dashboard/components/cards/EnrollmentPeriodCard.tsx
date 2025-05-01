@@ -15,6 +15,7 @@ import {
 import { EnrollmentPeriod } from '../../../../types/disciplines/disciplines.types';
 import { EnrollmentPeriodType } from '../../../../types/disciplines/disciplines.enums';
 import { FC } from 'react';
+import { formatDate } from '../../../../utils/dateUtils';
 import { showToast } from '../../../../utils/toastUtils';
 import { useNavigate } from 'react-router-dom';
 
@@ -91,9 +92,9 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
     if (!isAccessible) {
       if (status === 'upcoming') {
         showToast.info(
-          `${period.type.replace('_', ' ')} enrollment starts on ${new Date(
+          `${period.type.replace('_', ' ')} enrollment starts on ${formatDate(
             period.startDate
-          ).toLocaleDateString()}`
+          )}`
         );
       } else if (status === 'ended') {
         showToast.warning(
@@ -140,70 +141,45 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
     >
       <Stack spacing={2}>
         {/* Header Section */}
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          spacing={2}
-        >
-          {/* Period Info */}
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Box
-              sx={{
-                p: 1.25,
-                borderRadius: 1.5,
-                bgcolor: (theme) =>
-                  status === 'ended'
-                    ? alpha(theme.palette.grey[500], 0.1)
-                    : alpha(theme.palette.primary.main, 0.1),
-                color: status === 'ended' ? 'text.disabled' : 'primary.main',
-              }}
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Box
+            sx={{
+              p: 1.25,
+              borderRadius: 1.5,
+              bgcolor: (theme) =>
+                status === 'ended'
+                  ? alpha(theme.palette.grey[500], 0.1)
+                  : alpha(theme.palette.primary.main, 0.1),
+              color: status === 'ended' ? 'text.disabled' : 'primary.main',
+            }}
+          >
+            {getEnrollmentIcon()}
+          </Box>
+
+          <Stack spacing={0.5}>
+            <Typography
+              variant="body1"
+              fontWeight={600}
+              color={status === 'ended' ? 'text.disabled' : 'text.primary'}
             >
-              {getEnrollmentIcon()}
-            </Box>
+              {period.type}
+            </Typography>
 
-            <Stack spacing={0.5}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <AccessTime
+                sx={{
+                  fontSize: 14,
+                  color:
+                    status === 'ended' ? 'text.disabled' : 'text.secondary',
+                }}
+              />
               <Typography
-                variant="body1"
-                fontWeight={600}
-                color={status === 'ended' ? 'text.disabled' : 'text.primary'}
+                variant="caption"
+                color={status === 'ended' ? 'text.disabled' : 'text.secondary'}
               >
-                {period.type}
+                {formatDate(period.startDate)} - {formatDate(period.endDate)}
               </Typography>
-
-              <Stack direction="row" spacing={1} alignItems="center">
-                <AccessTime
-                  sx={{
-                    fontSize: 14,
-                    color:
-                      status === 'ended' ? 'text.disabled' : 'text.secondary',
-                  }}
-                />
-                <Typography
-                  variant="caption"
-                  color={
-                    status === 'ended' ? 'text.disabled' : 'text.secondary'
-                  }
-                >
-                  {new Date(period.startDate).toLocaleDateString()} -{' '}
-                  {new Date(period.endDate).toLocaleDateString()}
-                </Typography>
-              </Stack>
             </Stack>
-          </Stack>
-
-          {/* Right Side - Status */}
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Chip
-              label={statusConfig.text}
-              size="small"
-              color={statusConfig.chipColor}
-              sx={{
-                height: 24,
-                fontSize: '0.75rem',
-                fontWeight: 500,
-              }}
-            />
           </Stack>
         </Stack>
 

@@ -48,6 +48,7 @@ import { DisciplineList } from '../components/DisciplineList';
 import { EnrollmentConfirmationModal } from '../../enrollments/modals/EnrollmentConfirmationModal';
 import { EnrollmentSelectionPanel } from '../../enrollments/components/EnrollmentSelectionPanel';
 import { SelectionRequirementsModal } from '../components/SelectionRequirementsModal';
+import { formatDate } from '../../../utils/dateUtils';
 import { showToast } from '../../../utils/toastUtils';
 
 export const ElectiveDisciplinesPage: FC = () => {
@@ -173,11 +174,19 @@ export const ElectiveDisciplinesPage: FC = () => {
       } else {
         const packet = getPacketForDiscipline(disciplineId);
         showToast.warning(
-          `Cannot add more disciplines to ${packet?.name || 'this packet'}. Maximum limit reached.`
+          `Cannot add more disciplines to ${
+            packet?.name || 'this packet'
+          }. Maximum limit reached.`
         );
       }
     },
-    [canAddToPacket, addSelection, isMobile, disciplinesMap, getPacketForDiscipline]
+    [
+      canAddToPacket,
+      addSelection,
+      isMobile,
+      disciplinesMap,
+      getPacketForDiscipline,
+    ]
   );
 
   const handleStartEnrollment = useCallback(() => {
@@ -197,11 +206,16 @@ export const ElectiveDisciplinesPage: FC = () => {
     }
   };
 
-  const handleRemoveSelection = useCallback((disciplineId: string, packetId: string) => {
-    const discipline = disciplinesMap[disciplineId];
-    removeSelection(disciplineId, packetId);
-    showToast.info(`Removed ${discipline?.name || 'discipline'} from your selections`);
-  }, [disciplinesMap, removeSelection]);
+  const handleRemoveSelection = useCallback(
+    (disciplineId: string, packetId: string) => {
+      const discipline = disciplinesMap[disciplineId];
+      removeSelection(disciplineId, packetId);
+      showToast.info(
+        `Removed ${discipline?.name || 'discipline'} from your selections`
+      );
+    },
+    [disciplinesMap, removeSelection]
+  );
 
   if (periodError) {
     return (
@@ -221,17 +235,23 @@ export const ElectiveDisciplinesPage: FC = () => {
     );
   }
 
-  const handleReorderSelections = useCallback((packetId: string, startIndex: number, endIndex: number) => {
-    reorderSelections(packetId, startIndex, endIndex);
-    
-    const packetSelections = selections.packets[packetId]?.selections || [];
-    if (packetSelections.length > 0) {
-      const movedDiscipline = disciplinesMap[packetSelections[endIndex].disciplineId];
-      if (movedDiscipline) {
-        showToast.info(`Changed priority for ${movedDiscipline.name} to ${endIndex + 1}`);
+  const handleReorderSelections = useCallback(
+    (packetId: string, startIndex: number, endIndex: number) => {
+      reorderSelections(packetId, startIndex, endIndex);
+
+      const packetSelections = selections.packets[packetId]?.selections || [];
+      if (packetSelections.length > 0) {
+        const movedDiscipline =
+          disciplinesMap[packetSelections[endIndex].disciplineId];
+        if (movedDiscipline) {
+          showToast.info(
+            `Changed priority for ${movedDiscipline.name} to ${endIndex + 1}`
+          );
+        }
       }
-    }
-  }, [reorderSelections, selections.packets, disciplinesMap]);
+    },
+    [reorderSelections, selections.packets, disciplinesMap]
+  );
 
   if (isLoadingPeriod || isLoadingPackets || !enrollmentPeriod) {
     return (
@@ -310,13 +330,8 @@ export const ElectiveDisciplinesPage: FC = () => {
                     <Stack direction="row" spacing={1} alignItems="center">
                       <CalendarToday color="action" />
                       <Typography variant="body2" color="text.secondary">
-                        {new Date(
-                          enrollmentPeriod.startDate
-                        ).toLocaleDateString()}{' '}
-                        -{' '}
-                        {new Date(
-                          enrollmentPeriod.endDate
-                        ).toLocaleDateString()}
+                        {formatDate(enrollmentPeriod.startDate)} -{' '}
+                        {formatDate(enrollmentPeriod.endDate)}
                       </Typography>
                     </Stack>
                   </Stack>

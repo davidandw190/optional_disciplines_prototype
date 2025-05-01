@@ -17,7 +17,6 @@ import {
 import { EnrollmentCard, StatusChip } from '../styles/enrollment-styles';
 import { FC, useState } from 'react';
 import {
-  formatDate,
   getStatusColor,
   getStatusLabel,
 } from '../utils/utils';
@@ -26,6 +25,7 @@ import { EnrollmentDetailsModal } from '../modals/EnrollmentDetailsModal';
 import { EnrollmentStatus } from '../../../types/disciplines/disciplines.enums';
 import { EnrollmentSummary } from '../../../types/enrollments/enrollment-summary.types';
 import { Student } from '../../../types/student/student.types';
+import { formatDate } from '../../../utils/dateUtils';
 
 interface EnrollmentSummaryCardProps {
   enrollment: EnrollmentSummary;

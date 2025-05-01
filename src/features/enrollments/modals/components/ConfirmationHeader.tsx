@@ -1,9 +1,17 @@
-import { Box, IconButton, Paper, Stack, Typography, alpha, useTheme } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  Paper,
+  Stack,
+  Typography,
+  alpha,
+  useTheme,
+} from '@mui/material';
 import { CalendarToday, Close, School } from '@mui/icons-material';
 
 import { EnrollmentPeriod } from '../../../../types/disciplines/disciplines.types';
 import { FC } from 'react';
-import { getFormattedDate } from '../utils/confirmation-utils';
+import { formatDate } from '../../../../utils/dateUtils';
 
 interface ConfirmationHeaderProps {
   enrollmentPeriod: EnrollmentPeriod;
@@ -14,10 +22,10 @@ interface ConfirmationHeaderProps {
 export const ConfirmationHeader: FC<ConfirmationHeaderProps> = ({
   enrollmentPeriod,
   onClose,
-  isSubmitting
+  isSubmitting,
 }) => {
   const theme = useTheme();
-  
+
   return (
     <Paper
       elevation={0}
@@ -55,18 +63,18 @@ export const ConfirmationHeader: FC<ConfirmationHeaderProps> = ({
                   {enrollmentPeriod.academicYear} - Semester{' '}
                   {enrollmentPeriod.semester}
                 </Typography>
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    px: 1, 
-                    py: 0.25, 
+                <Typography
+                  variant="caption"
+                  sx={{
+                    px: 1,
+                    py: 0.25,
                     bgcolor: alpha(theme.palette.primary.main, 0.08),
                     color: theme.palette.primary.main,
                     borderRadius: 1,
-                    fontWeight: 500
+                    fontWeight: 500,
                   }}
                 >
-                  Deadline: {getFormattedDate(enrollmentPeriod.endDate)}
+                  Deadline: {formatDate(enrollmentPeriod.endDate)}
                 </Typography>
               </Stack>
             </Box>

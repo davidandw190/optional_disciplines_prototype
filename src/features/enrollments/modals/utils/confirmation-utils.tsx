@@ -1,14 +1,6 @@
 import { DisciplinePacket } from '../../../../types/disciplines/disciplines.types';
 import { EnrollmentSelectionState } from '../../../../types/enrollments/enrollment-selection.types';
 
-export const getFormattedDate = (date: Date): string => {
-  return new Date(date).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-};
-
 export const getTotalSelections = (
   selections: EnrollmentSelectionState,
   packets: DisciplinePacket[]
@@ -29,13 +21,6 @@ export const getPriorityDescription = (priority: number): string => {
   return `This is priority ${priority} and will be considered after higher-ranked selections.`;
 };
 
-export const formatDate = (date: Date): string => {
-  return new Date(date).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
 
 export const getPacketTooltipMessage = (
   packet: DisciplinePacket,
