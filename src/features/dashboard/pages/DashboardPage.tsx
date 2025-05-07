@@ -1,14 +1,16 @@
 import { Box, Grid, Typography } from '@mui/material';
+import { FC, useEffect } from 'react';
 
 import { AnnouncementsSection } from '../components/sections/AnnouncementsSection';
 import { EnrollmentsSection } from '../components/sections/EnrollmentsSection';
-import { FC } from 'react';
 import { QuickActionsSection } from '../components/sections/QuickActionsSection';
 import { mockQuickActions } from '../../mocks/dashboard.mock';
+import { useAuth } from '../../../contexts/auth.context';
 import { useGetEligibleEnrollmentPeriodsQuery } from '../../../api/enrollmentPeriods/enrollmentPeriodsApi';
 import { useStudent } from '../../../contexts/student.context';
 
 const DashboardPage: FC = () => {
+  const { isAuthenticated } = useAuth();
   const {
     student,
     isLoading: isLoadingStudent,
@@ -19,14 +21,25 @@ const DashboardPage: FC = () => {
     data: enrollmentPeriods,
     error: enrollmentError,
     isLoading: isLoadingEnrollments,
-  } = useGetEligibleEnrollmentPeriodsQuery({
-    yearOfStudy: student?.yearOfStudy ?? 1,
-    semester: student?.semester ?? 1,
-    specialization: student?.specialization ?? '',
-  });
+    refetch: refetchEnrollmentPeriods,
+  } = useGetEligibleEnrollmentPeriodsQuery(
+    {
+      yearOfStudy: student?.yearOfStudy ?? 1,
+      semester: student?.semester ?? 1,
+      specialization: student?.specialization ?? '',
+    },
+    {
+      skip: !isAuthenticated || !student,
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
-  // This is temporary
-  // const enrollmentPeriods = mockEnrollmentPeriods;
+  // we refetch when authentication state changes
+  useEffect(() => {
+    if (isAuthenticated && student) {
+      refetchEnrollmentPeriods();
+    }
+  }, [isAuthenticated, student, refetchEnrollmentPeriods]);
 
   return (
     <Box

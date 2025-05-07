@@ -4,6 +4,10 @@ const VITE_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 const RUNTIME_BASE_URL = '<!--# echo var="ENV_API_BASE_URL" -->';
 const DEFAULT_BASE_URL = 'http://localhost:8080/api';
 
+export const VITE_KEYCLOAK_URL = 'http://localhost:8180';
+export const VITE_KEYCLOAK_REALM = 'fmi-enroll';
+export const VITE_KEYCLOAK_CLIENT_ID = 'fmi-enroll-client';
+
 const getBaseUrl = () => {
   try {
     return new URL(RUNTIME_BASE_URL).href;

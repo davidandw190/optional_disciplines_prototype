@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Keycloak Debug Page</title>
+  <script src="https://localhost:8180/js/keycloak.js"></script>
+</head>
+<body>
+  <h1>Keycloak Debug Page</h1>
+  <div id="status">Checking authentication...</div>
+  <button id="loginBtn" style="display:none">Login</button>
+  <button id="logoutBtn" style="display:none">Logout</button>
+  <pre id="token" style="white-space: pre-wrap; word-break: break-all;"></pre>
+  
+  <script>
+    const keycloak = new Keycloak({
+      url: 'http://localhost:8180',
+      realm: 'fmi-enroll',
+      clientId: 'fmi-enroll-client'
+    });
+    
+    keycloak.init({
+      onLoad: 'check-sso',
+      pkceMethod: 'S256',
+      checkLoginIframe: false,
+      enableLogging: true
+    }).then(authenticated => {
+      document.getElementById('status').textContent = 
+        authenticated ? 'Authenticated' : 'Not authenticated';
+      
+      if (authenticated) {
+        document.getElementById('logoutBtn').style.display = 'block';
+        document.getElementById('token').textContent = 
+          JSON.stringify(keycloak.tokenParsed, null, 2);
+      } else {
+        document.getElementById('loginBtn').style.display = 'block';
+      }
+    }).catch(error => {
+      document.getElementById('status').textContent = 'Error: ' + error;
+    });
+    
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      keycloak.login();
+    });
+    
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      keycloak.logout();
+    });
+  </script>
+</body>
+</html>

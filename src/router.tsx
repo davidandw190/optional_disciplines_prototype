@@ -6,22 +6,23 @@ import {
 } from 'react-router-dom';
 
 import App from './App';
-import { AuthPage } from './features/auth/pages/AuthPage';
 import { AvailableThesisPage } from './features/thesis/pages/AvailableThesisPage';
 import { ComplementaryDisciplinesPage } from './features/complementary-disciplines/pages/ComplementaryDisciplinesPage';
 import DashboardPage from './features/dashboard/pages/DashboardPage';
 import { ElectiveDisciplinesPageContainer } from './features/elective-disciplines/pages/ElectiveDisciplinePageContainer';
 import { FAQPage } from './features/faq/pages/FAQPage';
+import { LoginPage } from './features/auth/pages/LoginPage';
 import { MainLayout } from './layout/MainLayout';
 import { MyEnrollmentsPage } from './features/enrollments/pages/MyEnrollmentsPage';
+import { ProfilePage } from './features/profile/pages/ProfilePage';
 import ProtectedRoute from './layout/ProtectedRoute';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       {/* Public Routes */}
-      <Route path="auth" element={<AuthPage />} />
-      <Route path="/" element={<Navigate to="/dashboard" />} />
+      <Route path="login" element={<LoginPage />} />
+      {/* <Route path="/" element={<Navigate to="/dashboard" />} /> */}
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
@@ -54,16 +55,16 @@ const router = createBrowserRouter(
 
           {/* Profile Routes */}
           <Route path="profile">
-            <Route index element={<Navigate to="details" />} />
-            {/* <Route path="details" element={<ProfilePage />} /> */}
-            <Route path="*" element={<Navigate to="details" />} />
+            <Route index element={<ProfilePage />} />
+            <Route path="*" element={<Navigate to="/profile" />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/dashboard" />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/dashboard" />} />
+      {/* <Route path="*" element={<Navigate to="/dashboard" />} /> */}
     </Route>
   )
 );
