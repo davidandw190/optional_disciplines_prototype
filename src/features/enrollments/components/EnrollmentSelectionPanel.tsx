@@ -14,11 +14,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import {
-  Check,
-  PlaylistAddCheck,
-  Warning
-} from '@mui/icons-material';
+import { Check, PlaylistAddCheck, Warning } from '@mui/icons-material';
 import {
   DndContext,
   DragEndEvent,
@@ -34,7 +30,10 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import {
+  restrictToVerticalAxis,
+  restrictToWindowEdges,
+} from '@dnd-kit/modifiers';
 
 import { Discipline } from '../../../types/disciplines/disciplines.types';
 import { DisciplinePacket } from '../../../types/disciplines/disciplines.types';
@@ -51,7 +50,8 @@ interface EnrollmentSelectionPanelProps {
   onReorderSelections: (
     packetId: string,
     startIndex: number,
-    endIndex: number
+    endIndex: number,
+    draggedDisciplineId: string
   ) => void;
   onStartEnrollment: () => void;
   enrollmentPeriod: EnrollmentPeriod;
@@ -113,25 +113,31 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
       if (onDragStateChange) {
         onDragStateChange(false);
       }
-      
+
       const { active, over } = event;
       if (!active || !over || active.id === over.id) return;
 
       const overId = over.id.toString();
-
+      const draggedDisciplineId = active.data.current?.disciplineId; // Get the dragged discipline ID
       const activePacketId = active.data.current?.packetId;
-      if (!activePacketId) return;
+
+      if (!activePacketId || !draggedDisciplineId) return;
 
       const packet = selections.packets[activePacketId];
       if (!packet) return;
 
       const startIndex = packet.selections.findIndex(
-        (s) => s.disciplineId === active.data.current?.disciplineId
+        (s) => s.disciplineId === draggedDisciplineId
       );
       const endIndex = parseInt(overId.split('-').pop() || '0');
 
       if (startIndex !== -1 && startIndex !== endIndex) {
-        onReorderSelections(activePacketId, startIndex, endIndex);
+        onReorderSelections(
+          activePacketId,
+          startIndex,
+          endIndex,
+          draggedDisciplineId
+        );
       }
     },
     [selections, onReorderSelections, onDragStateChange]
@@ -139,12 +145,12 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
 
   const handleStartEnrollment = useCallback(async () => {
     if (!isComplete) return;
-    
+
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       onStartEnrollment();
     } catch (err) {
       setError('Failed to process enrollment. Please try again.');
@@ -193,20 +199,22 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
             items={sortableItems}
             strategy={verticalListSortingStrategy}
           >
-            <List 
+            <List
               disablePadding
               sx={{
                 minHeight: packetSelections.length === 0 ? 60 : 'auto',
-                border: packetSelections.length === 0 
-                  ? `1px dashed ${alpha(theme.palette.divider, 0.3)}` 
-                  : 'none',
+                border:
+                  packetSelections.length === 0
+                    ? `1px dashed ${alpha(theme.palette.divider, 0.3)}`
+                    : 'none',
                 borderRadius: 1.5,
                 display: packetSelections.length === 0 ? 'flex' : 'block',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: packetSelections.length === 0 
-                  ? alpha(theme.palette.background.default, 0.5)
-                  : 'transparent'
+                backgroundColor:
+                  packetSelections.length === 0
+                    ? alpha(theme.palette.background.default, 0.5)
+                    : 'transparent',
               }}
             >
               {packetSelections.length > 0 ? (
@@ -222,7 +230,11 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
                   />
                 ))
               ) : (
-                <Typography variant="body2" color="text.secondary" align="center">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  align="center"
+                >
                   Add disciplines to this packet
                 </Typography>
               )}
@@ -262,10 +274,7 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
   };
 
   return (
-    <Paper 
-      elevation={0} 
-      sx={paperStyles}
-    >
+    <Paper elevation={0} sx={paperStyles}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -295,11 +304,11 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
                   justifyContent: 'center',
                 }}
               >
-                <PlaylistAddCheck 
-                  sx={{ 
+                <PlaylistAddCheck
+                  sx={{
                     fontSize: '1.25rem',
-                    color: theme.palette.primary.main 
-                  }} 
+                    color: theme.palette.primary.main,
+                  }}
                 />
               </Box>
               <Typography
@@ -313,17 +322,27 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
                 Your Selections
               </Typography>
             </Stack>
-            
+
             {/* Status indicator */}
             <Box>
-              <Tooltip 
-                title={isComplete ? "All selections complete" : "Complete all packet selections"}
+              <Tooltip
+                title={
+                  isComplete
+                    ? 'All selections complete'
+                    : 'Complete all packet selections'
+                }
                 arrow
               >
                 <Chip
-                  icon={isComplete ? <Check fontSize="small" /> : <Warning fontSize="small" />}
-                  label={isComplete ? "Ready to Submit" : "Incomplete"}
-                  color={isComplete ? "success" : "default"}
+                  icon={
+                    isComplete ? (
+                      <Check fontSize="small" />
+                    ) : (
+                      <Warning fontSize="small" />
+                    )
+                  }
+                  label={isComplete ? 'Ready to Submit' : 'Incomplete'}
+                  color={isComplete ? 'success' : 'default'}
                   size="small"
                   sx={{
                     height: 28,
@@ -331,9 +350,10 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
                       px: 1,
                       fontSize: '0.75rem',
                       fontWeight: 500,
-                      color: isComplete && theme.palette.mode === 'dark' 
-                        ? theme.palette.common.black 
-                        : undefined
+                      color:
+                        isComplete && theme.palette.mode === 'dark'
+                          ? theme.palette.common.black
+                          : undefined,
                     },
                   }}
                 />
@@ -342,29 +362,35 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
           </Box>
 
           {/* Scrollable content area */}
-          <Box 
-            sx={{ 
-              flex: 1, 
+          <Box
+            sx={{
+              flex: 1,
               overflow: 'auto',
               ...scrollbarStyles,
-              pb: 2
+              pb: 2,
             }}
           >
             {packets.length > 0 ? (
-              packets.map((packet, index) => renderPacketItem(packet, index, packets.length))
+              packets.map((packet, index) =>
+                renderPacketItem(packet, index, packets.length)
+              )
             ) : (
-              <Box 
-                sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   height: '100%',
                   flexDirection: 'column',
                   gap: 2,
-                  p: 3 
+                  p: 3,
                 }}
               >
-                <Typography variant="subtitle1" color="text.secondary" align="center">
+                <Typography
+                  variant="subtitle1"
+                  color="text.secondary"
+                  align="center"
+                >
                   No discipline packets available
                 </Typography>
               </Box>
@@ -385,7 +411,7 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
                 {error}
               </Alert>
             )}
-            
+
             <Button
               variant="contained"
               fullWidth
@@ -409,12 +435,12 @@ export const EnrollmentSelectionPanel: FC<EnrollmentSelectionPanelProps> = ({
             >
               {isSubmitting ? (
                 <>
-                  <CircularProgress 
-                    size={24} 
+                  <CircularProgress
+                    size={24}
                     thickness={4}
-                    sx={{ 
+                    sx={{
                       position: 'absolute',
-                      color: alpha(theme.palette.primary.contrastText, 0.8)
+                      color: alpha(theme.palette.primary.contrastText, 0.8),
                     }}
                   />
                   <span style={{ opacity: 0 }}>Continue to Enrollment</span>

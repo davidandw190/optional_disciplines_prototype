@@ -236,21 +236,23 @@ export const ElectiveDisciplinesPage: FC = () => {
   }
 
   const handleReorderSelections = useCallback(
-    (packetId: string, startIndex: number, endIndex: number) => {
+    (
+      packetId: string,
+      startIndex: number,
+      endIndex: number,
+      draggedDisciplineId: string
+    ) => {
+      const draggedDiscipline = disciplinesMap[draggedDisciplineId];
+
       reorderSelections(packetId, startIndex, endIndex);
 
-      const packetSelections = selections.packets[packetId]?.selections || [];
-      if (packetSelections.length > 0) {
-        const movedDiscipline =
-          disciplinesMap[packetSelections[endIndex].disciplineId];
-        if (movedDiscipline) {
-          showToast.info(
-            `Changed priority for ${movedDiscipline.name} to ${endIndex + 1}`
-          );
-        }
+      if (draggedDiscipline) {
+        showToast.info(
+          `Changed priority for ${draggedDiscipline.name} to ${endIndex + 1}`
+        );
       }
     },
-    [reorderSelections, selections.packets, disciplinesMap]
+    [reorderSelections, disciplinesMap]
   );
 
   if (isLoadingPeriod || isLoadingPackets || !enrollmentPeriod) {
