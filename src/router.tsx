@@ -22,7 +22,7 @@ const router = createBrowserRouter(
     <Route path="/" element={<App />}>
       {/* Public Routes */}
       <Route path="login" element={<LoginPage />} />
-      {/* <Route path="/" element={<Navigate to="/dashboard" />} /> */}
+      <Route path="/" element={<Navigate to="/dashboard" />} />
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>

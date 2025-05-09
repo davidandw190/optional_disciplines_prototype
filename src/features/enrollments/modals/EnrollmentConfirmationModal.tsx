@@ -27,6 +27,7 @@ import { EnrollmentSelectionState } from '../../../types/enrollments/enrollment-
 import { ModalHeader } from './components/ModalHeader';
 import { PacketSection } from './components/PacketSection';
 import { StatusBanner } from './components/StatusBanner';
+import { completedEnrollmentsUtils } from '../../../utils/enrollmentUtils';
 import { formatDate } from '../../../utils/dateUtils';
 import { showToast } from '../../../utils/toastUtils';
 
@@ -64,6 +65,11 @@ export const EnrollmentConfirmationModal: FC<
 
     try {
       await onConfirm();
+
+      if (enrollmentPeriod?.id) {
+        completedEnrollmentsUtils.markEnrollmentCompleted(enrollmentPeriod.id);
+      }
+
       showToast.success('Enrollment submitted successfully!', {
         autoClose: 3000,
         hideProgressBar: true,

@@ -15,6 +15,7 @@ import {
 import { EnrollmentPeriod } from '../../../../types/disciplines/disciplines.types';
 import { EnrollmentPeriodType } from '../../../../types/disciplines/disciplines.enums';
 import { FC } from 'react';
+import { completedEnrollmentsUtils } from '../../../../utils/enrollmentUtils';
 import { formatDate } from '../../../../utils/dateUtils';
 import { showToast } from '../../../../utils/toastUtils';
 import { useNavigate } from 'react-router-dom';
@@ -34,6 +35,7 @@ type StatusConfig = {
     | 'secondary'
     | 'error'
     | 'info';
+  badge: string;
 };
 
 export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
@@ -42,33 +44,51 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
   const navigate = useNavigate();
   const status = getEnrollmentPeriodStatus(period);
   const remainingDays = getRemainingDays(period);
-  const isAccessible = isEnrollmentAccessible(period);
+
+  const isCompleted = completedEnrollmentsUtils.isEnrollmentCompleted(
+    period.id
+  );
+  const isAccessible = isEnrollmentAccessible(period) && !isCompleted;
 
   const getStatusConfig = (): StatusConfig => {
+    // If enrollment is completed, show that status regardless of time-based status
+    if (isCompleted) {
+      return {
+        color: 'success.main',
+        text: 'COMPLETED',
+        chipColor: 'success',
+        badge: 'Enrolled',
+      };
+    }
+
     switch (status) {
       case 'active':
         return {
           color: 'success.main',
           text: 'ACTIVE',
           chipColor: 'success',
+          badge: 'Active',
         };
       case 'upcoming':
         return {
           color: 'warning.main',
           text: 'UPCOMING',
           chipColor: 'warning',
+          badge: 'Opens Soon',
         };
       case 'ended':
         return {
           color: 'text.disabled',
           text: 'ENDED',
           chipColor: 'default',
+          badge: 'Closed',
         };
       default:
         return {
           color: 'text.disabled',
           text: 'UNKNOWN',
           chipColor: 'default',
+          badge: 'Unknown Status',
         };
     }
   };
@@ -90,7 +110,14 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
 
   const handleClick = () => {
     if (!isAccessible) {
-      if (status === 'upcoming') {
+      if (isCompleted) {
+        showToast.info(
+          `You have already completed enrollment for ${period.type.replace(
+            '_',
+            ' '
+          )}`
+        );
+      } else if (status === 'upcoming') {
         showToast.info(
           `${period.type.replace('_', ' ')} enrollment starts on ${formatDate(
             period.startDate
@@ -125,11 +152,20 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
         p: { xs: 2, sm: 2.5 },
         borderRadius: 2,
         border: '1px solid',
-        borderColor: status === 'ended' ? 'grey.200' : 'divider',
+        borderColor: isCompleted
+          ? 'success.light'
+          : status === 'ended'
+          ? 'grey.200'
+          : 'divider',
         cursor: isAccessible ? 'pointer' : 'default',
         opacity: status === 'ended' ? 0.7 : 1,
-        background: status === 'ended' ? 'grey.50' : 'background.paper',
+        background: isCompleted
+          ? (theme) => alpha(theme.palette.success.light, 0.05)
+          : status === 'ended'
+          ? 'grey.50'
+          : 'background.paper',
         transition: 'all 0.2s ease-in-out',
+        position: 'relative',
         '&:hover': isAccessible
           ? {
               bgcolor: (theme) => alpha(theme.palette.primary.main, 0.04),
@@ -139,6 +175,22 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
           : {},
       }}
     >
+      <Chip
+        label={statusConfig.badge}
+        size="small"
+        color={statusConfig.chipColor}
+        sx={{
+          position: 'absolute',
+          top: 12,
+          right: 12,
+          height: 24,
+          fontWeight: 600,
+          fontSize: '0.75rem',
+          px: 1,
+          boxShadow: 1,
+        }}
+      />
+
       <Stack spacing={2}>
         {/* Header Section */}
         <Stack direction="row" spacing={2} alignItems="center">
@@ -147,10 +199,16 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
               p: 1.25,
               borderRadius: 1.5,
               bgcolor: (theme) =>
-                status === 'ended'
+                isCompleted
+                  ? alpha(theme.palette.success.main, 0.1)
+                  : status === 'ended'
                   ? alpha(theme.palette.grey[500], 0.1)
                   : alpha(theme.palette.primary.main, 0.1),
-              color: status === 'ended' ? 'text.disabled' : 'primary.main',
+              color: isCompleted
+                ? 'success.main'
+                : status === 'ended'
+                ? 'text.disabled'
+                : 'primary.main',
             }}
           >
             {getEnrollmentIcon()}
@@ -160,22 +218,37 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
             <Typography
               variant="body1"
               fontWeight={600}
-              color={status === 'ended' ? 'text.disabled' : 'text.primary'}
+              color={
+                isCompleted
+                  ? 'success.main'
+                  : status === 'ended'
+                  ? 'text.disabled'
+                  : 'text.primary'
+              }
             >
-              {period.type}
+              {period.type.replace('_', ' ')}
             </Typography>
 
             <Stack direction="row" spacing={1} alignItems="center">
               <AccessTime
                 sx={{
                   fontSize: 14,
-                  color:
-                    status === 'ended' ? 'text.disabled' : 'text.secondary',
+                  color: isCompleted
+                    ? 'success.main'
+                    : status === 'ended'
+                    ? 'text.disabled'
+                    : 'text.secondary',
                 }}
               />
               <Typography
                 variant="caption"
-                color={status === 'ended' ? 'text.disabled' : 'text.secondary'}
+                color={
+                  isCompleted
+                    ? 'success.main'
+                    : status === 'ended'
+                    ? 'text.disabled'
+                    : 'text.secondary'
+                }
               >
                 {formatDate(period.startDate)} - {formatDate(period.endDate)}
               </Typography>
@@ -184,7 +257,7 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
         </Stack>
 
         {/* Active Period Info */}
-        {status === 'active' && (
+        {status === 'active' && !isCompleted && (
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography
               variant="caption"
@@ -210,7 +283,13 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
         >
           <Typography
             variant="caption"
-            color={status === 'ended' ? 'text.disabled' : 'text.secondary'}
+            color={
+              isCompleted
+                ? 'success.main'
+                : status === 'ended'
+                ? 'text.disabled'
+                : 'text.secondary'
+            }
           >
             {period.packets.length} packet
             {period.packets.length !== 1 ? 's' : ''} available
@@ -219,6 +298,12 @@ export const EnrollmentPeriodCard: FC<EnrollmentPeriodCardProps> = ({
           {isAccessible && (
             <Typography variant="caption" color="primary" fontWeight={500}>
               Click to view details
+            </Typography>
+          )}
+
+          {isCompleted && (
+            <Typography variant="caption" color="success.main" fontWeight={500}>
+              Enrollment submitted
             </Typography>
           )}
         </Stack>

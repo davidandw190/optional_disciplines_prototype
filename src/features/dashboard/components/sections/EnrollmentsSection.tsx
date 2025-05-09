@@ -4,6 +4,7 @@ import { EnrollmentPeriod } from '../../../../types/disciplines/disciplines.type
 import { EnrollmentPeriodCard } from '../cards/EnrollmentPeriodCard';
 import { EnrollmentPeriodStatus } from '../../../../types/enrollments/enrollment-selection.types';
 import { FC } from 'react';
+import { completedEnrollmentsUtils } from '../../../../utils/enrollmentUtils';
 import { getEnrollmentPeriodStatus } from '../../../mocks/enrollment-periods.mock';
 
 interface EnrollmentsSectionProps {
@@ -25,6 +26,16 @@ export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
 }) => {
   const sortedEnrollmentPeriods = enrollmentPeriods
     ? [...enrollmentPeriods].sort((a, b) => {
+        const isACompleted = completedEnrollmentsUtils.isEnrollmentCompleted(
+          a.id
+        );
+        const isBCompleted = completedEnrollmentsUtils.isEnrollmentCompleted(
+          b.id
+        );
+
+        if (isACompleted && !isBCompleted) return 1;
+        if (!isACompleted && isBCompleted) return -1;
+
         const statusA = getEnrollmentPeriodStatus(a) as EnrollmentPeriodStatus;
         const statusB = getEnrollmentPeriodStatus(b) as EnrollmentPeriodStatus;
         return statusOrder[statusA] - statusOrder[statusB];
@@ -32,7 +43,9 @@ export const EnrollmentsSection: FC<EnrollmentsSectionProps> = ({
     : [];
 
   const hasActiveEnrollments = sortedEnrollmentPeriods.some(
-    (e) => getEnrollmentPeriodStatus(e) === 'active'
+    (e) =>
+      getEnrollmentPeriodStatus(e) === 'active' &&
+      !completedEnrollmentsUtils.isEnrollmentCompleted(e.id)
   );
 
   return (

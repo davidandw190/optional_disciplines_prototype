@@ -8,6 +8,7 @@ import {
 } from 'react';
 
 import KeycloakService from '../services/keycloak.service';
+import { completedEnrollmentsUtils } from '../utils/enrollmentUtils';
 import { redirect } from 'react-router-dom';
 import { showToast } from '../utils/toastUtils';
 
@@ -77,6 +78,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
+    completedEnrollmentsUtils.clearCompletedEnrollments();
     redirect('/login');
     KeycloakService.logout();
   };
